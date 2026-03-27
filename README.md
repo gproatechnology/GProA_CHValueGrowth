@@ -194,11 +194,12 @@ Basado en [`sprints.yaml`](sprints.yaml):
 | Sprint | Nombre | Objetivo | Estado |
 |--------|--------|----------|--------|
 | **1** | Base sólida del proyecto | API funcional con /health | ✅ Completado |
-| **2** | Scraper funcional | Extracción de datos de MercadoLibre | 🔄 En progreso |
-| **3** | Pipeline de datos | Normalización y limpieza de datos | ⏳ Pendiente |
-| **4** | Endpoints avanzados | Búsqueda, filtros, analytics | ⏳ Pendiente |
-| **5** | Base de datos | Persistencia con PostgreSQL | ⏳ Pendiente |
-| **6** | Dashboard | Interfaz de visualización de datos | ⏳ Pendiente |
+| **2** | Scraper funcional | Extracción de datos de MercadoLibre | ✅ Completado |
+| **3** | Pipeline de datos | Normalización y limpieza de datos | ✅ Completado |
+| **4** | Endpoints básicos | /products, /stats, /grouped | ✅ Completado |
+| **5** | Base de datos | SQLite, CRUD | ✅ Completado |
+| **6** | Dashboard UI | Dashboard HTML con Chart.js | ✅ Completado |
+| **7** | Docker + Deployment | Contenedor para Render | ✅ Completado |
 
 ---
 
@@ -258,11 +259,9 @@ services/
 
 ## ⚠️ Limitaciones Actuales
 
-- Scraper aún no implementado completamente
-- No hay persistencia en base de datos
-- No hay deduplicación de productos
-- No hay manejo de anti-bot / rate limiting
-- Solo endpoint /health disponible
+- El plan **Free** de Render hiberna después de 15 minutos de inactividad
+- La base de datos SQLite se resetea en cada deployment (considerar PostgreSQL)
+- Scraper en modo MOCK por defecto (configurable via variable de entorno)
 
 ---
 
