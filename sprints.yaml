@@ -1,0 +1,382 @@
+project: CHValueGrowth
+version: 1.0
+
+rules:
+  - no romper estructura existente
+  - no eliminar archivos sin justificación
+  - mantener compatibilidad con FastAPI
+  - documentar TODO lo que se cambie
+  - código debe ser ejecutable
+
+global_constraints:
+  - no refactorizar todo el proyecto
+  - cambios mínimos y controlados
+  - no agregar nuevas dependencias sin justificar
+
+sprints:
+
+  # ============================================================
+  # SPRINT 1: Base sólida del proyecto (COMPLETADO)
+  # ============================================================
+  - id: sprint_1
+    name: "Base sólida del proyecto"
+    goal: "Preparar proyecto para ejecución real"
+    status: completed
+
+    tasks:
+      - id: 1.1
+        description: "Actualizar README con contexto CHValueGrowth (propósito, arquitectura, uso)"
+        file: "README.md"
+        output: "README.md actualizado con descripción clara del proyecto"
+        status: completed
+
+      - id: 1.2
+        description: "Revisar requirements.txt y eliminar dependencias no usadas SIN agregar nuevas"
+        file: "requirements.txt"
+        output: "requirements.txt limpio sin librerías innecesarias"
+        status: completed
+
+      - id: 1.3
+        description: "Agregar endpoint GET /health con status, service, project, version, timestamp"
+        file: "services/api/main.py"
+        output: "endpoint /health funcional que devuelve status JSON"
+        status: completed
+
+    validation:
+      - "ejecutar: uvicorn services.api.main:app --reload sin errores"
+      - "GET http://localhost:8000/health devuelve status 200"
+      - "no hay ImportError al iniciar la app"
+
+  # ============================================================
+  # SPRINT 2: Scraper funcional (COMPLETADO)
+  # ============================================================
+  - id: sprint_2
+    name: "Scraper funcional"
+    goal: "Obtener datos reales de MercadoLibre"
+    status: completed
+
+    constraints:
+      - no modificar API en este sprint
+      - no agregar nuevas fuentes
+
+    tasks:
+      - id: 2.1
+        description: "Completar método search en scraper de MercadoLibre (extracción title, price, url, brand, size)"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Scraper funcional con extracción de datos"
+        status: completed
+
+      - id: 2.2
+        description: "Integrar scraper en scripts/run_scraper.py para ejecución manual"
+        file: "scripts/run_scraper.py"
+        output: "Script ejecutable con resultados en consola"
+        status: completed
+
+      - id: 2.3
+        description: "Agregar logs básicos (info, error)"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Logging visible en consola"
+        status: completed
+
+    deliverables:
+      - código funcional del scraper
+      - ejemplo de ejecución
+
+    validation:
+      - "ejecutar: python scripts/run_scraper.py sin errores"
+      - "devuelve al menos 10 productos en consola"
+      - "cada producto contiene title y price"
+
+  # ============================================================
+  # SPRINT 2_5: Scraping robusto (COMPLETADO)
+  # ============================================================
+  - id: sprint_2_5
+    name: "Scraping robusto"
+    goal: "Mejorar confiabilidad del scraper con manejo de modo mock vs real"
+    status: completed
+
+    tasks:
+      - id: 2.5.1
+        description: "Agregar headers realistas (User-Agent rotativo, Accept, etc)"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Headers configurados"
+        status: completed
+
+      - id: 2.5.2
+        description: "Implementar delay aleatorio entre requests"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Delay configurable vía variables de entorno"
+        status: completed
+
+      - id: 2.5.3
+        description: "Separar modo mock vs real usando variable de entorno MOCK_MODE"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Comando: set MOCK_MODE=false para modo real"
+        status: completed
+
+      - id: 2.5.4
+        description: "Mejorar logging para distinguir datos reales vs fallback"
+        file: "services/scrapers/mercadolibre/scraper.py"
+        output: "Logs [REAL MODE] y [MOCK MODE]"
+        status: completed
+
+    validation:
+      - "MOCK_MODE=true usa datos de prueba"
+      - "MOCK_MODE=false intenta scraping real"
+
+  # ============================================================
+  # SPRINT 3: Pipeline de datos (COMPLETADO)
+  # ============================================================
+  - id: sprint_3
+    name: "Pipeline de datos"
+    goal: "Normalizar y limpiar datos antes de guardarlos"
+    status: completed
+
+    constraints:
+      - no modificar scraper base
+      - trabajar solo en processor
+
+    tasks:
+      - id: 3.1
+        description: "Implementar normalizador completo (brand, size, limpieza de título)"
+        file: "services/processor/normalizer/normalize.py"
+        output: "Clase ProductNormalizer con métodos de limpieza"
+        status: completed
+
+      - id: 3.2
+        description: "Integrar normalizador en run_scraper.py antes de guardar"
+        file: "scripts/run_scraper.py"
+        output: "Pipeline: scraper -> normalizer -> BD"
+        status: completed
+
+      - id: 3.3
+        description: "Asegurar que los datos guardados en BD estén normalizados"
+        file: "database/repository.py"
+        output: "Datos limpios en base de datos"
+        status: completed
+
+    validation:
+      - "los productos tienen campos normalizados"
+      - "no hay productos sin precio"
+      - "no hay duplicados evidentes"
+
+  # ============================================================
+  # SPRINT 5: Base de datos (COMPLETADO)
+  # ============================================================
+  - id: sprint_5
+    name: "Base de datos"
+    goal: "Implementar persistencia básica para productos"
+    status: completed
+
+    tasks:
+      - id: 5.1
+        description: "Crear modelo de datos para productos (SQLAlchemy)"
+        file: "database/models.py"
+        output: "Modelo Product con todos los campos"
+        status: completed
+
+      - id: 5.2
+        description: "Configurar conexión a base de datos usando variables de entorno"
+        file: "database/config.py"
+        output: "Soporte SQLite y PostgreSQL"
+        status: completed
+
+      - id: 5.3
+        description: "Crear función para guardar productos desde el scraper"
+        file: "database/repository.py"
+        output: "ProductRepository con CRUD"
+        status: completed
+
+      - id: 5.4
+        description: "Integrar guardado en run_scraper.py"
+        file: "scripts/run_scraper.py"
+        output: "Scraper -> Normalizer -> BD"
+        status: completed
+
+      - id: 5.5
+        description: "Evitar duplicados básicos (mismo title + price + source)"
+        file: "database/repository.py"
+        output: "Detección de duplicados funcionando"
+        status: completed
+
+    validation:
+      - "Ejecutar run_scraper.py guarda en SQLite"
+      - "Productos tienen id, timestamps"
+      - "Duplicados no se insertan"
+
+  # ============================================================
+  # SPRINT 5_5: Data Quality & Reliability (COMPLETADO)
+  # ============================================================
+  - id: sprint_5_5
+    name: "Data Quality & Reliability"
+    goal: "Mejorar calidad y confiabilidad del pipeline de datos"
+    status: completed
+
+    tasks:
+      - id: 5.5.1
+        description: "Crear módulo de métricas y logging del pipeline"
+        file: "services/processor/metrics.py"
+        output: "PipelineMetrics con estadísticas de ejecución"
+        status: completed
+
+      - id: 5.5.2
+        description: "Agregar endpoint /api/v1/metrics para ver calidad de datos"
+        file: "services/api/routes/products.py"
+        output: "Métricas de pipeline en JSON"
+        status: completed
+
+      - id: 5.5.3
+        description: "Mejorar logging en run_scraper.py con timestamps y resumen"
+        file: "scripts/run_scraper.py"
+        output: "Logs detallados del pipeline"
+        status: completed
+
+    validation:
+      - "GET /api/v1/metrics devuelve estadísticas"
+      - "Logs muestran resumen de ejecución"
+
+  # ============================================================
+  # SPRINT 4: Endpoints básicos API (COMPLETADO)
+  # ============================================================
+  - id: sprint_4
+    name: "Endpoints básicos API"
+    goal: "Exponer datos de productos a través de la API"
+    status: completed
+
+    tasks:
+      - id: 4.1
+        description: "Crear endpoint GET /api/v1/products"
+        file: "services/api/routes/products.py"
+        output: "Lista de productos con filtros brand y size"
+        status: completed
+
+      - id: 4.2
+        description: "Implementar endpoint GET /api/v1/products/stats"
+        file: "services/api/routes/products.py"
+        output: "Estadísticas: precio promedio, min, max"
+        status: completed
+
+      - id: 4.3
+        description: "Conectar API con repository (base de datos)"
+        file: "services/api/routes/products.py"
+        output: "API conecta a SQLite"
+        status: completed
+
+    validation:
+      - "GET /api/v1/products devuelve productos"
+      - "GET /api/v1/products/stats devuelve estadísticas"
+
+  # ============================================================
+  # SPRINT 4_ext: Endpoints avanzados (COMPLETADO)
+  # ============================================================
+  - id: sprint_4_ext
+    name: "Endpoints avanzados"
+    goal: "API con herramientas de análisis de mercado"
+    status: completed
+
+    tasks:
+      - id: 4.4
+        description: "Implementar paginación real (page + limit)"
+        file: "services/api/routes/products.py"
+        output: "Respuesta con pagination object"
+        status: completed
+
+      - id: 4.5
+        description: "Mejorar endpoint /products/stats con filtros (brand, size)"
+        file: "services/api/routes/products.py"
+        output: "Stats filtrados por marca/tamaño"
+        status: completed
+
+      - id: 4.6
+        description: "Crear endpoint /api/v1/products/grouped"
+        file: "services/api/routes/products.py"
+        output: "Agrupación por brand, size, o brand_size con stats"
+        status: completed
+
+    validation:
+      - "Paginación funciona (page, limit, total_pages)"
+      - "Stats acepta filtros"
+      - "Grouped devuelve grupos con estadísticas"
+
+  # ============================================================
+  # SPRINTS PENDIENTES (NO IMPLEMENTADOS)
+  # ============================================================
+
+  - id: sprint_5_5
+    name: "Data Quality & Reliability"
+    goal: "Asegurar calidad, consistencia y observabilidad de datos"
+    status: pending
+    tasks:
+      - id: 5.5.1
+        description: "Agregar validaciones de datos (price > 0, title no vacío)"
+        file: "services/processor/normalizer/normalize.py"
+        output: "Datos inválidos descartados"
+
+      - id: 5.5.2
+        description: "Agregar logging estructurado en todo el pipeline"
+        file: "scripts/run_scraper.py"
+        output: "Logs claros de scraping, normalización y guardado"
+
+      - id: 5.5.3
+        description: "Medir métricas básicas (productos scrapeados, guardados, duplicados)"
+        file: "scripts/run_scraper.py"
+        output: "Resumen al final del proceso"
+
+      - id: 5.5.4
+        description: "Agregar endpoint GET /api/v1/metrics"
+        file: "services/api/routes/products.py"
+        output: "Métricas del sistema (count, avg price, etc)"
+
+      - id: 5.5.5
+        description: "Mejorar deduplicación (hash o clave más robusta)"
+        file: "database/repository.py"
+        output: "Menos falsos duplicados"
+
+    validation:
+      - "No se guardan productos inválidos"
+      - "Logs muestran flujo completo"
+      - "Endpoint /metrics responde correctamente"
+
+  - id: sprint_6
+    name: "Dashboard UI"
+    goal: "Interfaz visual para ver datos y estadísticas"
+    status: pending
+    tasks:
+      - id: 6.1
+        description: "Crear página principal con gráficos"
+      - id: 6.2
+        description: "Integrar con API para datos en tiempo real"
+      - id: 6.3
+        description: "Agregar filtros visuales"
+
+  - id: sprint_7
+    name: "Deployment"
+    goal: "Preparar proyecto para producción"
+    status: pending
+    tasks:
+      - id: 7.1
+        description: "Configurar Docker"
+      - id: 7.2
+        description: "Preparar para deploy (Railway, Render, etc)"
+      - id: 7.3
+        description: "Documentar configuración de producción"
+
+# ============================================================
+# RESUMEN DEL PROYECTO
+# ============================================================
+
+completed_sprints:
+  - sprint_1: Base sólida
+  - sprint_2: Scraper funcional
+  - sprint_2_5: Scraping robusto
+  - sprint_3: Pipeline de datos
+  - sprint_4: Endpoints básicos
+  - sprint_4_ext: Endpoints avanzados
+  - sprint_5: Base de datos
+  - sprint_5_5: Data Quality & Reliability
+
+pending_sprints:
+  - sprint_6: Dashboard UI
+
+total_completed: 8
+total_pending: 1
