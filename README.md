@@ -150,7 +150,6 @@ Desarrollo_chvaluegrowth/
 
 ### 1. Monitoreo de Precios Competitivos
 ```json
-// GET /api/v1/prices?brand=Michelin&size=205/55R16
 {
   "products": [
     {
@@ -165,7 +164,6 @@ Desarrollo_chvaluegrowth/
 
 ### 2. Análisis de Tendencias
 ```json
-// GET /api/v1/analytics/trends?product=llanta205
 {
   "period": "last_30_days",
   "average_price": 2200.00,
@@ -177,7 +175,6 @@ Desarrollo_chvaluegrowth/
 
 ### 3. Alertas de Precio
 ```json
-// POST /api/v1/alerts
 {
   "product": "llanta 195/65R15",
   "max_price": 1500.00,
@@ -280,7 +277,6 @@ services/
 
 ### Health Check
 ```json
-// GET http://localhost:8000/health
 {
   "status": "healthy",
   "service": "api",
@@ -292,7 +288,6 @@ services/
 
 ### Raíz
 ```json
-// GET http://localhost:8000/
 {
   "status": "ok",
   "project": "CHValueGrowth"
