@@ -17,10 +17,9 @@
 
 ### Problema que Resuelve
 
-Las empresas del sector de llantas enfrentan dificultades para:
-- **Monitorear precios** de múltiples proveedores en tiempo real
-- **Identificar oportunidades** de compra y competencia
-- **Tomar decisiones** basadas en datos actualizados del mercado
+* Monitoreo de precios de múltiples proveedores en tiempo real
+* Identificación de oportunidades de compra y competencia
+* Decisiones basadas en datos actualizados del mercado
 
 ### Solución Propuesta
 
@@ -63,12 +62,12 @@ flowchart TB
 
 ### Componentes del Sistema
 
-| Componente | Descripción | Tecnología |
-|------------|-------------|------------|
-| **Scrapers** | Extracción de datos de fuentes externas | requests, BeautifulSoup4 |
-| **Processor** | Normalización y limpieza de datos | Python, Pandas |
-| **API** | Interfaz REST para consumo de datos | FastAPI, Uvicorn |
-| **Database** | (Planeado) Almacenamiento persistente | SQLAlchemy, PostgreSQL |
+| Componente | Descripción                             | Tecnología               |
+| ---------- | --------------------------------------- | ------------------------ |
+| Scrapers   | Extracción de datos de fuentes externas | requests, BeautifulSoup4 |
+| Processor  | Normalización y limpieza de datos       | Python, Pandas           |
+| API        | Interfaz REST para consumo de datos     | FastAPI, Uvicorn         |
+| Database   | Almacenamiento persistente              | SQLAlchemy, PostgreSQL   |
 
 ---
 
@@ -88,8 +87,6 @@ sequenceDiagram
     alt Datos no disponibles o desactualizados
         DB-->>API: Sin datos
         API-->>U: Respuesta vacía o histórica
-        
-        Note over SC,PR: Pipeline de actualización
         SC->>SC: Extrae datos de MercadoLibre
         SC->>PR: Envía datos crudos
         PR->>PR: Normaliza datos (precio, marca, tamaño)
@@ -106,16 +103,16 @@ sequenceDiagram
 
 ## 🛠️ Stack Tecnológico
 
-| Capa | Tecnología | Versión |
-|------|------------|---------|
-| **Lenguaje** | Python | 3.14+ |
-| **API** | FastAPI | 0.109+ |
-| **Servidor** | Uvicorn | Latest |
-| **Scraping** | requests | Latest |
-| **HTML Parsing** | BeautifulSoup4 | Latest |
-| **Datos** | Pandas | Latest |
-| **ORM** | SQLAlchemy | Latest |
-| **Config** | python-dotenv | Latest |
+| Capa         | Tecnología     | Versión |
+| ------------ | -------------- | ------- |
+| Lenguaje     | Python         | 3.14+   |
+| API          | FastAPI        | 0.109+  |
+| Servidor     | Uvicorn        | Latest  |
+| Scraping     | requests       | Latest  |
+| HTML Parsing | BeautifulSoup4 | Latest  |
+| Datos        | Pandas         | Latest  |
+| ORM          | SQLAlchemy     | Latest  |
+| Config       | python-dotenv  | Latest  |
 
 ---
 
@@ -123,25 +120,25 @@ sequenceDiagram
 
 ```
 Desarrollo_chvaluegrowth/
-├── configs/                  # Configuraciones del sistema
-├── database/                 # Modelos y esquemas de BD
-├── scripts/                  # Scripts de ejecución
-│   └── run_scraper.py        # Ejecutor de scrapers
+├── configs/                  
+├── database/                 
+├── scripts/                  
+│   └── run_scraper.py        
 ├── services/
-│   ├── api/                  # Servidor FastAPI
-│   │   ├── main.py          # Punto de entrada
-│   │   └── routes/          # Endpoints
-│   ├── processor/           # Procesamiento de datos
-│   │   ├── normalizer/      # Normalización
-│   │   └── matcher/         # Matching de productos
-│   ├── scheduler/            # Tareas programadas
-│   └── scrapers/            # Módulos de scraping
-│       ├── common/          # Funciones comunes
-│       └── mercadolibre/    # Scraper de MercadoLibre
-├── tests/                    # Pruebas unitarias
-├── .env.example              # Variables de entorno
-├── requirements.txt          # Dependencias
-└── README.md                 # Este archivo
+│   ├── api/                  
+│   │   ├── main.py          
+│   │   └── routes/          
+│   ├── processor/           
+│   │   ├── normalizer/      
+│   │   └── matcher/         
+│   ├── scheduler/            
+│   └── scrapers/            
+│       ├── common/          
+│       └── mercadolibre/    
+├── tests/                    
+├── .env.example              
+├── requirements.txt          
+└── README.md                 
 ```
 
 ---
@@ -149,6 +146,7 @@ Desarrollo_chvaluegrowth/
 ## 💡 Casos de Uso
 
 ### 1. Monitoreo de Precios Competitivos
+
 ```json
 {
   "products": [
@@ -163,6 +161,7 @@ Desarrollo_chvaluegrowth/
 ```
 
 ### 2. Análisis de Tendencias
+
 ```json
 {
   "period": "last_30_days",
@@ -174,6 +173,7 @@ Desarrollo_chvaluegrowth/
 ```
 
 ### 3. Alertas de Precio
+
 ```json
 {
   "product": "llanta 195/65R15",
@@ -186,45 +186,19 @@ Desarrollo_chvaluegrowth/
 
 ## 🚀 Roadmap (Sprints)
 
-Basado en [`sprints.yaml`](sprints.yaml):
-
-| Sprint | Nombre | Objetivo | Estado |
-|--------|--------|----------|--------|
-| **1** | Base sólida del proyecto | API funcional con /health | ✅ Completado |
-| **2** | Scraper funcional | Extracción de datos de MercadoLibre | ✅ Completado |
-| **3** | Pipeline de datos | Normalización y limpieza de datos | ✅ Completado |
-| **4** | Endpoints básicos | /products, /stats, /grouped | ✅ Completado |
-| **5** | Base de datos | SQLite, CRUD | ✅ Completado |
-| **6** | Dashboard UI | Dashboard HTML con Chart.js | ✅ Completado |
-| **7** | Docker + Deployment | Contenedor para Render | ✅ Completado |
+| Sprint | Nombre              | Objetivo                            | Estado       |
+| ------ | ------------------- | ----------------------------------- | ------------ |
+| 1      | Base sólida         | API funcional con /health           | ✅ Completado |
+| 2      | Scraper funcional   | Extracción de datos de MercadoLibre | ✅ Completado |
+| 3      | Pipeline de datos   | Normalización y limpieza de datos   | ✅ Completado |
+| 4      | Endpoints básicos   | /products, /stats, /grouped         | ✅ Completado |
+| 5      | Base de datos       | SQLite, CRUD                        | ✅ Completado |
+| 6      | Dashboard UI        | Dashboard HTML con Chart.js         | ✅ Completado |
+| 7      | Docker + Deployment | Contenedor para Render              | ✅ Completado |
 
 ---
 
-## 📊 Decisiones Técnicas
-
-### ¿Por qué FastAPI?
-- **Documentación automática** con Swagger UI
-- **Alto rendimiento** comparable con Node.js
-- **Tipado estático** con Pydantic
-- **Async-first** para mayor concurrencia
-
-### ¿Por qué esta estructura?
-```
-services/
-├── api/        # Separación clara de responsabilidades
-├── processor/  # Facilita testing independiente
-├── scrapers/   # Permite agregar nuevas fuentes sin modificar lógica
-└── scheduler/  # Preparado para tareas cron
-```
-
-### ¿Por qué Pandas para procesamiento?
-- Manipulación de datos eficiente
-- Integración nativa con numpy
-- Funciones de limpieza incorporadas
-
----
-
-## 🧱 Modelo de Datos (Draft)
+## 🧱 Modelo de Datos
 
 ```json
 {
@@ -241,41 +215,42 @@ services/
 
 ### Campos del Modelo
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `source` | string | Fuente de datos (mercadolibre, etc) |
-| `title` | string | Título original del producto |
-| `brand` | string | Marca extraída (Michelin, Bridgestone, etc) |
-| `size` | string | Medida del neumático (205/55R16) |
-| `price` | float | Precio en MXN |
-| `currency` | string | Moneda (MXN) |
-| `url` | string | URL del producto |
-| `scraped_at` | datetime | Timestamp de extracción |
+| Campo      | Tipo     | Descripción                  |
+| ---------- | -------- | ---------------------------- |
+| source     | string   | Fuente de datos              |
+| title      | string   | Título original del producto |
+| brand      | string   | Marca extraída               |
+| size       | string   | Medida del neumático         |
+| price      | float    | Precio en MXN                |
+| currency   | string   | Moneda                       |
+| url        | string   | URL del producto             |
+| scraped_at | datetime | Timestamp de extracción      |
 
 ---
 
 ## ⚠️ Limitaciones Actuales
 
-- El plan **Free** de Render hiberna después de 15 minutos de inactividad
-- La base de datos SQLite se resetea en cada deployment (considerar PostgreSQL)
-- Scraper en modo MOCK por defecto (configurable via variable de entorno)
+* Render Free hiberna después de 15 minutos
+* Base de datos SQLite se resetea en cada deployment
+* Scraper en modo MOCK por defecto (configurable via .env)
 
 ---
 
 ## 🎯 Métricas de Éxito (KPIs)
 
-| Métrica | Descripción | Objetivo |
-|---------|-------------|----------|
-| Precisión de matching | % productos correctamente identificados | > 90% |
-| Latencia de scraping | Tiempo promedio de extracción | < 5s |
-| Actualización de precios | Frecuencia de actualización de datos | Cada 6 horas |
-| Cobertura de mercado | % fuentes monitoreadas vs objetivo | > 80% |
+| Métrica                  | Descripción                             | Objetivo     |
+| ------------------------ | --------------------------------------- | ------------ |
+| Precisión de matching    | % productos correctamente identificados | > 90%        |
+| Latencia de scraping     | Tiempo promedio de extracción           | < 5s         |
+| Actualización de precios | Frecuencia de actualización de datos    | Cada 6 horas |
+| Cobertura de mercado     | % fuentes monitoreadas vs objetivo      | > 80%        |
 
 ---
 
 ## 📝 Ejemplo de Respuesta de API
 
 ### Health Check
+
 ```json
 {
   "status": "healthy",
@@ -287,6 +262,7 @@ services/
 ```
 
 ### Raíz
+
 ```json
 {
   "status": "ok",
@@ -299,129 +275,65 @@ services/
 ## 🏃‍♂️ Cómo Ejecutar el Proyecto
 
 ### Prerrequisitos
-- Python 3.14+
-- pip (gestor de paquetes)
+
+* Python 3.14+
+* pip
 
 ### Instalación
 
 ```bash
-# 1. Clonar o extraer el proyecto
 cd Desarrollo_chvaluegrowth
-
-# 2. Crear entorno virtual (recomendado)
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# En Windows: venv\Scripts\activate
-
-# 3. Instalar dependencias
+source venv/bin/activate
 pip install -r requirements.txt
-
-# 4. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tu configuración
 ```
 
 ### Iniciar la API
 
 ```bash
-# Modo desarrollo con reload automático
 uvicorn services.api.main:app --reload
-
-# Modo producción
+# Producción
 uvicorn services.api.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Acceder a la Documentación
+### Documentación
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+* Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+* ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ---
 
 ## ☁️ Deployment a Render.com
 
-Este proyecto está configurado para deploy automático en [Render.com](https://render.com) usando contenedores Docker.
+* Configuración lista con `render.yaml`
+* URLs:
 
-### Requisitos
-
-1. Cuenta en [Render.com](https://render.com)
-2. Repositorio en [GitHub](https://github.com) con el proyecto
-
-### Pasos para Deployment
-
-1. **Subir proyecto a GitHub**
-   ```bash
-   # Crear repositorio en GitHub y seguir las instrucciones
-   git init
-git add .
-git commit -m "Initial commit: CHValueGrowth API"
-   git branch -M main
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
-   git push -u origin main
-   ```
-
-2. **Conectar GitHub a Render**
-   - Iniciar sesión en [Render.com](https://render.com)
-   - Ir a "New" → "Web Service"
-   - Seleccionar el repositorio de GitHub
-   - Render detectará automáticamente el `Dockerfile`
-
-3. **Configuración en Render**
-   - **Name**: `chvaluegrowth-api`
-   - **Environment**: Docker
-   - **Region**: Oregon (o la más cercana)
-   - **Plan**: Free
-
-4. **Variables de Entorno** (opcional, ya configuradas en render.yaml)
-   - `MOCK_MODE`: `true`
-   - `DATABASE_URL`: `sqlite:///chvaluegrowth.db`
-
-5. **Deploy**
-   - Click en "Create Web Service"
-   - Render construirá la imagen Docker automáticamente
-   - La API estará disponible en la URL asignada
-
-### URLs después del deployment
-
-- **API**: `https://chvaluegrowth-api.onrender.com`
-- **Health**: `https://chvaluegrowth-api.onrender.com/health`
-- **Dashboard**: `https://chvaluegrowth-api.onrender.com/dashboard`
-- **Swagger**: `https://chvaluegrowth-api.onrender.com/docs`
-
-### Archivo de Configuración
-
-El archivo [`render.yaml`](render.yaml) define la configuración del servicio. Render lo detectará automáticamente.
-
-### Nota Importante
-
-- El plan **Free** de Render hiberna después de 15 minutos de inactividad
-- La primera solicitud después de hibernación puede tomar ~30 segundos
-- Para evitar hibernación, considera el planpaid
+  * API: `https://chvaluegrowth-api.onrender.com`
+  * Health: `https://chvaluegrowth-api.onrender.com/health`
+  * Dashboard: `https://chvaluegrowth-api.onrender.com/dashboard`
+  * Swagger: `https://chvaluegrowth-api.onrender.com/docs`
 
 ---
 
 ## 🤝 Contribuciones
 
-El proyecto está en desarrollo activo. Para contribuciones:
-
 1. Fork del repositorio
-2. Crear branch feature: `git checkout -b feature/nueva-funcionalidad`
-3. Commit cambios: `git commit -m 'Agrega nueva funcionalidad'`
-4. Push al branch: `git push origin feature/nueva-funcionalidad`
-5. Crear Pull Request
+2. Crear branch feature
+3. Commit & Push
+4. Pull Request
 
 ---
 
 ## 📄 Licencia
 
-MIT License - Consulta el archivo LICENSE para más detalles.
+MIT License
 
----
+
 
 ## 📧 Contacto
 
-Para preguntas o soporte, contacta al equipo de desarrollo.
-
----
+Equipo de desarrollo
 
 *Última actualización: 27/03/2026*
+
