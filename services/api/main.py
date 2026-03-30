@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -7,11 +9,14 @@ from services.api.routes.products import router as products_router
 
 app = FastAPI(title="CHValueGrowth API")
 
-# Configurar templates Jinja2
-templates = Jinja2Templates(directory="services/dashboard/templates")
+# Obtener la ruta absoluta al directorio del proyecto
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Configurar templates Jinja2 con ruta absoluta
+templates = Jinja2Templates(directory=str(BASE_DIR / "services" / "dashboard" / "templates"))
 
 # Montar archivos estáticos
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 # Incluir routers
 app.include_router(products_router)
