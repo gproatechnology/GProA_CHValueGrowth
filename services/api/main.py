@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 from datetime import datetime
 
 from services.api.routes.products import router as products_router
@@ -11,9 +11,6 @@ app = FastAPI(title="CHValueGrowth API")
 
 # Obtener la ruta absoluta al directorio del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Configurar templates Jinja2 con ruta absoluta
-templates = Jinja2Templates(directory=str(BASE_DIR / "services" / "dashboard" / "templates"))
 
 # Montar archivos estáticos
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -30,7 +27,8 @@ def root():
 @app.get("/dashboard")
 def dashboard(request: Request):
     """Renderiza el dashboard HTML"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    dashboard_path = BASE_DIR / "services" / "dashboard" / "templates" / "index.html"
+    return FileResponse(str(dashboard_path))
 
 
 @app.get("/health")
