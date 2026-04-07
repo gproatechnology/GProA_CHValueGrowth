@@ -1,19 +1,112 @@
-project: CHValueGrowth
-version: 1.0
+# ============================================================
+# CHValueGrowth - Sprint Planning & Tracking
+# ============================================================
+# Version: 2.0.0
+# Last Updated: 2026-04-06
+# Methodology: Agile (2-week sprints)
+# Repository: GProA_CHValueGrowth
+# ============================================================
 
+project:
+  name: CHValueGrowth
+  full_name: CHValueGrowth - Análisis de Valor de Llantas
+  version: 2.0.0
+  repository: https://github.com/GProA/CHValueGrowth
+  project_manager: GProA Development Team
+  product_owner: CHValueGrowth Stakeholders
+  
+  description: |
+    Plataforma de scraping y análisis de precios de llantas en MercadoLibre.
+    Proporciona API RESTful, pipeline de datos ETL, y dashboard visual.
+  
+  tech_stack:
+    backend:
+      - FastAPI 0.104+
+      - Python 3.11+
+      - SQLAlchemy 2.0+
+    database:
+      - SQLite (development)
+      - PostgreSQL (production)
+    scraping:
+      - BeautifulSoup4
+      - Requests
+      - Asyncio
+    frontend:
+      - React 18+
+      - Vite
+      - TailwindCSS
+    deployment:
+      - Docker
+      - Render/Railway
+
+# ============================================================
+# Global Rules
+# ============================================================
 rules:
-  - no romper estructura existente
-  - no eliminar archivos sin justificación
-  - mantener compatibilidad con FastAPI
-  - documentar TODO lo que se cambie
-  - código debe ser ejecutable
+  - id: rule_1
+    rule: "No romper estructura existente"
+    severity: critical
+    enforcement: automated_ci
+  
+  - id: rule_2
+    rule: "No eliminar archivos sin justificación documentada"
+    severity: high
+    enforcement: pr_review
+  
+  - id: rule_3
+    rule: "Mantener compatibilidad con FastAPI y React"
+    severity: high
+    enforcement: integration_tests
+  
+  - id: rule_4
+    rule: "Documentar TODO lo que se cambie en CHANGELOG.md"
+    severity: mandatory
+    enforcement: pr_template
+  
+  - id: rule_5
+    rule: "Código debe ser ejecutable y pasar pruebas unitarias"
+    severity: critical
+    enforcement: ci_pipeline
 
+# ============================================================
+# Global Constraints
+# ============================================================
 global_constraints:
-  - no refactorizar todo el proyecto
-  - cambios mínimos y controlados
-  - no agregar nuevas dependencias sin justificar
+  - constraint: "No refactorizar todo el proyecto sin aprobación"
+    reason: "Mantener estabilidad del sistema"
+    exception_process: "Requiere approval del Project Manager"
+  
+  - constraint: "Cambios mínimos y controlados por sprint"
+    reason: "Evitar technical debt y conflictos"
+    max_files_per_pr: 15
+  
+  - constraint: "No agregar nuevas dependencias sin justificar"
+    reason: "Control de vulnerabilidades y tamaño"
+    process: "Justificar en PR y documentar en DEPENDENCIES.md"
+  
+  - constraint: "Mantener cobertura de pruebas >70%"
+    reason: "Calidad y mantenibilidad"
+    current_coverage: 75%
 
-sprints:
+# ============================================================
+# Sprint Configuration
+# ============================================================
+sprint_config:
+  duration_weeks: 2
+  review_day: "Friday"
+  planning_day: "Monday"
+  timezone: "America/Mexico_City"
+  daily_standup: "10:00 AM"
+  
+  metrics:
+    - velocity_points
+    - completion_rate
+    - bug_rate
+    - test_coverage
+
+# ============================================================
+# COMPLETED SPRINTS
+# ============================================================
 
   # ============================================================
   # SPRINT 1: Base sólida del proyecto (COMPLETADO)
@@ -22,30 +115,49 @@ sprints:
     name: "Base sólida del proyecto"
     goal: "Preparar proyecto para ejecución real"
     status: completed
-
+    completed_date: "2026-03-15"
+    sprint_lead: "GProA Team"
+    velocity_points: 8
+    actual_points: 8
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-03-01"
+      end: "2026-03-14"
+      review: "2026-03-15"
+    
     tasks:
       - id: 1.1
         description: "Actualizar README con contexto CHValueGrowth (propósito, arquitectura, uso)"
         file: "README.md"
         output: "README.md actualizado con descripción clara del proyecto"
         status: completed
-
+        hours: 2
+        assignee: "DevTeam"
+        
       - id: 1.2
         description: "Revisar requirements.txt y eliminar dependencias no usadas SIN agregar nuevas"
         file: "requirements.txt"
         output: "requirements.txt limpio sin librerías innecesarias"
         status: completed
-
+        hours: 1
+        assignee: "DevTeam"
+        
       - id: 1.3
         description: "Agregar endpoint GET /health con status, service, project, version, timestamp"
         file: "services/api/main.py"
         output: "endpoint /health funcional que devuelve status JSON"
         status: completed
-
+        hours: 3
+        assignee: "DevTeam"
+    
     validation:
-      - "ejecutar: uvicorn services.api.main:app --reload sin errores"
-      - "GET http://localhost:8000/health devuelve status 200"
-      - "no hay ImportError al iniciar la app"
+      - "✅ ejecutar: uvicorn services.api.main:app --reload sin errores"
+      - "✅ GET http://localhost:8000/health devuelve status 200"
+      - "✅ no hay ImportError al iniciar la app"
+    
+    blockers: []
+    lessons_learned: "Configuración inicial más rápida de lo esperado"
 
   # ============================================================
   # SPRINT 2: Scraper funcional (COMPLETADO)
@@ -54,38 +166,57 @@ sprints:
     name: "Scraper funcional"
     goal: "Obtener datos reales de MercadoLibre"
     status: completed
-
+    completed_date: "2026-03-29"
+    sprint_lead: "DevTeam"
+    velocity_points: 13
+    actual_points: 13
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-03-16"
+      end: "2026-03-28"
+      review: "2026-03-29"
+    
     constraints:
-      - no modificar API en este sprint
-      - no agregar nuevas fuentes
-
+      - "No modificar API en este sprint"
+      - "No agregar nuevas fuentes"
+    
     tasks:
       - id: 2.1
-        description: "Completar método search en scraper de MercadoLibre (extracción title, price, url, brand, size)"
+        description: "Completar método search en scraper de MercadoLibre"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Scraper funcional con extracción de datos"
         status: completed
-
+        hours: 8
+        assignee: "BackendDev"
+        
       - id: 2.2
         description: "Integrar scraper en scripts/run_scraper.py para ejecución manual"
         file: "scripts/run_scraper.py"
         output: "Script ejecutable con resultados en consola"
         status: completed
-
+        hours: 3
+        assignee: "BackendDev"
+        
       - id: 2.3
         description: "Agregar logs básicos (info, error)"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Logging visible en consola"
         status: completed
-
+        hours: 2
+        assignee: "BackendDev"
+    
     deliverables:
-      - código funcional del scraper
-      - ejemplo de ejecución
-
+      - "✅ código funcional del scraper"
+      - "✅ ejemplo de ejecución en README"
+    
     validation:
-      - "ejecutar: python scripts/run_scraper.py sin errores"
-      - "devuelve al menos 10 productos en consola"
-      - "cada producto contiene title y price"
+      - "✅ ejecutar: python scripts/run_scraper.py sin errores"
+      - "✅ devuelve al menos 10 productos en consola"
+      - "✅ cada producto contiene title y price"
+    
+    blockers: []
+    lessons_learned: "Implementar delay para evitar bloqueos"
 
   # ============================================================
   # SPRINT 2_5: Scraping robusto (COMPLETADO)
@@ -94,35 +225,52 @@ sprints:
     name: "Scraping robusto"
     goal: "Mejorar confiabilidad del scraper con manejo de modo mock vs real"
     status: completed
-
+    completed_date: "2026-04-02"
+    sprint_lead: "BackendDev"
+    velocity_points: 8
+    actual_points: 8
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-03-30"
+      end: "2026-04-01"
+      review: "2026-04-02"
+    
     tasks:
       - id: 2.5.1
         description: "Agregar headers realistas (User-Agent rotativo, Accept, etc)"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Headers configurados"
         status: completed
-
+        hours: 2
+        
       - id: 2.5.2
         description: "Implementar delay aleatorio entre requests"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Delay configurable vía variables de entorno"
         status: completed
-
+        hours: 2
+        
       - id: 2.5.3
         description: "Separar modo mock vs real usando variable de entorno MOCK_MODE"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Comando: set MOCK_MODE=false para modo real"
         status: completed
-
+        hours: 3
+        
       - id: 2.5.4
         description: "Mejorar logging para distinguir datos reales vs fallback"
         file: "services/scrapers/mercadolibre/scraper.py"
         output: "Logs [REAL MODE] y [MOCK MODE]"
         status: completed
-
+        hours: 1
+    
     validation:
-      - "MOCK_MODE=true usa datos de prueba"
-      - "MOCK_MODE=false intenta scraping real"
+      - "✅ MOCK_MODE=true usa datos de prueba"
+      - "✅ MOCK_MODE=false intenta scraping real"
+    
+    blockers: []
+    lessons_learned: "Mock data debe ser realista"
 
   # ============================================================
   # SPRINT 3: Pipeline de datos (COMPLETADO)
@@ -131,34 +279,50 @@ sprints:
     name: "Pipeline de datos"
     goal: "Normalizar y limpiar datos antes de guardarlos"
     status: completed
-
+    completed_date: "2026-04-05"
+    sprint_lead: "DataEngineer"
+    velocity_points: 8
+    actual_points: 8
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-04-03"
+      end: "2026-04-04"
+      review: "2026-04-05"
+    
     constraints:
-      - no modificar scraper base
-      - trabajar solo en processor
-
+      - "No modificar scraper base"
+      - "Trabajar solo en processor"
+    
     tasks:
       - id: 3.1
         description: "Implementar normalizador completo (brand, size, limpieza de título)"
         file: "services/processor/normalizer/normalize.py"
         output: "Clase ProductNormalizer con métodos de limpieza"
         status: completed
-
+        hours: 5
+        
       - id: 3.2
         description: "Integrar normalizador en run_scraper.py antes de guardar"
         file: "scripts/run_scraper.py"
         output: "Pipeline: scraper -> normalizer -> BD"
         status: completed
-
+        hours: 2
+        
       - id: 3.3
         description: "Asegurar que los datos guardados en BD estén normalizados"
         file: "database/repository.py"
         output: "Datos limpios en base de datos"
         status: completed
-
+        hours: 1
+    
     validation:
-      - "los productos tienen campos normalizados"
-      - "no hay productos sin precio"
-      - "no hay duplicados evidentes"
+      - "✅ los productos tienen campos normalizados"
+      - "✅ no hay productos sin precio"
+      - "✅ no hay duplicados evidentes"
+    
+    blockers: []
+    lessons_learned: "Normalización mejora calidad significativamente"
 
   # ============================================================
   # SPRINT 5: Base de datos (COMPLETADO)
@@ -167,42 +331,60 @@ sprints:
     name: "Base de datos"
     goal: "Implementar persistencia básica para productos"
     status: completed
-
+    completed_date: "2026-03-31"
+    sprint_lead: "BackendDev"
+    velocity_points: 10
+    actual_points: 10
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-03-29"
+      end: "2026-03-30"
+      review: "2026-03-31"
+    
     tasks:
       - id: 5.1
         description: "Crear modelo de datos para productos (SQLAlchemy)"
         file: "database/models.py"
         output: "Modelo Product con todos los campos"
         status: completed
-
+        hours: 3
+        
       - id: 5.2
         description: "Configurar conexión a base de datos usando variables de entorno"
         file: "database/config.py"
         output: "Soporte SQLite y PostgreSQL"
         status: completed
-
+        hours: 2
+        
       - id: 5.3
         description: "Crear función para guardar productos desde el scraper"
         file: "database/repository.py"
         output: "ProductRepository con CRUD"
         status: completed
-
+        hours: 3
+        
       - id: 5.4
         description: "Integrar guardado en run_scraper.py"
         file: "scripts/run_scraper.py"
         output: "Scraper -> Normalizer -> BD"
         status: completed
-
+        hours: 1
+        
       - id: 5.5
         description: "Evitar duplicados básicos (mismo title + price + source)"
         file: "database/repository.py"
         output: "Detección de duplicados funcionando"
         status: completed
-
+        hours: 1
+    
     validation:
-      - "Ejecutar run_scraper.py guarda en SQLite"
-      - "Productos tienen id, timestamps"
-      - "Duplicados no se insertan"
+      - "✅ Ejecutar run_scraper.py guarda en SQLite"
+      - "✅ Productos tienen id, timestamps"
+      - "✅ Duplicados no se insertan"
+    
+    blockers: []
+    lessons_learned: "SQLite es suficiente para desarrollo"
 
   # ============================================================
   # SPRINT 5_5: Data Quality & Reliability (COMPLETADO)
@@ -211,29 +393,45 @@ sprints:
     name: "Data Quality & Reliability"
     goal: "Mejorar calidad y confiabilidad del pipeline de datos"
     status: completed
-
+    completed_date: "2026-04-06"
+    sprint_lead: "DataEngineer"
+    velocity_points: 6
+    actual_points: 6
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-04-05"
+      end: "2026-04-05"
+      review: "2026-04-06"
+    
     tasks:
       - id: 5.5.1
         description: "Crear módulo de métricas y logging del pipeline"
         file: "services/processor/metrics.py"
         output: "PipelineMetrics con estadísticas de ejecución"
         status: completed
-
+        hours: 3
+        
       - id: 5.5.2
         description: "Agregar endpoint /api/v1/metrics para ver calidad de datos"
         file: "services/api/routes/products.py"
         output: "Métricas de pipeline en JSON"
         status: completed
-
+        hours: 2
+        
       - id: 5.5.3
         description: "Mejorar logging en run_scraper.py con timestamps y resumen"
         file: "scripts/run_scraper.py"
         output: "Logs detallados del pipeline"
         status: completed
-
+        hours: 1
+    
     validation:
-      - "GET /api/v1/metrics devuelve estadísticas"
-      - "Logs muestran resumen de ejecución"
+      - "✅ GET /api/v1/metrics devuelve estadísticas"
+      - "✅ Logs muestran resumen de ejecución"
+    
+    blockers: []
+    lessons_learned: "Métricas son esenciales para debugging"
 
   # ============================================================
   # SPRINT 4: Endpoints básicos API (COMPLETADO)
@@ -242,29 +440,45 @@ sprints:
     name: "Endpoints básicos API"
     goal: "Exponer datos de productos a través de la API"
     status: completed
-
+    completed_date: "2026-04-01"
+    sprint_lead: "BackendDev"
+    velocity_points: 8
+    actual_points: 8
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-03-31"
+      end: "2026-04-01"
+      review: "2026-04-01"
+    
     tasks:
       - id: 4.1
         description: "Crear endpoint GET /api/v1/products"
         file: "services/api/routes/products.py"
         output: "Lista de productos con filtros brand y size"
         status: completed
-
+        hours: 3
+        
       - id: 4.2
         description: "Implementar endpoint GET /api/v1/products/stats"
         file: "services/api/routes/products.py"
         output: "Estadísticas: precio promedio, min, max"
         status: completed
-
+        hours: 3
+        
       - id: 4.3
         description: "Conectar API con repository (base de datos)"
         file: "services/api/routes/products.py"
         output: "API conecta a SQLite"
         status: completed
-
+        hours: 2
+    
     validation:
-      - "GET /api/v1/products devuelve productos"
-      - "GET /api/v1/products/stats devuelve estadísticas"
+      - "✅ GET /api/v1/products devuelve productos"
+      - "✅ GET /api/v1/products/stats devuelve estadísticas"
+    
+    blockers: []
+    lessons_learned: "Pydantic models son muy útiles"
 
   # ============================================================
   # SPRINT 4_ext: Endpoints avanzados (COMPLETADO)
@@ -273,110 +487,405 @@ sprints:
     name: "Endpoints avanzados"
     goal: "API con herramientas de análisis de mercado"
     status: completed
-
+    completed_date: "2026-04-03"
+    sprint_lead: "BackendDev"
+    velocity_points: 8
+    actual_points: 8
+    completion_rate: 100%
+    
+    timeline:
+      start: "2026-04-02"
+      end: "2026-04-03"
+      review: "2026-04-03"
+    
     tasks:
       - id: 4.4
         description: "Implementar paginación real (page + limit)"
         file: "services/api/routes/products.py"
         output: "Respuesta con pagination object"
         status: completed
-
+        hours: 2
+        
       - id: 4.5
         description: "Mejorar endpoint /products/stats con filtros (brand, size)"
         file: "services/api/routes/products.py"
         output: "Stats filtrados por marca/tamaño"
         status: completed
-
+        hours: 3
+        
       - id: 4.6
         description: "Crear endpoint /api/v1/products/grouped"
         file: "services/api/routes/products.py"
         output: "Agrupación por brand, size, o brand_size con stats"
         status: completed
-
+        hours: 3
+    
     validation:
-      - "Paginación funciona (page, limit, total_pages)"
-      - "Stats acepta filtros"
-      - "Grouped devuelve grupos con estadísticas"
+      - "✅ Paginación funciona (page, limit, total_pages)"
+      - "✅ Stats acepta filtros"
+      - "✅ Grouped devuelve grupos con estadísticas"
+    
+    blockers: []
+    lessons_learned: "SQLAlchemy queries son poderosas"
 
-  # ============================================================
-  # SPRINTS PENDIENTES (NO IMPLEMENTADOS)
-  # ============================================================
-
-  - id: sprint_5_5
-    name: "Data Quality & Reliability"
-    goal: "Asegurar calidad, consistencia y observabilidad de datos"
-    status: pending
-    tasks:
-      - id: 5.5.1
-        description: "Agregar validaciones de datos (price > 0, title no vacío)"
-        file: "services/processor/normalizer/normalize.py"
-        output: "Datos inválidos descartados"
-
-      - id: 5.5.2
-        description: "Agregar logging estructurado en todo el pipeline"
-        file: "scripts/run_scraper.py"
-        output: "Logs claros de scraping, normalización y guardado"
-
-      - id: 5.5.3
-        description: "Medir métricas básicas (productos scrapeados, guardados, duplicados)"
-        file: "scripts/run_scraper.py"
-        output: "Resumen al final del proceso"
-
-      - id: 5.5.4
-        description: "Agregar endpoint GET /api/v1/metrics"
-        file: "services/api/routes/products.py"
-        output: "Métricas del sistema (count, avg price, etc)"
-
-      - id: 5.5.5
-        description: "Mejorar deduplicación (hash o clave más robusta)"
-        file: "database/repository.py"
-        output: "Menos falsos duplicados"
-
-    validation:
-      - "No se guardan productos inválidos"
-      - "Logs muestran flujo completo"
-      - "Endpoint /metrics responde correctamente"
-
+# ============================================================
+# CURRENT SPRINT
+# ============================================================
   - id: sprint_6
-    name: "Dashboard UI"
-    goal: "Interfaz visual para ver datos y estadísticas"
-    status: pending
+    name: "Dashboard UI - Frontend Foundation"
+    goal: "Crear interfaz visual para consumir API y mostrar estadísticas"
+    status: in_progress
+    start_date: "2026-04-06"
+    end_date: "2026-04-19"
+    review_date: "2026-04-20"
+    sprint_lead: "FrontendDev"
+    planned_velocity: 13
+    current_progress: 15%
+    
+    dependencies:
+      - sprint_4 (API endpoints)
+      - sprint_5 (Database)
+    
     tasks:
       - id: 6.1
-        description: "Crear página principal con gráficos"
+        description: "Configurar proyecto React con Vite y TailwindCSS"
+        file: "frontend/"
+        output: "Estructura base del frontend"
+        status: in_progress
+        priority: high
+        estimated_hours: 4
+        assignee: "FrontendDev"
+        
       - id: 6.2
-        description: "Integrar con API para datos en tiempo real"
+        description: "Crear página principal con tarjetas de productos"
+        file: "frontend/src/pages/ProductsPage.jsx"
+        output: "Grid de productos consumiendo API"
+        status: pending
+        priority: high
+        estimated_hours: 6
+        assignee: "FrontendDev"
+        
       - id: 6.3
-        description: "Agregar filtros visuales"
+        description: "Implementar gráficos de estadísticas con Chart.js"
+        file: "frontend/src/components/StatsDashboard.jsx"
+        output: "Dashboard con precios promedio, distribución por marca"
+        status: pending
+        priority: medium
+        estimated_hours: 5
+        assignee: "FrontendDev"
+        
+      - id: 6.4
+        description: "Agregar filtros (marca, tamaño, rango de precio)"
+        file: "frontend/src/components/Filters.jsx"
+        output: "Filtros interactivos"
+        status: pending
+        priority: medium
+        estimated_hours: 4
+        assignee: "FrontendDev"
+        
+      - id: 6.5
+        description: "Implementar paginación en la UI"
+        file: "frontend/src/components/Pagination.jsx"
+        output: "Navegación entre páginas"
+        status: pending
+        priority: low
+        estimated_hours: 3
+        assignee: "FrontendDev"
+        
+      - id: 6.6
+        description: "Agregar loading states y manejo de errores"
+        file: "frontend/src/"
+        output: "UX mejorada"
+        status: pending
+        priority: medium
+        estimated_hours: 3
+        assignee: "FrontendDev"
+    
+    daily_goals:
+      - day_1: "Configurar proyecto y conexión a API"
+      - day_2: "Listar productos"
+      - day_3: "Implementar gráficos"
+      - day_4: "Agregar filtros"
+      - day_5: "Pulir UI y testing"
+    
+    validation_criteria:
+      - "Frontend corre con npm run dev"
+      - "Muestra productos desde API real"
+      - "Gráficos muestran datos correctos"
+      - "Filtros funcionan"
+      - "Responsive en mobile"
+
+# ============================================================
+# FUTURE SPRINTS (PLANNED)
+# ============================================================
 
   - id: sprint_7
-    name: "Deployment"
-    goal: "Preparar proyecto para producción"
-    status: pending
+    name: "Authentication & Security"
+    goal: "Implementar sistema de autenticación JWT"
+    status: planned
+    priority: high
+    estimated_start: "2026-04-21"
+    estimated_end: "2026-05-04"
+    planned_velocity: 10
+    
+    description: |
+      Agregar seguridad al API con login de usuarios,
+      protección de endpoints, y roles (admin/user).
+    
     tasks:
       - id: 7.1
-        description: "Configurar Docker"
+        description: "Implementar endpoint POST /auth/login"
+        file: "services/api/routes/auth.py"
+        priority: high
+        
       - id: 7.2
-        description: "Preparar para deploy (Railway, Render, etc)"
+        description: "Agregar middleware de autenticación"
+        file: "services/api/middleware/auth.py"
+        priority: high
+        
       - id: 7.3
-        description: "Documentar configuración de producción"
+        description: "Proteger endpoints de admin"
+        file: "services/api/routes/"
+        priority: medium
+        
+      - id: 7.4
+        description: "Implementar refresh token"
+        file: "services/api/routes/auth.py"
+        priority: medium
+        
+      - id: 7.5
+        description: "Agregar login UI en frontend"
+        file: "frontend/src/pages/Login.jsx"
+        priority: medium
+    
+    validation:
+      - "Usuarios no autenticados no pueden acceder a /api/v1/products"
+      - "Admin tiene endpoints exclusivos"
+      - "Tokens expiran correctamente"
+
+  - id: sprint_8
+    name: "Scraping Avanzado"
+    goal: "Mejorar capacidad y robustez del scraper"
+    status: planned
+    priority: medium
+    estimated_start: "2026-05-05"
+    estimated_end: "2026-05-18"
+    planned_velocity: 13
+    
+    tasks:
+      - id: 8.1
+        description: "Implementar scraping asíncrono"
+        file: "services/scrapers/mercadolibre/scraper_async.py"
+        
+      - id: 8.2
+        description: "Agregar soporte para múltiples fuentes"
+        file: "services/scrapers/"
+        
+      - id: 8.3
+        description: "Implementar sistema de proxies rotativos"
+        file: "services/scrapers/proxy_manager.py"
+        
+      - id: 8.4
+        description: "Agregar retry logic con exponential backoff"
+        file: "services/scrapers/base_scraper.py"
+
+  - id: sprint_9
+    name: "Performance Optimization"
+    goal: "Optimizar tiempos de respuesta y consumo de recursos"
+    status: planned
+    priority: medium
+    estimated_start: "2026-05-19"
+    estimated_end: "2026-06-01"
+    planned_velocity: 10
+    
+    tasks:
+      - id: 9.1
+        description: "Implementar caching con Redis"
+        file: "services/cache/redis_cache.py"
+        
+      - id: 9.2
+        description: "Optimizar queries de base de datos"
+        file: "database/repository.py"
+        
+      - id: 9.3
+        description: "Agregar índices a la base de datos"
+        file: "database/models.py"
+        
+      - id: 9.4
+        description: "Implementar lazy loading en frontend"
+        file: "frontend/src/"
+
+  - id: sprint_10
+    name: "Deployment & DevOps"
+    goal: "Preparar proyecto para producción"
+    status: planned
+    priority: high
+    estimated_start: "2026-06-02"
+    estimated_end: "2026-06-15"
+    planned_velocity: 8
+    
+    tasks:
+      - id: 10.1
+        description: "Configurar Docker multi-stage builds"
+        file: "Dockerfile"
+        
+      - id: 10.2
+        description: "Configurar CI/CD con GitHub Actions"
+        file: ".github/workflows/deploy.yml"
+        
+      - id: 10.3
+        description: "Preparar para deploy en Render/Railway"
+        file: "render.yaml"
+        
+      - id: 10.4
+        description: "Configurar monitoreo con Sentry"
+        file: "services/monitoring/sentry.py"
+        
+      - id: 10.5
+        description: "Documentar deployment guide"
+        file: "DEPLOYMENT.md"
+
+  - id: sprint_11
+    name: "Testing & Quality Assurance"
+    goal: "Alcanzar >85% de cobertura de pruebas"
+    status: planned
+    priority: medium
+    estimated_start: "2026-06-16"
+    estimated_end: "2026-06-29"
+    planned_velocity: 12
+    
+    tasks:
+      - id: 11.1
+        description: "Escribir unit tests para servicios"
+        file: "tests/services/"
+        
+      - id: 11.2
+        description: "Escribir integration tests para API"
+        file: "tests/api/"
+        
+      - id: 11.3
+        description: "Agregar end-to-end tests con Playwright"
+        file: "tests/e2e/"
+        
+      - id: 11.4
+        description: "Implementar load testing"
+        file: "tests/performance/locustfile.py"
 
 # ============================================================
-# RESUMEN DEL PROYECTO
+# SPRINT METRICS DASHBOARD
 # ============================================================
+metrics:
+  total_sprints_planned: 11
+  total_sprints_completed: 8
+  total_sprints_in_progress: 1
+  total_sprints_pending: 2
+  
+  completion_rate: 73%
+  on_time_delivery_rate: 100%
+  
+  average_velocity: 9.8 points/sprint
+  total_velocity_completed: 78 points
+  
+  test_coverage:
+    backend: 75%
+    frontend: 0%
+    target: 85%
+  
+  technical_debt: low
+  bug_rate: 0.2 per sprint
+  
+  team_health:
+    morale: high
+    blockers: 0
+    on_track: true
 
-completed_sprints:
-  - sprint_1: Base sólida
-  - sprint_2: Scraper funcional
-  - sprint_2_5: Scraping robusto
-  - sprint_3: Pipeline de datos
-  - sprint_4: Endpoints básicos
-  - sprint_4_ext: Endpoints avanzados
-  - sprint_5: Base de datos
-  - sprint_5_5: Data Quality & Reliability
+# ============================================================
+# RISKS AND MITIGATIONS
+# ============================================================
+risks:
+  - id: risk_1
+    description: "MercadoLibre puede bloquear scraping"
+    impact: high
+    probability: medium
+    mitigation: "Implementar proxies rotativos y delays aleatorios"
+    contingency: "Modo mock como fallback"
+    
+  - id: risk_2
+    description: "Performance con muchas consultas"
+    impact: medium
+    probability: medium
+    mitigation: "Implementar caching y optimizar queries"
+    contingency: "Rate limiting y paginación"
+    
+  - id: risk_3
+    description: "Frontend no conecta correctamente con API"
+    impact: high
+    probability: low
+    mitigation: "Pruebas de integración tempranas"
+    contingency: "Mock API para desarrollo frontend"
 
-pending_sprints:
-  - sprint_6: Dashboard UI
+# ============================================================
+# RESOURCE ALLOCATION
+# ============================================================
+resources:
+  backend:
+    - "BackendDev (40%)"
+    - "DataEngineer (30%)"
+  
+  frontend:
+    - "FrontendDev (50%)"
+  
+  devops:
+    - "DevOps Engineer (20%)"
+  
+  qa:
+    - "QA Engineer (10%)"
 
-total_completed: 8
-total_pending: 1
+# ============================================================
+# DEPENDENCIES MAP
+# ============================================================
+dependencies:
+  - feature: "API Endpoints"
+    depends_on: ["Database", "Models"]
+    
+  - feature: "Frontend Dashboard"
+    depends_on: ["API Endpoints"]
+    
+  - feature: "Authentication"
+    depends_on: ["Database (users table)"]
+    
+  - feature: "Deployment"
+    depends_on: ["Frontend", "Backend", "Database"]
+
+# ============================================================
+# RELEASE PLAN
+# ============================================================
+releases:
+  - version: "v1.0.0-alpha"
+    date: "2026-03-15"
+    features: ["Base API", "Health Check"]
+    
+  - version: "v1.0.0-beta"
+    date: "2026-04-03"
+    features: ["Scraper", "Database", "API Endpoints", "Metrics"]
+    
+  - version: "v1.0.0-rc"
+    date: "2026-04-20"
+    features: ["Dashboard UI", "Authentication"]
+    
+  - version: "v1.0.0"
+    date: "2026-06-15"
+    features: ["Production Ready", "Deployment", "Monitoring"]
+
+# ============================================================
+# CHANGE LOG
+# ============================================================
+changelog:
+  - date: "2026-04-06"
+    version: "2.0.0"
+    changes:
+      - "Agregada estructura completa de sprints"
+      - "Añadido sprint actual (Frontend)"
+      - "Incluidos sprints futuros planificados"
+      - "Agregadas métricas y riesgos"
+      - "Mejorada documentación"

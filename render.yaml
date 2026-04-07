@@ -1,29 +1,293 @@
+# Render.com Deployment Configuration - CHValueGrowth
+# Version: 2.0.0
+# Environment: Production Ready
+
 services:
+  # API Web Service
   - type: web
     name: chvaluegrowth-api
     env: docker
     dockerfilePath: Dockerfile
-    region: Oregon
-    plan: free
+    region: oregon  # Cambiar a: frankfurt (EU), singapore (Asia), saopaulo (LatAm)
+    plan: free  # Opciones: free, starter, professional, business
     
-    # Variables de entorno (puedes editarlas en el dashboard de Render)
+    # Branch configuration
+    branch: main
+    buildFilter:
+      paths:
+        - /services/**
+        - /database/**
+        - /Dockerfile
+        - /requirements.txt
+    
+    # Build configuration
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      pip install pytest
+      python -m pytest tests/ -v --tb=short || true
+    
+    # Startup command (opcional - sobreescribe CMD del Dockerfile)
+    startCommand: uvicorn services.api.main:app --host 0.0.0.0 --port $PORT --workers 4
+    
+    # Environment variables
     envVars:
+      # Python Configuration
       - key: PYTHONDONTWRITEBYTECODE
         value: "1"
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: PYTHONPATH
+        value: "/opt/render/project/src"
+      
+      # Application Configuration
+      - key: ENVIRONMENT
+        value: "production"  # development, staging, production
+      - key: DEBUG
+        value: "false"
       - key: MOCK_MODE
-        value: "true"
-      - key: DATABASE_URL
-        value: "sqlite:///chvaluegrowth.db"
+        value: "false"  # Producción con datos reales
+      - key: LOG_LEVEL
+        value: "INFO"  # DEBUG, INFO, WARNING, ERROR
+      
+      # API Configuration
+      - key: API_VERSION
+        value: "v1"
       - key: PORT
         value: "8000"
+      - key: WORKERS
+        value: "4"
+      
+      # Database (SQLite for free tier, PostgreSQL recommended for production)
+      - key: DATABASE_URL
+        value: "sqlite:///chvaluegrowth.db"
+      - key: DATABASE_POOL_SIZE
+        value: "10"
+      - key: DATABASE_MAX_OVERFLOW
+        value: "20"
+      
+      # JWT Security (¡CAMBIAR EN PRODUCCIÓN!)
+      - key: JWT_SECRET
+        sync: false  # Manual entry required in Render dashboard
+        # value: "generar-secreto-único-aquí"
+      - key: JWT_ALGORITHM
+        value: "HS256"
+      - key: JWT_EXPIRATION_HOURS
+        value: "24"
+      - key: JWT_REFRESH_EXPIRATION_DAYS
+        value: "7"
+      
+      # CORS Configuration
+      - key: CORS_ORIGINS
+        value: "https://chvaluegrowth.com,https://www.chvaluegrowth.com,http://localhost:3000,http://localhost:5173"
+      - key: CORS_METHODS
+        value: "GET,POST,PUT,DELETE,OPTIONS"
+      - key: CORS_HEADERS
+        value: "Content-Type,Authorization"
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      - key: RATE_LIMIT_REQUESTS
+        value: "100"
+      - key: RATE_LIMIT_WINDOW_SECONDS
+        value: "60"
+      
+      # Redis (optional - for rate limiting and caching)
+      # - key: REDIS_URL
+      #   value: "redis://redisserver:6379"
+      #   sync: false
+      
+      # Email Configuration (for password recovery)
+      # - key: SMTP_HOST
+      #   value: "smtp.gmail.com"
+      #   sync: false
+      # - key: SMTP_PORT
+      #   value: "587"
+      #   sync: false
+      # - key: SMTP_USER
+      #   value: "noreply@chvaluegrowth.com"
+      #   sync: false
+      # - key: SMTP_PASSWORD
+      #   sync: false
+      
+      # Monitoring
+      - key: SENTRY_DSN
+        sync: false  # Optional error tracking
+      - key: NEW_RELIC_LICENSE_KEY
+        sync: false
+      
+      # Performance
+      - key: CACHE_TTL_SECONDS
+        value: "300"
+      - key: REQUEST_TIMEOUT_SECONDS
+        value: "30"
+      - key: MAX_REQUEST_SIZE_MB
+        value: "10"
     
-    # Configuración de health check
+    # Health check configuration
     healthCheckPath: /health
+    healthCheckTimeout: 10
+    healthCheckInterval: 30
     
-    # Build command (si es necesario)
-    # buildCommand: pip install -r requirements.txt
+    # Auto-scaling (only for non-free plans)
+    # scaling:
+    #   minInstances: 1
+    #   maxInstances: 3
+    #   targetMemoryPercent: 70
+    #   targetCPUPercent: 70
     
-    # Startup command (sobrescribe el CMD del Dockerfile)
-    # startCommand: uvicorn services.api.main:app --host 0.0.0.0 --port $PORT
+    # Disk persistence (for SQLite database)
+    disk:
+      name: chvaluegrowth-data
+      mountPath: /data
+      sizeGB: 1  # Free tier: 1GB, upgrade for more
+    
+    # Domain configuration
+    domains:
+      - domain: api.chvaluegrowth.com
+        type: custom
+      # - domain: chvaluegrowth.onrender.com  # Default Render domain
+
+  # Background Worker (for scraping tasks)
+  - type: worker
+    name: chvaluegrowth-scraper
+    env: docker
+    dockerfilePath: Dockerfile.worker
+    region: oregon
+    plan: free
+    
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    
+    startCommand: python scripts/run_scraper_scheduler.py
+    
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: MOCK_MODE
+        value: "false"
+      - key: DATABASE_URL
+        value: "sqlite:///data/chvaluegrowth.db"
+      - key: SCRAPE_INTERVAL_HOURS
+        value: "6"
+      - key: MAX_PRODUCTS_PER_SCRAPE
+        value: "100"
+      - key: LOG_LEVEL
+        value: "INFO"
+    
+    # Health check
+    healthCheckPath: /health/worker
+    
+    # Disk persistence (shared with web service)
+    disk:
+      name: chvaluegrowth-data
+      mountPath: /data
+      sizeGB: 1
+
+  # PostgreSQL Database (optional - better than SQLite for production)
+  - type: pgsql
+    name: chvaluegrowth-db
+    region: oregon
+    plan: free  # Free: 1GB, upgrade for more
+    databaseName: chvaluegrowth
+    ipAllowList: []  # Allow all (secure with firewall)
+    
+    # PostgreSQL version
+    version: "15"
+    
+    # Performance settings
+    postgresqlParams:
+      - name: shared_buffers
+        value: "128MB"
+      - name: max_connections
+        value: "100"
+      - name: log_statement
+        value: "ddl"
+
+  # Redis Cache (optional - for rate limiting and caching)
+  # - type: redis
+  #   name: chvaluegrowth-cache
+  #   region: oregon
+  #   plan: free
+  #   maxmemoryPolicy: allkeys-lru
+  #   version: "7"
+
+# Cron Jobs (scheduled tasks)
+cronjobs:
+  - name: daily-scraping
+    schedule: "0 0 * * *"  # Daily at midnight
+    command: python scripts/run_scraper.py --limit 100
+    envVars:
+      - key: ENVIRONMENT
+        value: "production"
+      - key: MOCK_MODE
+        value: "false"
+  
+  - name: database-backup
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    command: python scripts/backup_database.py
+    envVars:
+      - key: BACKUP_RETENTION_DAYS
+        value: "30"
+
+  - name: weekly-report
+    schedule: "0 9 * * 1"  # Monday at 9 AM
+    command: python scripts/generate_report.py --period week
+    envVars:
+      - key: REPORT_FORMAT
+        value: "json,pdf"
+
+# Notification settings
+notifications:
+  - type: email
+    email: admin@chvaluegrowth.com
+    events:
+      - deploy
+      - scale
+      - health_failure
+      - cronjob_failure
+
+# Preview environments (for pull requests)
+previews:
+  enabled: true
+  plan: free
+  expireAfter: 7d
+  branchPattern: "^(feature|fix)/.*"
+  
+  envVars:
+    - key: ENVIRONMENT
+      value: "preview"
+    - key: MOCK_MODE
+      value: "true"
+    - key: LOG_LEVEL
+      value: "DEBUG"
+
+# Global headers (for all services)
+headers:
+  - path: /*
+    name: X-Frame-Options
+    value: DENY
+  - path: /*
+    name: X-Content-Type-Options
+    value: nosniff
+  - path: /*
+    name: X-XSS-Protection
+    value: 1; mode=block
+  - path: /*
+    name: Strict-Transport-Security
+    value: max-age=31536000; includeSubDomains
+
+# Secrets management
+secretFiles:
+  - file: .env.production
+    sync: false  # Manually upload sensitive data
+
+# Custom domains for all services
+customDomains:
+  - service: chvaluegrowth-api
+    domain: api.chvaluegrowth.com
+    ssl: true

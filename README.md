@@ -119,26 +119,33 @@ sequenceDiagram
 ## 📦 Estructura del Proyecto
 
 ```
-Desarrollo_chvaluegrowth/
-├── configs/                  
-├── database/                 
-├── scripts/                  
-│   └── run_scraper.py        
+GProA_CHValueGrowth/
+├── configs/
+├── database/
+├── scripts/
+│   └── run_scraper.py
 ├── services/
-│   ├── api/                  
-│   │   ├── main.py          
-│   │   └── routes/          
-│   ├── processor/           
-│   │   ├── normalizer/      
-│   │   └── matcher/         
-│   ├── scheduler/            
-│   └── scrapers/            
-│       ├── common/          
-│       └── mercadolibre/    
-├── tests/                    
-├── .env.example              
-├── requirements.txt          
-└── README.md                 
+│   ├── api/
+│   │   ├── main.py
+│   │   └── routes/
+│   ├── processor/
+│   │   ├── normalizer/
+│   │   └── matcher/
+│   ├── scheduler/
+│   └── scrapers/
+│       ├── common/
+│       └── mercadolibre/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── App.jsx
+│   ├── package.json
+│   └── vite.config.js
+├── tests/
+├── .env.example
+├── requirements.txt
+└── README.md
 ```
 
 ---
@@ -279,28 +286,110 @@ Desarrollo_chvaluegrowth/
 * Python 3.14+
 * pip
 
-### Instalación
+### Prerrequisitos
 
-```bash
-cd Desarrollo_chvaluegrowth
+* Python 3.14+
+* Node.js 18+
+* npm
+
+### Instalación Completa (Backend + Frontend)
+
+```powershell
+# Windows PowerShell Commands
+cd GProA_CHValueGrowth
 python -m venv venv
-source venv/bin/activate
+venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
+copy .env.example .env
+
+# Frontend Setup
+cd frontend
+npm install
+cd ..
 ```
 
-### Iniciar la API
+### 🚀 Iniciar Localhost (Frontend + Backend)
 
-```bash
-uvicorn services.api.main:app --reload
-# Producción
-uvicorn services.api.main:app --host 0.0.0.0 --port 8000
+#### 1. Frontend Dashboard (React + Vite)
+```
+double-click GProA_CHValueGrowth/frontend/run-dev.bat
+```
+OR PowerShell:
+```
+cd GProA_CHValueGrowth/frontend
+npm run dev
+```
+**URL:** http://localhost:5173 (Dashboard → click "Órdenes")
+
+#### 2. Backend API (FastAPI)
+```
+python -m uvicorn services.api.main:app --reload --port 8000
+```
+**URL:** http://127.0.0.1:8000/docs
+
+#### Chrome "Unsafe frame" Error:
+- **CLOSE** VSCode Live Preview
+- **DIRECT** browser tab → localhost:5173
+- Ctrl+Shift+R
+
+### URLs para Acceso en Navegador
+
+* **Aplicación Frontend**: http://localhost:5173
+* **API Backend**: http://127.0.0.1:8000
+* **Documentación API**: http://127.0.0.1:8000/docs
+
+---
+
+## 🔧 Solución de Problemas
+
+### Error: "Cannot find module '@babel/types'"
+```powershell
+# Opción 1: Limpiar caché y reiniciar
+cd frontend
+rmdir /s /q .vite
+npm run dev
+
+# Opción 2: Reinstalación completa (recomendado)
+cd frontend
+rmdir /s /q node_modules
+del package-lock.json
+npm cache clean --force
+npm install
+npm run dev
+
+# Opción 3: Instalar dependencia faltante
+npm install --save-dev @babel/types
 ```
 
-### Documentación
+### Error: "No se encuentra la ruta del directorio"
+```powershell
+# Usar el nombre correcto del directorio
+cd GProA_CHValueGrowth
+```
 
-* Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
-* ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+### Error: "source no se reconoce como comando"
+```powershell
+# Windows usa:
+venv\Scripts\activate
+```
+
+### Error: "npm run dev no existe"
+```powershell
+# Ejecutar desde el directorio frontend
+cd frontend && npm run dev
+```
+
+### Pantalla en blanco en navegador
+- Verificar que el servidor esté ejecutándose en el puerto correcto
+- Revisar errores en la terminal
+- Reiniciar `npm run dev` si hay errores de Babel
+
+### Error relacionado con OneDrive
+**Importante**: Si el proyecto está en una carpeta de OneDrive, puede causar conflictos con `node_modules`. OneDrive intenta sincronizar miles de archivos pequeños durante la instalación/compilación.
+
+**Solución**:
+- Pausar la sincronización de OneDrive durante la instalación
+- O mover el proyecto a una ruta fuera de OneDrive (ej. `C:\Proyectos\GProA_CHValueGrowth`)
 
 ---
 
