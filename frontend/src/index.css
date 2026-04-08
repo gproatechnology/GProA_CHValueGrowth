@@ -3,6 +3,10 @@
    Versión 2.0 - Mejorado con variables, utilidades y animaciones
 -------------------------------------------------------------- */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ==============================================================
    1. VARIABLES CSS (Custom Properties)
    ============================================================== */

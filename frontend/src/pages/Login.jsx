@@ -349,28 +349,28 @@ const Login = ({ onLogin }) => {
         setLoading(true);
         setError('');
         
-        // Simulación de autenticación
-        setTimeout(() => {
-            if (credentials.username === 'admin' && credentials.password === 'gproa2024') {
-                const user = { name: 'Administrador', role: 'Super Admin', avatar: '👨‍💼' };
-                localStorage.setItem('chvalue_token', 'secure-token-2026');
-                localStorage.setItem('chvalue_user', JSON.stringify(user));
-                sessionStorage.setItem('chvalue_token', 'secure-token-2026');
-                onLogin(user);
-            } else {
-                setError('Credenciales incorrectas. Verifique usuario y contraseña.');
-            }
+        try {
+            const data = await import('../services/api').then(m => m.login(credentials.username, credentials.password));
+            const user = { name: credentials.username, role: 'Usuario', avatar: '👨‍💼', ...data.user };
+            localStorage.setItem('chvalue_token', data.access_token || data.token);
+            localStorage.setItem('chvalue_user', JSON.stringify(user));
+            sessionStorage.setItem('chvalue_token', data.access_token || data.token);
+            onLogin(user);
+        } catch (err) {
+            setError(err.message || 'Credenciales incorrectas. Verifique usuario y contraseña.');
+        } finally {
             setLoading(false);
-        }, 1800);
+        }
     };
 
     const handleBiometricAuth = async () => {
         if (!isBiometricSupported) return;
         setLoading(true);
+        // Simulación de detección biométrica por ahora
         setTimeout(() => {
-            setCredentials({ username: 'admin', password: 'gproa2024' });
+            setCredentials({ username: 'admin', password: 'chvalue2026' }); // Credenciales reales esperadas por el backend de prueba
             setLoading(false);
-            handleSubmit(new Event('submit'));
+            // El usuario tendría que presionar el botón de ingreso tras el autocompletado temporal
         }, 1000);
     };
 
@@ -381,7 +381,7 @@ const Login = ({ onLogin }) => {
     const strengthText = passwordStrength < 40 ? 'BAJA' : passwordStrength < 70 ? 'MEDIA' : 'ALTA';
 
     return (
-        <div className="relative min-h-screen overflow-hidden font-['Inter', 'Courier New', monospace]">
+        <div className="relative min-h-screen overflow-hidden font-['Inter', 'Courier New', monospace] bg-[#0B0E14]">
             
             {/* Canvas de fondo con gráficas */}
             <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full" />
@@ -541,7 +541,7 @@ const Login = ({ onLogin }) => {
                                                     }
                                                     text-white placeholder-emerald-500/30 outline-none transition-all duration-300
                                                     focus:shadow-[0_0_15px_rgba(16,185,129,0.15)] focus:bg-black/70`}
-                                                placeholder="gproa2024"
+                                                placeholder="chvalue2026"
                                                 disabled={loading}
                                                 autoComplete="current-password"
                                             />
@@ -726,7 +726,7 @@ const Login = ({ onLogin }) => {
                                             <div className="flex items-center justify-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10">
                                                 <code className="text-emerald-300">admin</code>
                                                 <span className="text-emerald-500/30">/</span>
-                                                <code className="text-emerald-300">gproa2024</code>
+                                                <code className="text-emerald-300">chvalue2026</code>
                                                 <span className="text-emerald-500/50 ml-0.5">(ADMIN)</span>
                                             </div>
                                         </div>

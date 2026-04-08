@@ -205,7 +205,7 @@ function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <ErrorBoundary>
-                <Router>
+                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <AppRoutes
                         isAuthenticated={isAuthenticated}
                         setIsAuthenticated={setIsAuthenticated}

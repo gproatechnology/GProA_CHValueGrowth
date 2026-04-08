@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('chvalue_token') || sessionStorage.getItem('chvalue_token');

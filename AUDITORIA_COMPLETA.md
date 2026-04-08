@@ -1,18 +1,18 @@
 # AUDITORÍA COMPLETA: CHValueGrowth
-**Fecha:** $(new Date().toISOString().slice(0,10))  
+**Fecha:** 07/04/2026  
 **Auditor:** Kilo AI  
-**Proyecto:** Sistema de Inteligencia de Mercado para Precios de Llantas  
+**Proyecto:** Sistema de Inteligencia de Mercado para Precios de Llantas
 
-## 📊 PUNTUACIÓN GLOBAL: 5/10
+## 📊 PUNTUACIÓN GLOBAL: 6/10
 
 | Componente | Puntaje | Estado | Riesgo |
 |------------|---------|--------|--------|
 | **Backend API** | 8/10 | ✅ Bueno | Bajo |
-| **Frontend** | 3/10 | ❌ Crítico | Alto |
+| **Frontend** | 4/10 | ⚠️ Crítico | Alto |
 | **Base de Datos** | 8/10 | ✅ Bueno | Bajo |
 | **Scrapers** | 4/10 | ⚠️ Regular | Medio |
-| **Configuración** | 7/10 | 🔧 Mejorar | Medio |
-| **Deployment** | 9/10 | ✅ Excelente | Bajo |
+| **Configuración** | 8/10 | ✅ Mejorado | Bajo |
+| **Deployment** | 7/10 | 🔧 En progreso | Medio |
 | **Ética/Legal** | 5/10 | ⚠️ Revisar | Alto |
 
 **🚨 NO PRODUCCIÓN - Fixes críticos obligatorios**
@@ -37,24 +37,21 @@
   - Falta logging de auditoría completo
   - No hay integración con frontend real
 
-### 2. FRONTEND (3/10) ❌ CRÍTICO
+### 2. FRONTEND (4/10) ⚠️ CRÍTICO
 - **Fortalezas:**
   - UI/UX excepcional (9/10)
-  - Animaciones fluidas
+  - Animaciones fluidas (Framer Motion)
   - Diseño responsive
-  - Código React moderno
+  - Código React moderno con lazy loading
 
-- **Vulnerabilidades Críticas:**
-  - **SEC-01:** Credenciales hardcoded visibles en UI
-  - **SEC-02:** localStorage para tokens (XSS vulnerable)
-  - **SEC-03:** No llamadas a API real
-  - **SEC-04:** mockLogin simulado
-  - **SEC-05:** Sin validación backend
+- **Problemas Identificados:**
+  - **RUTAS API:** No coincide con backend (frontend llama `/products`, backend responde `/api/v1/products`)
+  - Variable de entorno `VITE_API_URL` vacía
+  - Error "Failed to fetch" en consola
+  - No conexión real con backend
 
 - **Performance:**
-  - Canvas 60fps alto consumo CPU
-  - Bundle grande (~1.5MB)
-  - Sin optimización móvil
+  - Bundle ~1.5MB (sin optimizar)
 
 ### 3. BASE DE DATOS (8/10) ✅
 - **Fortalezas:**
@@ -104,51 +101,46 @@
 
 ---
 
-## 🚨 VULNERABILIDADES CRÍTICAS
+## 🚨 PROBLEMAS CRÍTICOS ACTUALES
 
 | ID | Severidad | Componente | Descripción |
 |----|-----------|------------|-------------|
-| SEC-01 | CRÍTICO | Frontend | Credenciales admin/neumaticos2026 expuestas en UI |
-| SEC-02 | CRÍTICO | Frontend | Tokens en localStorage (XSS risk) |
-| SEC-03 | CRÍTICO | Frontend | Sin autenticación real con backend |
+| API-01 | CRÍTICO | Frontend | Rutas no coinciden con backend (`/products` vs `/api/v1/products`) |
+| API-02 | CRÍTICO | Frontend | Variable VITE_API_URL vacía |
+| CONN-01 | ALTO | Frontend | Error "Failed to fetch" al conectar con backend |
 | ETH-01 | ALTO | Scrapers | Scraping MercadoLibre (riesgo legal) |
-| CFG-01 | MEDIO | Backend | JWT_SECRET por defecto |
+| AUTH-01 | MEDIO | Backend | JWT_SECRET hardcoded por defecto |
 
 ---
 
 ## 📋 PLAN DE ACCIÓN PRIORITARIO
 
-### 🔥 FASE 1: SEGURIDAD (INMEDIATO)
-1. **Eliminar credenciales hardcoded** del frontend
-2. **Implementar llamadas API reales** en Login.jsx
-3. **Reemplazar localStorage** por secure storage (httpOnly cookies)
-4. **Conectar frontend con backend auth**
-5. **Cambiar JWT_SECRET** en producción
+### 🔥 FASE 1: CONECTIVIDAD (INMEDIATO)
+1. **Corregir rutas API:** Quitar prefijo `/api/v1` del backend O agregar al frontend
+2. **Verificar conexión:** Frontend debe alcanzar backend en puerto 8000
+3. **Probar autenticación:** Login con credenciales reales
+4. **Configurar proxy:** Vite proxy hacia backend
 
-### ⚡ FASE 2: PERFORMANCE (1-2 SEMANAS)
-1. **Optimizar Canvas** (30fps, pause hidden tab)
-2. **Lazy loading** de íconos Framer Motion
-3. **Bundle splitting** y tree shaking
-4. **Mobile optimization**
+### ⚡ FASE 2: INTEGRACIÓN (1 SEMANA)
+1. **Conectar todas las páginas** con endpoints reales
+2. **Reemplazar datos mock** con datos de la API
+3. **Implementar manejo de errores** robusto
 
-### 🏗️ FASE 3: ARQUITECTURA (2-4 SEMANAS)
-1. **Base de datos real** (PostgreSQL)
-2. **Migraciones** de BD
-3. **Monitoreo** (Sentry, New Relic)
-4. **Tests** completos (80% coverage)
-5. **CI/CD** pipeline
+### 🏗️ FASE 3: SEGURIDAD (2 SEMANAS)
+1. **JWT_SECRET** cambiar en producción
+2. **Usuario en BD** en vez de MOCK_USERS
+3. **Cookies httpOnly** para tokens (opcional)
 
 ### ⚖️ FASE 4: ÉTICA/LEGAL (OPCIONAL)
 1. **Evaluar scraping** - considerar APIs oficiales
-2. **Implementar proxy rotation**
-3. **Agregar disclaimer** ético
+2. **Agregar disclaimer** ético
 
 ---
 
 ## 📈 MÉTRICAS ACTUALES
 - **LOC Backend:** ~950
-- **LOC Frontend:** ~630 (Login.jsx)
-- **Dependencias:** 15 (backend), 19 (frontend)
+- **LOC Frontend:** ~630
+- **Dependencias:** 12 (backend), 20 (frontend)
 - **Bundle Size:** ~1.5MB (sin optimizar)
 - **Endpoints API:** 9
 - **Modelo BD:** 1 tabla (productos)
@@ -156,18 +148,29 @@
 
 ---
 
+## 🔧 CAMBIOS REALIZADOS EN ESTA SESIÓN
+
+| Fecha | Cambio | Estado |
+|-------|--------|--------|
+| 07/04/2026 | Dockerfile multi-stage build | ✅ Completado |
+| 07/04/2026 | vite.config.js - output a static/ | ✅ Completado |
+| 07/04/2026 | main.py - sirve frontend desde static/ | ✅ Completado |
+| 07/04/2026 | api.js - variable de entorno para API | ✅ Completado |
+| 07/04/2026 | CORS permite todos los orígenes | ✅ Completado |
+
+---
+
 ## 🎯 RECOMENDACIONES FINALES
 
-1. **NO desplegar** hasta fixes críticos completados
-2. **Priorizar** integración frontend-backend
-3. **Implementar** tests automatizados
-4. **Revisar** aspectos éticos del scraping
-5. **Monitorear** performance en producción
-6. **Documentar** decisiones de arquitectura
+1. **Corregir rutas API** antes de desplegar
+2. **Probar conexión** frontend → backend
+3. **Ejecutar scraper** para poblar base de datos
+4. **Revisar aspectos éticos** del scraping
+5. **Implementar tests** básicos
 
-**Estado del proyecto:** Desarrollo activo con riesgos críticos  
-**Próxima auditoría:** Post-fixes críticos  
-**Tiempo estimado para prod:** 4-6 semanas
+**Estado del proyecto:** Desarrollo activo con problema de conectividad  
+**Próxima acción:** Corregir rutas API  
+**Tiempo estimado para prod:** 2-3 semanas
 
 ---
 

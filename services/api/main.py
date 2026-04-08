@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
@@ -11,35 +11,37 @@ from services.api.routes.auth import router as auth_router
 
 app = FastAPI(title="CHValueGrowth API")
 
-# Configurar CORS para permitir solicitudes desde el frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # URLs del frontend
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Obtener la ruta absoluta al directorio del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
-# Montar archivos estáticos
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
-# Incluir routers
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+if FRONTEND_DIST.exists():
+    app.mount("/app", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
 
 app.include_router(products_router)
-
 app.include_router(auth_router)
 
 
 @app.get("/")
 def root():
+    if (FRONTEND_DIST / "index.html").exists():
+        return FileResponse(str(FRONTEND_DIST / "index.html"))
     return {"status": "ok", "project": "CHValueGrowth"}
 
 
 @app.get("/dashboard")
 def dashboard(request: Request):
-    """Renderiza el dashboard HTML"""
     dashboard_path = BASE_DIR / "services" / "dashboard" / "templates" / "index.html"
     return FileResponse(str(dashboard_path))
 

@@ -13,17 +13,28 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
+    base: './',
+    build: {
+        outDir: '../static',
+        emptyOutDir: true,
+    },
     server: {
         port: 5173,
-        strictPort: true,
+        strictPort: false,
         proxy: {
-            '/api': 'http://localhost:8000',
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+            },
         },
     },
     preview: {
         port: 5173,
         proxy: {
-            '/api': 'http://localhost:8000',
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+            },
         },
     },
 })
