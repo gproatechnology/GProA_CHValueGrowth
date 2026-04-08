@@ -8,7 +8,7 @@
 | Componente | Puntaje | Estado | Riesgo |
 |------------|---------|--------|--------|
 | **Backend API** | 8/10 | ✅ Bueno | Bajo |
-| **Frontend** | 4/10 | ⚠️ Crítico | Alto |
+| **Frontend** | 7/10 | ✅ Mejorando | Medio |
 | **Base de Datos** | 8/10 | ✅ Bueno | Bajo |
 | **Scrapers** | 4/10 | ⚠️ Regular | Medio |
 | **Configuración** | 8/10 | ✅ Mejorado | Bajo |
@@ -105,9 +105,9 @@
 
 | ID | Severidad | Componente | Descripción |
 |----|-----------|------------|-------------|
-| API-01 | CRÍTICO | Frontend | Rutas no coinciden con backend (`/products` vs `/api/v1/products`) |
-| API-02 | CRÍTICO | Frontend | Variable VITE_API_URL vacía |
-| CONN-01 | ALTO | Frontend | Error "Failed to fetch" al conectar con backend |
+| API-01 | RESUELTO | Frontend | Rutas no coinciden con backend (`/products` vs `/api/v1/products`) |
+| API-02 | RESUELTO | Frontend | Variable VITE_API_URL vacía con fallback funcionando |
+| CONN-01 | RESUELTO | Frontend | Error "Failed to fetch" al conectar con backend (Vite proxy corregido) |
 | ETH-01 | ALTO | Scrapers | Scraping MercadoLibre (riesgo legal) |
 | AUTH-01 | MEDIO | Backend | JWT_SECRET hardcoded por defecto |
 
