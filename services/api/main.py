@@ -6,6 +6,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from services.api.routes.products import router as products_router
 from services.api.routes.auth import router as auth_router
 

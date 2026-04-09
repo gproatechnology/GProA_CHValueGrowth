@@ -21,7 +21,7 @@ import datetime
 from datetime import timedelta
 import os
 import logging
-from passlib.context import CryptContext
+import bcrypt as bcrypt_lib
 import redis
 from functools import wraps
 
@@ -34,8 +34,12 @@ logger = logging.getLogger(__name__)
 # Security configuration
 security = HTTPBearer(auto_error=False)
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing helpers (using bcrypt directly — passlib 1.7.4 is not compatible with bcrypt >= 4.0)
+def _verify_password(plain: str, hashed: str) -> bool:
+    return bcrypt_lib.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+
+def _hash_password(plain: str) -> str:
+    return bcrypt_lib.hashpw(plain.encode("utf-8"), bcrypt_lib.gensalt()).decode("utf-8")
 
 # JWT Configuration (from environment variables)
 JWT_SECRET = os.environ.get("JWT_SECRET", "chvalue2026_secret_key_change_in_production")
@@ -57,7 +61,7 @@ if REDIS_URL:
 # Passwords are hashed with bcrypt
 MOCK_USERS = {
     "admin": {
-        "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeCt1uB0YwMz/dHhW",  # hash of "chvalue2026"
+        "password_hash": "$2b$12$lP/6zOTsVb2me5uj4EqFk.ZcHbuHJS6JKwxHg/rTukZbLYOx5Nr1e",  # admin123
         "name": "Administrador",
         "role": "admin",
         "email": "admin@chvaluegrowth.com",
@@ -66,7 +70,7 @@ MOCK_USERS = {
         "last_login": None
     },
     "user": {
-        "password_hash": "$2b$12$8K1p8ZxY/z4QkJX9hN.8F.6V6q2qkQ7dLx0F5m5J8nLx5J9hN.8F.",  # hash of "user123"
+        "password_hash": "$2b$12$7tM3XPyZyF949oQmefPZgOT.bRsBAJbKqUVKVLdNhJxIXIS3h/GNC",  # user123
         "name": "Usuario Regular",
         "role": "user",
         "email": "user@chvaluegrowth.com",
@@ -240,7 +244,7 @@ def authenticate_user(username: str, password: str) -> Optional[Dict]:
     if not user or not user.get("is_active", True):
         return None
     
-    if pwd_context.verify(password, user["password_hash"]):
+    if _verify_password(password, user["password_hash"]):
         # Update last login
         user["last_login"] = datetime.datetime.utcnow().isoformat()
         return {
@@ -442,14 +446,14 @@ async def change_password(
             )
         
         # Verify current password
-        if not pwd_context.verify(password_data.current_password, user["password_hash"]):
+        if not _verify_password(password_data.current_password, user["password_hash"]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Current password is incorrect"
             )
         
         # Update password
-        user["password_hash"] = pwd_context.hash(password_data.new_password)
+        user["password_hash"] = _hash_password(password_data.new_password)
         
         # Revoke all tokens (force re-login)
         token_manager.revoke_all_user_tokens(username)
