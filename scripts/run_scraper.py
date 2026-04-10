@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Script de ejecución del scraper - CHValueGrowth
-Ejecuta el scraper de MercadoLibre, guarda en DB y muestra los resultados.
+Script de ejecución del scraper - NeumatiQ
+Sistema de Gestión Integral para el Comercio de Neumáticos
+Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 
 Uso:
     python scripts/run_scraper.py [--query "llantas 205/55 r16"] [--limit 10] [--mock] [--real]

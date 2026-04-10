@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Estilos avanzados con animaciones HTML5
+// Estilos avanzados con animaciones Sky Blue & Clean Glass
 const splashStyles = `
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -41,12 +41,12 @@ const splashStyles = `
 
 @keyframes borderFlow {
   0%, 100% { 
-    border-color: rgba(16, 185, 129, 0.2);
-    box-shadow: 0 0 0px rgba(16, 185, 129, 0);
+    border-color: rgba(14, 165, 233, 0.2);
+    box-shadow: 0 0 0px rgba(14, 165, 233, 0);
   }
   50% { 
-    border-color: rgba(16, 185, 129, 0.6);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+    border-color: rgba(14, 165, 233, 0.5);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
   }
 }
 
@@ -78,6 +78,16 @@ const splashStyles = `
   100% { top: 100%; }
 }
 
+@keyframes ripple {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
 .animate-shimmer {
   animation: shimmer 1.8s infinite;
 }
@@ -89,6 +99,10 @@ const splashStyles = `
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradientShift 3s ease infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 .typing-effect {
@@ -104,19 +118,24 @@ const splashStyles = `
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #10B981, #3B82F6, #10B981, transparent);
+  background: linear-gradient(90deg, transparent, #0EA5E9, #3B82F6, #0EA5E9, transparent);
   animation: scanLine 3s linear infinite;
 }
 
+.ripple-effect {
+  animation: ripple 1.5s ease-out infinite;
+}
+
 .glass-terminal {
-  background: rgba(10, 15, 30, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
 .terminal-text {
-  font-family: 'Courier New', 'Fira Code', monospace;
+  font-family: 'Inter', 'SF Mono', 'Fira Code', monospace;
 }
 
 .cursor-blink {
@@ -134,7 +153,7 @@ function injectSplashStyles() {
 }
 
 /**
- * SplashScreen - Pantalla de carga estilo terminal de mercado
+ * SplashScreen - Pantalla de carga estilo terminal con tema Sky Blue & Clean Glass
  * @component
  * @param {Object} props
  * @param {Function} [props.onComplete] - Callback cuando la carga termina
@@ -145,8 +164,8 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
     injectSplashStyles();
 
     const [progress, setProgress] = useState(0);
-    const [loadingMessage, setLoadingMessage] = useState('Inicializando terminal de mercado...');
-    const [currentIcon, setCurrentIcon] = useState('🖥️');
+    const [loadingMessage, setLoadingMessage] = useState('Inicializando sistema...');
+    const [currentIcon, setCurrentIcon] = useState('🛞');
     const [isComplete, setIsComplete] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [systemLogs, setSystemLogs] = useState([]);
@@ -156,7 +175,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
     const mountedRef = useRef(true);
     const canvasRef = useRef(null);
 
-    // Sistema de partículas para el canvas
+    // Sistema de partículas para el canvas con tema Sky Blue
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -179,7 +198,9 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                 this.speedX = (Math.random() - 0.5) * 0.3;
                 this.speedY = (Math.random() - 0.5) * 0.2 - 0.5;
                 this.opacity = Math.random() * 0.3;
-                this.color = Math.random() > 0.7 ? '#10B981' : '#3B82F6';
+                // Colores Sky Blue
+                const colors = ['#0EA5E9', '#3B82F6', '#38BDF8', '#7DD3FC', '#BAE6FD'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
             }
             
             update(w, h) {
@@ -211,7 +232,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
         };
         
         const drawGrid = (ctx, w, h) => {
-            ctx.strokeStyle = 'rgba(16, 185, 129, 0.05)';
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.05)';
             ctx.lineWidth = 0.5;
             
             for (let x = 0; x < w; x += 40) {
@@ -229,7 +250,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
         };
         
         const drawCircuitPattern = (ctx, w, h, time) => {
-            ctx.strokeStyle = 'rgba(16, 185, 129, 0.08)';
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.08)';
             ctx.lineWidth = 0.8;
             
             // Circuito decorativo en esquinas
@@ -255,6 +276,15 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
             });
         };
         
+        const drawSkyGradient = (ctx, w, h) => {
+            const gradient = ctx.createLinearGradient(0, 0, w, h);
+            gradient.addColorStop(0, '#E0F2FE');
+            gradient.addColorStop(0.5, '#F0F9FF');
+            gradient.addColorStop(1, '#BAE6FD');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h);
+        };
+        
         const animate = () => {
             if (!ctx) return;
             
@@ -266,16 +296,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                 return;
             }
             
-            ctx.clearRect(0, 0, w, h);
-            ctx.fillStyle = '#0B0E14';
-            ctx.fillRect(0, 0, w, h);
-            
-            const gradient = ctx.createLinearGradient(0, 0, w, h);
-            gradient.addColorStop(0, '#0f172a');
-            gradient.addColorStop(1, '#0B0E14');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, w, h);
-            
+            drawSkyGradient(ctx, w, h);
             drawGrid(ctx, w, h);
             drawCircuitPattern(ctx, w, h, time);
             
@@ -303,9 +324,9 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
         };
     }, []);
 
-    // Pasos de carga para sistema de neumáticos
+    // Pasos de carga para sistema de neumáticos con tema Sky Blue
     const loadingSteps = [
-        { progress: 5, message: 'Iniciando terminal de mercado...', icon: '🖥️', log: '[INFO] CHValueGrowth Terminal v3.0 iniciando...' },
+        { progress: 5, message: 'Iniciando sistema de inteligencia...', icon: '🖥️', log: '[INFO] NeumatiQ Terminal v3.0 iniciando...' },
         { progress: 12, message: 'Verificando módulos de seguridad...', icon: '🔒', log: '[SEC] Verificación de integridad del sistema... OK' },
         { progress: 20, message: 'Conectando a base de datos de mercado...', icon: '🗄️', log: '[DB] Conectando a PostgreSQL cluster... CONECTADO' },
         { progress: 28, message: 'Cargando catálogo de neumáticos...', icon: '🛞', log: '[CATALOG] Cargando 2,450+ productos... COMPLETADO' },
@@ -317,7 +338,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
         { progress: 76, message: 'Estableciendo conexiones seguras...', icon: '🔐', log: '[SECURE] Estableciendo túneles SSL/TLS... OK' },
         { progress: 84, message: 'Preparando módulo de reportes...', icon: '📑', log: '[REPORTS] Cargando plantillas de reportes...' },
         { progress: 92, message: 'Verificación final del sistema...', icon: '✅', log: '[FINAL] Validando integridad del sistema...' },
-        { progress: 100, message: '¡Sistema listo para operar!', icon: '🚀', log: '[READY] CHValueGrowth Terminal lista. Bienvenido.' }
+        { progress: 100, message: '¡Sistema listo para operar!', icon: '🚀', log: '[READY] NeumatiQ Terminal lista. Bienvenido.' }
     ];
 
     const simulateLoading = useCallback(async () => {
@@ -422,17 +443,17 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
     return (
         <div className="relative min-h-screen overflow-hidden">
             
-            {/* Canvas de fondo con partículas */}
+            {/* Canvas de fondo con partículas Sky Blue */}
             <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-0" />
             
             {/* Efecto de gradiente superpuesto */}
-            <div className="fixed inset-0 bg-gradient-to-br from-[#0B0E14] via-[#0f172a] to-[#0B0E14] opacity-90 z-0" />
+            <div className="fixed inset-0 bg-gradient-to-br from-sky-100 via-white to-blue-100 opacity-90 z-0" />
             
             {/* Círculos decorativos flotantes */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-20 left-10 w-96 h-96 bg-emerald-500 rounded-full mix-blend-screen filter blur-[100px] opacity-5 animate-pulse" />
-                <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-5 animate-pulse delay-1000" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-screen filter blur-[120px] opacity-5 animate-pulse delay-2000" />
+                <div className="absolute top-20 left-10 w-96 h-96 bg-sky-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse" />
+                <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse delay-1000" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[120px] opacity-15 animate-pulse delay-2000" />
             </div>
             
             {/* Contenido principal */}
@@ -444,7 +465,7 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                     exit="exit"
                     className="w-full max-w-[520px]"
                 >
-                    {/* Terminal Glassmorphism */}
+                    {/* Terminal Glassmorphism con tema Sky Blue */}
                     <motion.div
                         variants={terminalVariants}
                         initial="hidden"
@@ -452,26 +473,26 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                         className="relative group"
                     >
                         {/* Efecto de glow externo */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-emerald-500 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
+                        <div className="absolute -inset-1 bg-gradient-to-r from-sky-400 via-blue-500 to-sky-400 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
                         
                         {/* Terminal principal */}
                         <div className="relative glass-terminal rounded-2xl shadow-2xl overflow-hidden animate-border-glow">
                             
                             {/* Barra superior estilo terminal */}
                             <div className="relative">
-                                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-black/50 border-b border-emerald-500/20">
+                                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-white/30 border-b border-sky-200/50">
                                     <div className="flex gap-2">
-                                        <div className="w-3 h-3 bg-red-500 rounded-full hover:bg-red-400 transition-all cursor-pointer" />
-                                        <div className="w-3 h-3 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-all cursor-pointer" />
-                                        <div className="w-3 h-3 bg-emerald-500 rounded-full hover:bg-emerald-400 transition-all cursor-pointer" />
+                                        <div className="w-3 h-3 bg-red-400 rounded-full hover:bg-red-300 transition-all cursor-pointer" />
+                                        <div className="w-3 h-3 bg-yellow-400 rounded-full hover:bg-yellow-300 transition-all cursor-pointer" />
+                                        <div className="w-3 h-3 bg-emerald-400 rounded-full hover:bg-emerald-300 transition-all cursor-pointer" />
                                     </div>
                                     <div className="flex-1 text-center">
-                                        <span className="text-[9px] text-emerald-500/50 terminal-text tracking-wider">
-                                            CHValueGrowth@terminal:~/splash
+                                        <span className="text-[9px] text-sky-600/60 terminal-text tracking-wider">
+                                            NeumatiQ@terminal:~/splash
                                         </span>
                                     </div>
                                     <div className="w-16 flex justify-end">
-                                        <span className="text-[8px] text-emerald-500/30 terminal-text">
+                                        <span className="text-[8px] text-sky-500/40 terminal-text">
                                             {new Date().toLocaleTimeString()}
                                         </span>
                                     </div>
@@ -491,24 +512,24 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                                         animate="animate"
                                         className="relative inline-block mb-4"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                                        <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-2xl blur-xl opacity-50 animate-pulse" />
+                                        <div className="relative w-20 h-20 bg-gradient-to-br from-sky-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
                                             <span className="text-4xl">{currentIcon}</span>
                                         </div>
                                     </motion.div>
                                     
-                                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent mb-1 terminal-text">
-                                        CHValueGrowth
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">
+                                        NeumatiQ
                                     </h1>
-                                    <p className="text-emerald-400/60 text-[10px] terminal-text tracking-wider flex items-center justify-center gap-2">
-                                        <span>TERMINAL DE MERCADO v3.0</span>
-                                        <span className="w-1 h-1 rounded-full bg-emerald-500" />
+                                    <p className="text-sky-600/60 text-[10px] terminal-text tracking-wider flex items-center justify-center gap-2">
+                                        <span>SISTEMA DE INTELIGENCIA v3.0</span>
+                                        <span className="w-1 h-1 rounded-full bg-sky-500" />
                                         <span>SECURE BOOT</span>
                                     </p>
                                 </div>
                                 
                                 {/* Sistema de logs en tiempo real */}
-                                <div className="mb-5 bg-black/50 rounded-xl p-3 border border-emerald-500/20 h-32 overflow-y-auto font-mono">
+                                <div className="mb-5 bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-sky-200/50 h-32 overflow-y-auto font-mono">
                                     <AnimatePresence>
                                         {systemLogs.slice(-5).map((log, idx) => (
                                             <motion.div
@@ -518,30 +539,30 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                                                 animate="visible"
                                                 exit="exit"
                                                 transition={{ delay: idx * 0.05 }}
-                                                className="text-[9px] text-emerald-400/70 py-0.5 flex items-start gap-2"
+                                                className="text-[9px] text-sky-700/70 py-0.5 flex items-start gap-2"
                                             >
-                                                <span className="text-emerald-500/30">$</span>
+                                                <span className="text-sky-400">$</span>
                                                 <span>{log}</span>
                                             </motion.div>
                                         ))}
                                     </AnimatePresence>
                                     {showCursor && (
-                                        <span className="inline-block w-2 h-3 bg-emerald-500 ml-1 cursor-blink" />
+                                        <span className="inline-block w-2 h-3 bg-sky-500 ml-1 cursor-blink" />
                                     )}
                                 </div>
                                 
                                 {/* Barra de progreso estilo terminal */}
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-[10px] text-emerald-400/60 terminal-text">
+                                    <div className="flex justify-between text-[10px] text-sky-600/60 terminal-text">
                                         <span className="flex items-center gap-1">
-                                            <span className="text-emerald-500">▶</span>
+                                            <span className="text-sky-500">▶</span>
                                             PROCESANDO
                                         </span>
-                                        <span className="font-mono font-bold text-emerald-400">{Math.floor(progress)}%</span>
+                                        <span className="font-mono font-bold text-sky-600">{Math.floor(progress)}%</span>
                                     </div>
-                                    <div className="relative h-2 bg-black/50 rounded-full overflow-hidden border border-emerald-500/20">
+                                    <div className="relative h-2 bg-white/30 rounded-full overflow-hidden border border-sky-200/50">
                                         <motion.div
-                                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full"
+                                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full"
                                             style={{ width: `${progress}%` }}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${progress}%` }}
@@ -558,16 +579,16 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                                         animate={{ opacity: 1, y: 0 }}
                                         className="text-center mt-3"
                                     >
-                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-100/50 border border-sky-200 backdrop-blur-sm">
                                             <span className="text-sm">{currentIcon}</span>
-                                            <span className="text-[10px] text-emerald-400 terminal-text">
+                                            <span className="text-[10px] text-sky-700 terminal-text">
                                                 {loadingMessage}
                                             </span>
                                             {progress < 100 && (
                                                 <motion.div
                                                     animate={{ rotate: 360 }}
                                                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                    className="w-2 h-2 border border-emerald-500 border-t-transparent rounded-full"
+                                                    className="w-2 h-2 border border-sky-500 border-t-transparent rounded-full"
                                                 />
                                             )}
                                         </div>
@@ -575,22 +596,22 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                                 </div>
                                 
                                 {/* Métricas del sistema */}
-                                <div className="mt-5 pt-4 border-t border-emerald-500/20">
+                                <div className="mt-5 pt-4 border-t border-sky-200/50">
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="text-center p-2 rounded-lg bg-black/30 border border-emerald-500/20">
-                                            <p className="text-[8px] text-emerald-500/50 terminal-text uppercase tracking-wider">Base de Datos</p>
-                                            <p className="text-[10px] text-emerald-400 font-mono font-bold">PostgreSQL 15</p>
+                                        <div className="text-center p-2 rounded-lg bg-white/30 backdrop-blur-sm border border-sky-200/50">
+                                            <p className="text-[8px] text-sky-600/50 terminal-text uppercase tracking-wider">Base de Datos</p>
+                                            <p className="text-[10px] text-sky-700 font-mono font-bold">PostgreSQL 15</p>
                                         </div>
-                                        <div className="text-center p-2 rounded-lg bg-black/30 border border-emerald-500/20">
-                                            <p className="text-[8px] text-emerald-500/50 terminal-text uppercase tracking-wider">API Gateway</p>
-                                            <p className="text-[10px] text-emerald-400 font-mono font-bold">RESTful v2.1</p>
+                                        <div className="text-center p-2 rounded-lg bg-white/30 backdrop-blur-sm border border-sky-200/50">
+                                            <p className="text-[8px] text-sky-600/50 terminal-text uppercase tracking-wider">API Gateway</p>
+                                            <p className="text-[10px] text-sky-700 font-mono font-bold">RESTful v2.1</p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 {/* Footer con información del sistema */}
                                 <div className="mt-4 text-center">
-                                    <div className="flex justify-center gap-3 text-[8px] text-emerald-500/40 terminal-text">
+                                    <div className="flex justify-center gap-3 text-[8px] text-sky-500/60 terminal-text">
                                         <span className="flex items-center gap-1">
                                             <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                                             ONLINE
@@ -599,16 +620,16 @@ const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
                                         <span>⚡ REAL-TIME</span>
                                         <span>📡 WEBSOCKET</span>
                                     </div>
-                                    <div className="flex justify-center gap-3 text-[7px] text-emerald-500/30 mt-2 terminal-text">
-                                        <span>© 2026 CHValueGrowth</span>
-                                        <span>Terminal de Mercado v3.0.0</span>
+                                    <div className="flex justify-center gap-3 text-[7px] text-sky-400/50 mt-2">
+                                        <span>© 2026 NeumatiQ</span>
+                                        <span>Sistema de Inteligencia v3.0.0</span>
                                         <span>Build: 2026.04.07</span>
                                     </div>
                                 </div>
                             </div>
                             
                             {/* Barra de estado inferior */}
-                            <div className="bg-black/50 border-t border-emerald-500/20 px-5 py-2 flex justify-between text-[8px] text-emerald-500/40 terminal-text">
+                            <div className="bg-white/30 backdrop-blur-sm border-t border-sky-200/50 px-5 py-2 flex justify-between text-[8px] text-sky-600/50 terminal-text">
                                 <span>🔋 SISTEMA OPERATIVO</span>
                                 <span>💾 MEM: 2.4GB/8GB</span>
                                 <span>🔄 AUTO-UPDATE: ON</span>

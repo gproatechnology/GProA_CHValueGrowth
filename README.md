@@ -1,6 +1,7 @@
-# CHValueGrowth
+# NeumatiQ
 
-> **Sistema de Inteligencia de Mercado para Monitoreo de Precios de Llantas**
+> **Sistema de Gestión Integral para el Comercio de Neumáticos**
+> Desarrollado por GProA Technology | Comercializado por CH ValueGrowth
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Desarrollo_Activo-yellow?style=for-the-badge" alt="Status">
@@ -13,20 +14,19 @@
 
 ## 📋 Descripción Ejecutiva
 
-**CHValueGrowth** es una plataforma de inteligencia de mercado diseñada para monitorear, analizar y optimizar estrategias de precios en el sector de neumáticos en México. 
-
-Fecha de modificación: 0704262030
-Ultimo Commit: Mandó commit desde local W
+**NeumatiQ** es un sistema de gestión integral diseñado específicamente para la gestión y compra del comercio de neumáticos (llantas). Cubre todos los procesos del negocio: compras a proveedores, inventario, ventas, facturación, control de bodega, gestión de clientes, reportes financieros, análisis de margen, rotación de productos, alertas de stock, CRM, etc.
 
 ### Problema que Resuelve
 
-* Monitoreo de precios de múltiples proveedores en tiempo real
-* Identificación de oportunidades de compra y competencia
-* Decisiones basadas en datos actualizados del mercado
+* Gestión integral de neumáticos (inventario, ventas, facturación)
+* Control de bodega y proveedores
+* Análisis de márgenes y rentabilidad
+* CRM y gestión de clientes
+* Reportes financieros y KPIs
 
 ### Solución Propuesta
 
-Un sistema automatizado que extrae datos de precios de múltiples fuentes, los normaliza y los presenta a través de una API RESTful, permitiendo a las empresas tomar decisiones informadas.
+Una plataforma integral que automatiza todos los procesos del negocio de neumáticos, desde la compra a proveedores hasta la facturación y análisis de ventas.
 
 ---
 
@@ -265,7 +265,7 @@ GProA_CHValueGrowth/
 {
   "status": "healthy",
   "service": "api",
-  "project": "CHValueGrowth",
+  "project": "NeumatiQ",
   "version": "1.0.0",
   "timestamp": "2026-03-27T01:20:29.706827Z"
 }
@@ -276,7 +276,7 @@ GProA_CHValueGrowth/
 ```json
 {
   "status": "ok",
-  "project": "CHValueGrowth"
+  "project": "NeumatiQ"
 }
 ```
 

@@ -1,6 +1,7 @@
 """
-Rutas de productos - CHValueGrowth API v1
-Endpoints para consultar productos de llantas.
+Rutas de productos - NeumatiQ API v1
+Sistema de Gestión Integral para el Comercio de Neumáticos
+Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 """
 
 import sys

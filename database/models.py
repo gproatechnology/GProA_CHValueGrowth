@@ -1,6 +1,7 @@
 """
-Modelo de datos para productos - CHValueGrowth
-Tabla: products
+Modelo de datos para productos - NeumatiQ
+Sistema de Gestión Integral para el Comercio de Neumáticos
+Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 """
 
 from datetime import datetime

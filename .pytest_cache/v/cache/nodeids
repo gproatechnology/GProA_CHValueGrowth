@@ -1,0 +1,6 @@
+[
+  "tests/test_scraper.py::test_extract_brand",
+  "tests/test_scraper.py::test_extract_size",
+  "tests/test_scraper.py::test_mock_search_returns_products",
+  "tests/test_scraper.py::test_real_search"
+]

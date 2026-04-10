@@ -12,7 +12,7 @@ load_dotenv()
 from services.api.routes.products import router as products_router
 from services.api.routes.auth import router as auth_router
 
-app = FastAPI(title="CHValueGrowth API")
+app = FastAPI(title="NeumatiQ API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,7 +40,7 @@ app.include_router(auth_router)
 def root():
     if (FRONTEND_DIST / "index.html").exists():
         return FileResponse(str(FRONTEND_DIST / "index.html"))
-    return {"status": "ok", "project": "CHValueGrowth"}
+    return {"status": "ok", "project": "NeumatiQ"}
 
 
 @app.get("/dashboard")
@@ -54,7 +54,7 @@ def health():
     return {
         "status": "healthy",
         "service": "api",
-        "project": "CHValueGrowth",
+        "project": "NeumatiQ",
         "version": "1.0.0",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }

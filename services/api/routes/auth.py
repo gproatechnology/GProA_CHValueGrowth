@@ -1,6 +1,7 @@
 """
-Authentication routes - CHValueGrowth API v1
-Endpoints for user authentication with JWT tokens.
+Authentication routes - NeumatiQ API v1
+Sistema de Gestión Integral para el Comercio de Neumáticos
+Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 
 Features:
 - JWT token authentication

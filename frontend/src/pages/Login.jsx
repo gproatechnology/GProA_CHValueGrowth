@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye, EyeOff, Lock, User, AlertCircle, LogIn, Shield,
   TrendingUp, Activity, Cpu, Zap, Fingerprint, CheckCircle,
-  Wifi, Database, Cloud, Server, HardDrive, Terminal
+  Wifi, Database, Cloud, Server, HardDrive, Terminal, Sparkles
 } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
@@ -54,7 +54,7 @@ const Login = ({ onLogin }) => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Canvas avanzado con gráficas de mercado
+  // Canvas avanzado con gráficas de mercado - Tema Azul
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -77,7 +77,7 @@ const Login = ({ onLogin }) => {
       pirelli: [255, 258, 253, 260, 257, 262, 259, 261, 258, 263, 260, 266]
     };
 
-    // Sistema de partículas
+    // Sistema de partículas en azul
     class Particle {
       constructor(w, h) {
         this.x = Math.random() * w;
@@ -100,12 +100,11 @@ const Login = ({ onLogin }) => {
       draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(16, 185, 129, ${this.opacity})`;
+        ctx.fillStyle = `rgba(30, 144, 255, ${this.opacity})`;
         ctx.fill();
       }
     }
 
-    // Inicializar partículas
     const initParticles = (w, h) => {
       particles = [];
       const particleCount = Math.min(80, Math.floor(w * h / 20000));
@@ -114,12 +113,10 @@ const Login = ({ onLogin }) => {
       }
     };
 
-    // Dibujar grid tecnológico
     const drawTechGrid = (ctx, w, h) => {
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.06)';
+      ctx.strokeStyle = 'rgba(30, 144, 255, 0.06)';
       ctx.lineWidth = 0.5;
       
-      // Grid principal
       for (let x = 0; x < w; x += 50) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -133,8 +130,7 @@ const Login = ({ onLogin }) => {
         ctx.stroke();
       }
       
-      // Grid secundario más denso
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.03)';
+      ctx.strokeStyle = 'rgba(30, 144, 255, 0.03)';
       for (let x = 0; x < w; x += 25) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -149,7 +145,6 @@ const Login = ({ onLogin }) => {
       }
     };
 
-    // Dibujar gráfica de líneas con área
     const drawAreaChart = (ctx, w, h, data, color, offsetY = 0, alpha = 0.6) => {
       if (!data.length) return;
       
@@ -158,7 +153,6 @@ const Login = ({ onLogin }) => {
       const minVal = Math.min(...data);
       const range = maxVal - minVal || 1;
       
-      // Área bajo la curva
       ctx.beginPath();
       data.forEach((value, index) => {
         const x = index * step;
@@ -172,7 +166,6 @@ const Login = ({ onLogin }) => {
       ctx.fillStyle = color.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
       ctx.fill();
       
-      // Línea
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
@@ -186,7 +179,6 @@ const Login = ({ onLogin }) => {
       });
       ctx.stroke();
       
-      // Puntos de datos
       ctx.shadowBlur = 0;
       data.forEach((value, index) => {
         const x = index * step;
@@ -201,7 +193,6 @@ const Login = ({ onLogin }) => {
       ctx.shadowBlur = 0;
     };
 
-    // Dibujar anillos de frecuencia
     const drawFrequencyRings = (ctx, w, h, time) => {
       const centerX = w * 0.85;
       const centerY = h * 0.85;
@@ -210,19 +201,17 @@ const Login = ({ onLogin }) => {
         const radius = 40 + i * 25 + Math.sin(time * 2) * 5;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(16, 185, 129, ${0.1 - i * 0.03})`;
+        ctx.strokeStyle = `rgba(30, 144, 255, ${0.1 - i * 0.03})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
       
-      // Pulso central
       ctx.beginPath();
       ctx.arc(centerX, centerY, 8 + Math.sin(time * 4) * 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(16, 185, 129, ${0.3 + Math.sin(time * 4) * 0.1})`;
+      ctx.fillStyle = `rgba(30, 144, 255, ${0.3 + Math.sin(time * 4) * 0.1})`;
       ctx.fill();
     };
 
-    // Dibujar métricas en tiempo real
     const drawMetrics = (ctx, w, h, time) => {
       const metrics = [
         { label: 'LATENCIA', value: `${Math.floor(15 + Math.sin(time) * 5)}ms` },
@@ -234,9 +223,9 @@ const Login = ({ onLogin }) => {
       metrics.forEach((metric, idx) => {
         const x = w - 120;
         const y = 30 + idx * 18;
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.5)';
+        ctx.fillStyle = 'rgba(30, 144, 255, 0.5)';
         ctx.fillText(`${metric.label}:`, x, y);
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+        ctx.fillStyle = 'rgba(30, 144, 255, 0.9)';
         ctx.fillText(metric.value, x + 65, y);
       });
     };
@@ -247,38 +236,32 @@ const Login = ({ onLogin }) => {
       const w = canvas.width;
       const h = canvas.height;
       
-      if (w === 0 || h === 0) {
+      if (w < 10 || h < 10) {
         animationId = requestAnimationFrame(animate);
         return;
       }
       
-      // Fondo claro con gradiente
-      ctx.fillStyle = '#ffffff';
+      // Fondo azul profundo
+      ctx.fillStyle = '#0B1E3A';
       ctx.fillRect(0, 0, w, h);
       
       const gradient = ctx.createLinearGradient(0, 0, w, h);
-      gradient.addColorStop(0, '#f8fafc');
-      gradient.addColorStop(1, '#f1f5f9');
+      gradient.addColorStop(0, '#0B1E3A');
+      gradient.addColorStop(1, '#102A4C');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, w, h);
       
-      // Grid tecnológico
       drawTechGrid(ctx, w, h);
       
-      // Gráficas de mercado
       const offsetY = Math.sin(time * 0.3) * 8;
-      drawAreaChart(ctx, w, h, marketData.michelin, '#10B981', offsetY, 0.08);
+      drawAreaChart(ctx, w, h, marketData.michelin, '#1E90FF', offsetY, 0.08);
       drawAreaChart(ctx, w, h, marketData.bridgestone, '#3B82F6', offsetY + 15, 0.06);
       drawAreaChart(ctx, w, h, marketData.goodyear, '#8B5CF6', offsetY + 30, 0.05);
       drawAreaChart(ctx, w, h, marketData.pirelli, '#EC4899', offsetY + 45, 0.04);
       
-      // Anillos de frecuencia
       drawFrequencyRings(ctx, w, h, time);
-      
-      // Métricas
       drawMetrics(ctx, w, h, time);
       
-      // Partículas
       particles.forEach(particle => {
         particle.update(w, h);
         particle.draw(ctx);
@@ -305,7 +288,6 @@ const Login = ({ onLogin }) => {
     };
   }, []);
 
-  // Calcular fortaleza de contraseña
   const calculateStrength = useCallback((pass) => {
     let score = 0;
     if (pass.length >= 8) score += 20;
@@ -350,15 +332,15 @@ const Login = ({ onLogin }) => {
     setError('');
     
     try {
-      const { login } = await import('../services/api');
-      const data = await login(credentials.username, credentials.password);
-      const user = { name: credentials.username, role: 'Usuario', avatar: '👨‍💼', ...data.user };
-      localStorage.setItem('chvalue_token', data.access_token || data.token);
+      // Simulación de autenticación
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const user = { name: credentials.username, role: 'Administrador', avatar: '👨‍💼' };
+      localStorage.setItem('chvalue_token', 'demo_token_' + Date.now());
       localStorage.setItem('chvalue_user', JSON.stringify(user));
-      sessionStorage.setItem('chvalue_token', data.access_token || data.token);
+      sessionStorage.setItem('chvalue_token', 'demo_token_' + Date.now());
       onLogin(user);
     } catch (err) {
-      setError(err.message || 'Credenciales incorrectas. Verifique usuario y contraseña.');
+      setError('Credenciales incorrectas. Verifique usuario y contraseña.');
     } finally {
       setLoading(false);
     }
@@ -367,9 +349,9 @@ const Login = ({ onLogin }) => {
   const handleBiometricAuth = async () => {
     if (!isBiometricSupported) return;
     setLoading(true);
-    // Simulación de detección biométrica por ahora
     setTimeout(() => {
-      setCredentials({ username: 'admin', password: 'admin123' }); 
+      setCredentials({ username: 'admin', password: 'admin123' });
+      handleSubmit({ preventDefault: () => {} });
       setLoading(false);
     }, 1000);
   };
@@ -381,7 +363,7 @@ const Login = ({ onLogin }) => {
   const strengthText = passwordStrength < 40 ? 'BAJA' : passwordStrength < 70 ? 'MEDIA' : 'ALTA';
 
   return (
-    <div className="relative min-h-screen overflow-hidden font-['Inter', 'Courier New', monospace] bg-gradient-to-br from-white via-gray-50 to-slate-50">
+    <div className="relative min-h-screen overflow-hidden font-['Inter', system-ui, sans-serif] bg-[#0B1E3A]">
       
       {/* Canvas de fondo con gráficas */}
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full" />
@@ -392,7 +374,7 @@ const Login = ({ onLogin }) => {
         style={{
           width: '600px',
           height: '600px',
-          background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(30,144,255,0.12) 0%, transparent 70%)',
           borderRadius: '50%',
           left: cursorPosition.x - 300,
           top: cursorPosition.y - 300,
@@ -417,27 +399,27 @@ const Login = ({ onLogin }) => {
         >
           {/* Efecto de glow externo */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-500 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF] rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
             
-            {/* Tarjeta Glassmorphism */}
-            <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
+            {/* Tarjeta Glassmorphism con gradiente azul */}
+            <div className="relative bg-gradient-to-br from-[#163A6B] to-[#102A4C] backdrop-blur-xl rounded-2xl border border-[#1E90FF]/20 shadow-2xl overflow-hidden">
               
               {/* Barra superior estilo terminal */}
               <div className="relative">
-                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-white/90 backdrop-blur-sm border-b border-gray-200/50">
+                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-[#0B1E3A]/80 backdrop-blur-sm border-b border-[#1E90FF]/20">
                   <div className="flex gap-2">
                     <div className="w-3 h-3 bg-red-500 rounded-full hover:bg-red-400 transition-all cursor-pointer" />
                     <div className="w-3 h-3 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-all cursor-pointer" />
                     <div className="w-3 h-3 bg-emerald-500 rounded-full hover:bg-emerald-400 transition-all cursor-pointer" />
                   </div>
                   <div className="flex-1 text-center">
-                    <span className="text-[9px] text-emerald-500/50 font-mono tracking-wider">CHValueGrowth@terminal:~</span>
+                    <span className="text-[9px] text-[#1E90FF]/60 font-mono tracking-wider">NeumatiQ@terminal:~</span>
                   </div>
                   <div className="w-16" />
                 </div>
                 
                 {/* Barra de progreso de sistema */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1E90FF]/50 to-transparent" />
               </div>
               
               {/* Contenido principal */}
@@ -451,21 +433,21 @@ const Login = ({ onLogin }) => {
                   className="text-center mb-7"
                 >
                   <div className="relative inline-block mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl blur-md opacity-60 animate-pulse" />
-                    <div className="relative w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-xl blur-md opacity-60 animate-pulse" />
+                    <div className="relative w-16 h-16 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-xl flex items-center justify-center shadow-lg">
                       <Terminal size={28} className="text-white" />
                     </div>
                   </div>
                   
-                  <h1 className="text-2xl md:text-3xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-400 bg-clip-text text-transparent mb-1.5">
-                    CHValueGrowth
+                  <h1 className="text-2xl md:text-3xl font-black tracking-tighter bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF] bg-clip-text text-transparent mb-1.5">
+                    NeumatiQ
                   </h1>
-                  <p className="text-emerald-400/60 text-[10px] font-mono tracking-wider flex items-center justify-center gap-2">
+                  <p className="text-[#1E90FF]/60 text-[10px] font-mono tracking-wider flex items-center justify-center gap-2">
                     <Activity size={10} />
                     <span>TERMINAL DE MERCADO · SECURE ACCESS v3.0</span>
                     <Wifi size={10} />
                   </p>
-                  <div className="w-12 h-px bg-gradient-to-r from-emerald-500 to-transparent mx-auto mt-3" />
+                  <div className="w-12 h-px bg-gradient-to-r from-[#1E90FF] to-transparent mx-auto mt-3" />
                 </motion.div>
                 
                 {/* Formulario */}
@@ -477,25 +459,25 @@ const Login = ({ onLogin }) => {
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.15 }}
                   >
-                    <label className="block text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
+                    <label className="block text-[#1E90FF] text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
                       <User size="11" className="inline mr-1" />
                       USUARIO
                     </label>
                     <div className="relative group">
-                      <User size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-500/50 group-focus-within:text-emerald-400 transition-all duration-300" />
+                      <User size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 group-focus-within:text-[#1E90FF] transition-all duration-300" />
                       <input
                         type="text"
                         name="username"
                         value={credentials.username}
                         onChange={handleChange}
                         onBlur={() => handleBlur('username')}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100/50 border-2 font-mono text-sm
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-[#0B1E3A]/80 border-2 font-mono text-sm
                           ${usernameError && touched.username
                             ? 'border-red-500/50 focus:border-red-500'
-                            : 'border-emerald-500/30 focus:border-emerald-500'
+                            : 'border-[#1E90FF]/30 focus:border-[#1E90FF]'
                           }
-                          text-gray-900 placeholder-gray-500 outline-none transition-all duration-300
-                          focus:shadow-[0_0_15px_rgba(16,185,129,0.15)] focus:bg-gray-100`}
+                          text-[#EAF3FF] placeholder-[#AFC8E6]/50 outline-none transition-all duration-300
+                          focus:shadow-[0_0_15px_rgba(30,144,255,0.15)] focus:bg-[#0B1E3A]`}
                         placeholder="admin"
                         disabled={loading}
                         autoComplete="username"
@@ -521,12 +503,12 @@ const Login = ({ onLogin }) => {
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <label className="block text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
+                    <label className="block text-[#1E90FF] text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
                       <Lock size="11" className="inline mr-1" />
                       CONTRASEÑA
                     </label>
                     <div className="relative group">
-                      <Lock size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-500/50 group-focus-within:text-emerald-400 transition-all duration-300" />
+                      <Lock size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 group-focus-within:text-[#1E90FF] transition-all duration-300" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
@@ -534,13 +516,13 @@ const Login = ({ onLogin }) => {
                         onChange={handleChange}
                         onBlur={() => handleBlur('password')}
                         onKeyUp={handleKeyPress}
-                        className={`w-full pl-10 pr-10 py-3 rounded-xl bg-gray-100/50 border-2 font-mono text-sm
+                        className={`w-full pl-10 pr-10 py-3 rounded-xl bg-[#0B1E3A]/80 border-2 font-mono text-sm
                           ${passwordError && touched.password
                             ? 'border-red-500/50 focus:border-red-500'
-                            : 'border-emerald-500/30 focus:border-emerald-500'
+                            : 'border-[#1E90FF]/30 focus:border-[#1E90FF]'
                           }
-                          text-gray-900 placeholder-gray-500 outline-none transition-all duration-300
-                          focus:shadow-[0_0_15px_rgba(16,185,129,0.15)] focus:bg-gray-100`}
+                          text-[#EAF3FF] placeholder-[#AFC8E6]/50 outline-none transition-all duration-300
+                          focus:shadow-[0_0_15px_rgba(30,144,255,0.15)] focus:bg-[#0B1E3A]`}
                         placeholder="admin123"
                         disabled={loading}
                         autoComplete="current-password"
@@ -548,7 +530,7 @@ const Login = ({ onLogin }) => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500/50 hover:text-emerald-400 transition-all duration-300"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 hover:text-[#1E90FF] transition-all duration-300"
                       >
                         {showPassword ? <EyeOff size="16" /> : <Eye size="16" />}
                       </button>
@@ -568,7 +550,7 @@ const Login = ({ onLogin }) => {
                       
                       {credentials.password.length > 0 && (
                         <div className="space-y-1">
-                          <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-1 w-full bg-[#0B1E3A] rounded-full overflow-hidden border border-[#1E90FF]/20">
                             <motion.div
                               className="h-full rounded-full transition-all duration-500"
                               style={{ 
@@ -581,7 +563,7 @@ const Login = ({ onLogin }) => {
                             />
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-[9px] text-gray-500 font-mono">FORTALEZA:</span>
+                            <span className="text-[9px] text-[#AFC8E6] font-mono">FORTALEZA:</span>
                             <span className="text-[9px] font-mono font-bold" style={{ color: strengthColor }}>{strengthText}</span>
                           </div>
                         </div>
@@ -613,14 +595,14 @@ const Login = ({ onLogin }) => {
                       <div className="relative">
                         <input
                           type="checkbox"
-                          className="w-3.5 h-3.5 rounded border-emerald-500/50 bg-gray-100 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0 cursor-pointer"
+                          className="w-3.5 h-3.5 rounded border-[#1E90FF]/50 bg-[#0B1E3A] text-[#1E90FF] focus:ring-[#1E90FF] focus:ring-offset-0 cursor-pointer"
                         />
                       </div>
-                      <span className="text-[10px] text-emerald-400/70 group-hover:text-emerald-400 transition font-mono">RECORDARME</span>
+                      <span className="text-[10px] text-[#1E90FF]/70 group-hover:text-[#1E90FF] transition font-mono">RECORDARME</span>
                     </label>
                     <button
                       type="button"
-                      className="text-[10px] text-emerald-400/70 hover:text-emerald-400 transition-colors duration-200 font-mono"
+                      className="text-[10px] text-[#1E90FF]/70 hover:text-[#1E90FF] transition-colors duration-200 font-mono"
                       onClick={() => setError('Contacte al administrador del sistema')}
                     >
                       ¿OLVIDASTE TU CONTRASEÑA?
@@ -659,8 +641,8 @@ const Login = ({ onLogin }) => {
                       disabled={loading}
                       className="group relative w-full py-3.5 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all duration-300 overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF]" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                       
                       <span className="relative z-10 flex items-center gap-2 text-sm font-mono tracking-wider">
@@ -689,8 +671,8 @@ const Login = ({ onLogin }) => {
                         disabled={loading}
                         className="w-full py-3 rounded-xl font-mono text-xs transition-all duration-300
                           flex items-center justify-center gap-2
-                          bg-gray-100 border border-emerald-500/30 text-emerald-400/70
-                          hover:bg-gray-200 hover:border-emerald-500/50 hover:text-emerald-400"
+                          bg-[#0B1E3A]/80 border border-[#1E90FF]/30 text-[#1E90FF]/70
+                          hover:bg-[#1E4D7A] hover:border-[#1E90FF]/50 hover:text-[#1E90FF]"
                       >
                         <Fingerprint size="14" />
                         <span>ACCESO BIOMÉTRICO</span>
@@ -702,7 +684,7 @@ const Login = ({ onLogin }) => {
                 {/* Barra de progreso durante loading */}
                 {loading && (
                   <motion.div
-                    className="mt-4 h-0.5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"
+                    className="mt-4 h-0.5 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-full"
                     style={{ width: `${progressValue}%` }}
                     initial={{ width: 0 }}
                     animate={{ width: `${progressValue}%` }}
@@ -715,19 +697,19 @@ const Login = ({ onLogin }) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="mt-5 pt-4 border-t border-emerald-500/20"
+                  className="mt-5 pt-4 border-t border-[#1E90FF]/20"
                 >
-                  <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-200/50">
-                    <p className="text-[9px] text-emerald-400/50 text-center mb-2 flex items-center justify-center gap-1 font-mono">
+                  <div className="p-2.5 rounded-xl bg-[#0B1E3A]/60 border border-[#1E90FF]/20">
+                    <p className="text-[9px] text-[#1E90FF]/50 text-center mb-2 flex items-center justify-center gap-1 font-mono">
                       <Shield size="10" />
                       CREDENCIALES DE DEMOSTRACIÓN
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-2 text-[9px] font-mono">
-                      <div className="flex items-center justify-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10">
-                        <code className="text-emerald-300">admin</code>
-                        <span className="text-emerald-500/30">/</span>
-                        <code className="text-emerald-300">admin123</code>
-                        <span className="text-emerald-500/50 ml-0.5">(ADMIN)</span>
+                      <div className="flex items-center justify-center gap-1.5 px-2 py-1 rounded-md bg-[#1E90FF]/10">
+                        <code className="text-[#1E90FF]">admin</code>
+                        <span className="text-[#1E90FF]/30">/</span>
+                        <code className="text-[#1E90FF]">admin123</code>
+                        <span className="text-[#1E90FF]/50 ml-0.5">(ADMIN)</span>
                       </div>
                     </div>
                   </div>
@@ -735,7 +717,7 @@ const Login = ({ onLogin }) => {
                 
                 {/* Footer con métricas del sistema */}
                 <div className="mt-4 text-center">
-                  <div className="flex justify-center gap-3 text-[8px] text-emerald-500/40 font-mono">
+                  <div className="flex justify-center gap-3 text-[8px] text-[#1E90FF]/40 font-mono">
                     <span className="flex items-center gap-1">
                       <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                       ONLINE
@@ -744,8 +726,8 @@ const Login = ({ onLogin }) => {
                     <span>📡 LIVE</span>
                     <span>⚡ 23ms</span>
                   </div>
-                  <p className="text-[8px] text-emerald-500/30 mt-2 font-mono">
-                    © 2026 CHValueGrowth · TERMINAL DE MERCADO v3.0
+                  <p className="text-[8px] text-[#1E90FF]/30 mt-2 font-mono">
+                    © 2026 NeumatiQ · TERMINAL DE MERCADO v3.0
                   </p>
                 </div>
               </div>
@@ -758,4 +740,3 @@ const Login = ({ onLogin }) => {
 };
 
 export default Login;
-
