@@ -12,7 +12,7 @@ COPY frontend/package*.json ./
 RUN npm install
 
 COPY frontend/ ./
-RUN npx --yes vite build
+RUN npm install && node node_modules/vite/bin/vite.js build
 
 # ============================================
 # STAGE 2: Backend (Python)
