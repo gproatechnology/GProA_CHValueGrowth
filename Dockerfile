@@ -12,7 +12,7 @@ COPY frontend/package*.json ./
 RUN npm install && npm install @rollup/rollup-linux-x64-musl
 
 COPY frontend/ ./
-RUN npm install && node node_modules/vite/bin/vite.js build
+RUN node node_modules/vite/bin/vite.js build
 
 # ============================================
 # STAGE 2: Backend (Python)
