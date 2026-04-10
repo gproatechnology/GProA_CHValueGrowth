@@ -1,145 +1,17 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Estilos avanzados con animaciones Sky Blue & Clean Glass
 const splashStyles = `
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes slideDown {
-  from { transform: translateY(-30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes rotateTire {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { 
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% { 
-    opacity: 0.6;
-    transform: scale(1.05);
-  }
-}
-
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
-
-@keyframes borderFlow {
-  0%, 100% { 
-    border-color: rgba(14, 165, 233, 0.2);
-    box-shadow: 0 0 0px rgba(14, 165, 233, 0);
-  }
-  50% { 
-    border-color: rgba(14, 165, 233, 0.5);
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
-  }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.6); }
 }
-
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes floatParticle {
-  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.5; }
-  90% { opacity: 0.5; }
-  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-}
-
-@keyframes scanLine {
-  0% { top: 0%; }
-  100% { top: 100%; }
-}
-
-@keyframes ripple {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
 .animate-shimmer {
-  animation: shimmer 1.8s infinite;
-}
-
-.animate-border-glow {
-  animation: borderFlow 2s ease-in-out infinite;
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradientShift 3s ease infinite;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.typing-effect {
-  overflow: hidden;
-  white-space: nowrap;
-  animation: typing 2s steps(40, end);
-}
-
-.scan-effect::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #0EA5E9, #3B82F6, #0EA5E9, transparent);
-  animation: scanLine 3s linear infinite;
-}
-
-.ripple-effect {
-  animation: ripple 1.5s ease-out infinite;
-}
-
-.glass-terminal {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-}
-
-.terminal-text {
-  font-family: 'Inter', 'SF Mono', 'Fira Code', monospace;
-}
-
-.cursor-blink {
-  animation: blink 1s step-end infinite;
+  animation: shimmer 1.5s infinite;
 }
 `;
 
@@ -152,495 +24,179 @@ function injectSplashStyles() {
   splashStyleInjected = true;
 }
 
-/**
- * SplashScreen - Pantalla de carga estilo terminal con tema Sky Blue & Clean Glass
- * @component
- * @param {Object} props
- * @param {Function} [props.onComplete] - Callback cuando la carga termina
- * @param {number} [props.minDuration=2500] - Duración mínima en ms
- */
+const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'center' }) => {
+  injectSplashStyles();
 
-const SplashScreen = ({ onComplete, minDuration = 2500 }) => {
-    injectSplashStyles();
+  const [progress, setProgress] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  
+  const startTimeRef = React.useRef(Date.now());
+  const mountedRef = React.useRef(true);
 
-    const [progress, setProgress] = useState(0);
-    const [loadingMessage, setLoadingMessage] = useState('Inicializando sistema...');
-    const [currentIcon, setCurrentIcon] = useState('🛞');
-    const [isComplete, setIsComplete] = useState(false);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [systemLogs, setSystemLogs] = useState([]);
-    const [showCursor, setShowCursor] = useState(true);
+  const loadingSteps = [
+    { progress: 10, delay: 100 },
+    { progress: 25, delay: 150 },
+    { progress: 40, delay: 150 },
+    { progress: 55, delay: 150 },
+    { progress: 70, delay: 150 },
+    { progress: 85, delay: 150 },
+    { progress: 100, delay: 300 }
+  ];
+
+  const simulateLoading = React.useRef(async () => {
+    try {
+      for (let i = 0; i < loadingSteps.length; i++) {
+        const step = loadingSteps[i];
+        if (!mountedRef.current) return;
+        
+        setProgress(step.progress);
+        
+        const stepDelay = i === loadingSteps.length - 1 ? 300 : step.delay;
+        await new Promise(resolve => setTimeout(resolve, stepDelay));
+      }
+
+      const elapsed = Date.now() - startTimeRef.current;
+      if (elapsed < minDuration && mountedRef.current) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
+      }
+
+      if (mountedRef.current) {
+        setIsComplete(true);
+        setTimeout(() => {
+          setIsVisible(false);
+          if (onComplete) onComplete();
+        }, 800);
+      }
+    } catch (error) {
+      console.error('Error during loading:', error);
+    }
+  });
+
+  useEffect(() => {
+    mountedRef.current = true;
+    simulateLoading.current();
     
-    const startTimeRef = useRef(Date.now());
-    const mountedRef = useRef(true);
-    const canvasRef = useRef(null);
-
-    // Sistema de partículas para el canvas con tema Sky Blue
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        let animationId;
-        let particles = [];
-        let time = 0;
-        
-        const resizeCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        
-        class Particle {
-            constructor(w, h) {
-                this.x = Math.random() * w;
-                this.y = Math.random() * h;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.2 - 0.5;
-                this.opacity = Math.random() * 0.3;
-                // Colores Sky Blue
-                const colors = ['#0EA5E9', '#3B82F6', '#38BDF8', '#7DD3FC', '#BAE6FD'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-            }
-            
-            update(w, h) {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                
-                if (this.x < 0) this.x = w;
-                if (this.x > w) this.x = 0;
-                if (this.y < 0) this.y = h;
-                if (this.y > h) this.y = 0;
-            }
-            
-            draw(ctx) {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.shadowBlur = 4;
-                ctx.shadowColor = this.color;
-            }
-        }
-        
-        const initParticles = (w, h) => {
-            particles = [];
-            const particleCount = Math.min(60, Math.floor(w * h / 15000));
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle(w, h));
-            }
-        };
-        
-        const drawGrid = (ctx, w, h) => {
-            ctx.strokeStyle = 'rgba(14, 165, 233, 0.05)';
-            ctx.lineWidth = 0.5;
-            
-            for (let x = 0; x < w; x += 40) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, h);
-                ctx.stroke();
-            }
-            for (let y = 0; y < h; y += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(w, y);
-                ctx.stroke();
-            }
-        };
-        
-        const drawCircuitPattern = (ctx, w, h, time) => {
-            ctx.strokeStyle = 'rgba(14, 165, 233, 0.08)';
-            ctx.lineWidth = 0.8;
-            
-            // Circuito decorativo en esquinas
-            const corners = [
-                { x: 30, y: 30 },
-                { x: w - 30, y: 30 },
-                { x: 30, y: h - 30 },
-                { x: w - 30, y: h - 30 }
-            ];
-            
-            corners.forEach(corner => {
-                ctx.beginPath();
-                ctx.moveTo(corner.x, corner.y);
-                ctx.lineTo(corner.x + 40, corner.y);
-                ctx.lineTo(corner.x + 40, corner.y + 20);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(corner.x, corner.y);
-                ctx.lineTo(corner.x, corner.y + 40);
-                ctx.lineTo(corner.x + 20, corner.y + 40);
-                ctx.stroke();
-            });
-        };
-        
-        const drawSkyGradient = (ctx, w, h) => {
-            const gradient = ctx.createLinearGradient(0, 0, w, h);
-            gradient.addColorStop(0, '#E0F2FE');
-            gradient.addColorStop(0.5, '#F0F9FF');
-            gradient.addColorStop(1, '#BAE6FD');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, w, h);
-        };
-        
-        const animate = () => {
-            if (!ctx) return;
-            
-            const w = canvas.width;
-            const h = canvas.height;
-            
-            if (w === 0 || h === 0) {
-                animationId = requestAnimationFrame(animate);
-                return;
-            }
-            
-            drawSkyGradient(ctx, w, h);
-            drawGrid(ctx, w, h);
-            drawCircuitPattern(ctx, w, h, time);
-            
-            particles.forEach(particle => {
-                particle.update(w, h);
-                particle.draw(ctx);
-            });
-            
-            time += 0.016;
-            animationId = requestAnimationFrame(animate);
-        };
-        
-        resizeCanvas();
-        initParticles(canvas.width, canvas.height);
-        animate();
-        
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles(canvas.width, canvas.height);
-        });
-        
-        return () => {
-            if (animationId) cancelAnimationFrame(animationId);
-            window.removeEventListener('resize', resizeCanvas);
-        };
-    }, []);
-
-    // Pasos de carga para sistema de neumáticos con tema Sky Blue
-    const loadingSteps = [
-        { progress: 5, message: 'Iniciando sistema de inteligencia...', icon: '🖥️', log: '[INFO] NeumatiQ Terminal v3.0 iniciando...' },
-        { progress: 12, message: 'Verificando módulos de seguridad...', icon: '🔒', log: '[SEC] Verificación de integridad del sistema... OK' },
-        { progress: 20, message: 'Conectando a base de datos de mercado...', icon: '🗄️', log: '[DB] Conectando a PostgreSQL cluster... CONECTADO' },
-        { progress: 28, message: 'Cargando catálogo de neumáticos...', icon: '🛞', log: '[CATALOG] Cargando 2,450+ productos... COMPLETADO' },
-        { progress: 36, message: 'Sincronizando precios en tiempo real...', icon: '💰', log: '[API] Sincronizando precios de 15+ proveedores... OK' },
-        { progress: 44, message: 'Analizando tendencias de mercado...', icon: '📈', log: '[ANALYTICS] Procesando datos históricos... 44%' },
-        { progress: 52, message: 'Actualizando inventario global...', icon: '📦', log: '[INVENTORY] Actualizando stock en 8 almacenes...' },
-        { progress: 60, message: 'Optimizando motor de búsqueda...', icon: '🔍', log: '[SEARCH] Indexando catálogo de productos...' },
-        { progress: 68, message: 'Cargando paneles de control...', icon: '📊', log: '[DASHBOARD] Inicializando widgets analíticos...' },
-        { progress: 76, message: 'Estableciendo conexiones seguras...', icon: '🔐', log: '[SECURE] Estableciendo túneles SSL/TLS... OK' },
-        { progress: 84, message: 'Preparando módulo de reportes...', icon: '📑', log: '[REPORTS] Cargando plantillas de reportes...' },
-        { progress: 92, message: 'Verificación final del sistema...', icon: '✅', log: '[FINAL] Validando integridad del sistema...' },
-        { progress: 100, message: '¡Sistema listo para operar!', icon: '🚀', log: '[READY] NeumatiQ Terminal lista. Bienvenido.' }
-    ];
-
-    const simulateLoading = useCallback(async () => {
-        try {
-            for (let i = 0; i < loadingSteps.length; i++) {
-                const step = loadingSteps[i];
-                if (!mountedRef.current) return;
-                
-                setCurrentStep(i);
-                setProgress(step.progress);
-                setLoadingMessage(step.message);
-                setCurrentIcon(step.icon);
-                setSystemLogs(prev => [...prev, step.log]);
-                
-                // Tiempo variable para cada paso
-                const stepDelay = i === loadingSteps.length - 1 ? 300 : 150;
-                await new Promise(resolve => setTimeout(resolve, stepDelay));
-            }
-
-            const elapsed = Date.now() - startTimeRef.current;
-            if (elapsed < minDuration && mountedRef.current) {
-                await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
-            }
-
-            if (mountedRef.current) {
-                setIsComplete(true);
-                if (onComplete) onComplete();
-            }
-        } catch (error) {
-            console.error('Error durante la carga:', error);
-            if (mountedRef.current) {
-                setLoadingMessage('Error crítico. Reiniciando sistema...');
-                setCurrentIcon('⚠️');
-                setSystemLogs(prev => [...prev, '[ERROR] Fallo en la inicialización. Reiniciando...']);
-                setTimeout(() => {
-                    if (mountedRef.current) simulateLoading();
-                }, 3000);
-            }
-        }
-    }, [minDuration, onComplete]);
-
-    useEffect(() => {
-        mountedRef.current = true;
-        simulateLoading();
-        
-        // Cursor blink effect
-        const cursorInterval = setInterval(() => {
-            setShowCursor(prev => !prev);
-        }, 500);
-        
-        return () => {
-            mountedRef.current = false;
-            clearInterval(cursorInterval);
-        };
-    }, [simulateLoading]);
-
-    // Variantes de animación
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { 
-            opacity: 1,
-            transition: { duration: 0.5 }
-        },
-        exit: { 
-            opacity: 0,
-            transition: { duration: 0.3 }
-        }
+    return () => {
+      mountedRef.current = false;
     };
+  }, []);
 
-    const terminalVariants = {
-        hidden: { opacity: 0, scale: 0.95, y: 30 },
-        visible: { 
-            opacity: 1, 
-            scale: 1, 
-            y: 0,
-            transition: { 
-                duration: 0.6,
-                type: "spring",
-                stiffness: 100,
-                damping: 20
-            }
-        }
-    };
+  if (!isVisible) return null;
 
-    const tireVariants = {
-        animate: {
-            rotate: [0, 360],
-            transition: {
-                duration: 15,
-                repeat: Infinity,
-                ease: "linear"
-            }
-        }
-    };
+  const demoStylePosition = {
+    top: demoTextPosition === 'up' ? '30%' : demoTextPosition === 'down' ? '70%' : '50%'
+  };
 
-    const logVariants = {
-        hidden: { opacity: 0, x: -20 },
-        visible: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: 20 }
-    };
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.5 }
+    },
+    exit: { 
+      opacity: 0,
+      scale: 1.1,
+      filter: 'blur(10px)',
+      transition: { duration: 0.6, ease: 'easeInOut' }
+    }
+  };
 
-    return (
-        <div className="relative min-h-screen overflow-hidden">
-            
-            {/* Canvas de fondo con partículas Sky Blue */}
-            <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-0" />
-            
-            {/* Efecto de gradiente superpuesto */}
-            <div className="fixed inset-0 bg-gradient-to-br from-sky-100 via-white to-blue-100 opacity-90 z-0" />
-            
-            {/* Círculos decorativos flotantes */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-20 left-10 w-96 h-96 bg-sky-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse" />
-                <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse delay-1000" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[120px] opacity-15 animate-pulse delay-2000" />
+  const demoVariants = {
+    hidden: { opacity: 0, y: -30, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { duration: 0.5, delay: 0.2 }
+    }
+  };
+
+  const barVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, delay: 0.4 }
+    }
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="fixed inset-0 z-50"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isComplete ? 'exit' : 'visible'}
+        exit="exit"
+        style={{
+          backgroundImage: 'url("/assets/Crecimiento%20financiero%20futurista.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Dark overlay for better text visibility */}
+        <motion.div 
+          className="absolute inset-0 bg-black/30"
+          animate={isComplete ? { opacity: 0 } : { opacity: 0.3 }}
+          transition={{ duration: 0.5 }}
+        />
+
+        {/* Demo Label */}
+        <motion.div
+          variants={demoVariants}
+          initial="hidden"
+          animate={isComplete ? 'exit' : 'visible'}
+          className="absolute left-1/2 -translate-x-1/2"
+          style={demoStylePosition}
+        >
+          <motion.div
+            className="bg-yellow-500/90 text-black px-8 py-3 rounded-lg shadow-[0_0_20px_rgba(234,179,8,0.5)] border border-yellow-400"
+            animate={isComplete ? {
+              scale: 1.1,
+              boxShadow: '0 0 50px rgba(234, 179, 8, 0.8)'
+            } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="text-3xl font-black tracking-widest drop-shadow-sm">DEMO</span>
+          </motion.div>
+        </motion.div>
+
+        {/* Loading Bar Container */}
+        <motion.div
+          variants={barVariants}
+          initial="hidden"
+          animate={isComplete ? 'exit' : 'visible'}
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 w-80 max-w-[80%]"
+        >
+          <div className="bg-black/40 backdrop-blur-md rounded-full p-1.5 border border-white/10 shadow-2xl">
+            <div className="relative h-3 bg-black/50 rounded-full overflow-hidden">
+              <motion.div
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: isComplete ? '100%' : `${progress}%` }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
+              </motion.div>
             </div>
-            
-            {/* Contenido principal */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="w-full max-w-[520px]"
-                >
-                    {/* Terminal Glassmorphism con tema Sky Blue */}
-                    <motion.div
-                        variants={terminalVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="relative group"
-                    >
-                        {/* Efecto de glow externo */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-sky-400 via-blue-500 to-sky-400 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
-                        
-                        {/* Terminal principal */}
-                        <div className="relative glass-terminal rounded-2xl shadow-2xl overflow-hidden animate-border-glow">
-                            
-                            {/* Barra superior estilo terminal */}
-                            <div className="relative">
-                                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-white/30 border-b border-sky-200/50">
-                                    <div className="flex gap-2">
-                                        <div className="w-3 h-3 bg-red-400 rounded-full hover:bg-red-300 transition-all cursor-pointer" />
-                                        <div className="w-3 h-3 bg-yellow-400 rounded-full hover:bg-yellow-300 transition-all cursor-pointer" />
-                                        <div className="w-3 h-3 bg-emerald-400 rounded-full hover:bg-emerald-300 transition-all cursor-pointer" />
-                                    </div>
-                                    <div className="flex-1 text-center">
-                                        <span className="text-[9px] text-sky-600/60 terminal-text tracking-wider">
-                                            NeumatiQ@terminal:~/splash
-                                        </span>
-                                    </div>
-                                    <div className="w-16 flex justify-end">
-                                        <span className="text-[8px] text-sky-500/40 terminal-text">
-                                            {new Date().toLocaleTimeString()}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                {/* Efecto de escaneo */}
-                                <div className="scan-effect absolute inset-0 pointer-events-none" />
-                            </div>
-                            
-                            {/* Contenido del terminal */}
-                            <div className="p-6 md:p-7">
-                                
-                                {/* Header con logo animado */}
-                                <div className="text-center mb-6">
-                                    <motion.div
-                                        variants={tireVariants}
-                                        animate="animate"
-                                        className="relative inline-block mb-4"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                                        <div className="relative w-20 h-20 bg-gradient-to-br from-sky-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                                            <span className="text-4xl">{currentIcon}</span>
-                                        </div>
-                                    </motion.div>
-                                    
-                                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">
-                                        NeumatiQ
-                                    </h1>
-                                    <p className="text-sky-600/60 text-[10px] terminal-text tracking-wider flex items-center justify-center gap-2">
-                                        <span>SISTEMA DE INTELIGENCIA v3.0</span>
-                                        <span className="w-1 h-1 rounded-full bg-sky-500" />
-                                        <span>SECURE BOOT</span>
-                                    </p>
-                                </div>
-                                
-                                {/* Sistema de logs en tiempo real */}
-                                <div className="mb-5 bg-white/30 backdrop-blur-sm rounded-xl p-3 border border-sky-200/50 h-32 overflow-y-auto font-mono">
-                                    <AnimatePresence>
-                                        {systemLogs.slice(-5).map((log, idx) => (
-                                            <motion.div
-                                                key={idx}
-                                                variants={logVariants}
-                                                initial="hidden"
-                                                animate="visible"
-                                                exit="exit"
-                                                transition={{ delay: idx * 0.05 }}
-                                                className="text-[9px] text-sky-700/70 py-0.5 flex items-start gap-2"
-                                            >
-                                                <span className="text-sky-400">$</span>
-                                                <span>{log}</span>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                    {showCursor && (
-                                        <span className="inline-block w-2 h-3 bg-sky-500 ml-1 cursor-blink" />
-                                    )}
-                                </div>
-                                
-                                {/* Barra de progreso estilo terminal */}
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-[10px] text-sky-600/60 terminal-text">
-                                        <span className="flex items-center gap-1">
-                                            <span className="text-sky-500">▶</span>
-                                            PROCESANDO
-                                        </span>
-                                        <span className="font-mono font-bold text-sky-600">{Math.floor(progress)}%</span>
-                                    </div>
-                                    <div className="relative h-2 bg-white/30 rounded-full overflow-hidden border border-sky-200/50">
-                                        <motion.div
-                                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full"
-                                            style={{ width: `${progress}%` }}
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${progress}%` }}
-                                            transition={{ duration: 0.3, ease: "easeOut" }}
-                                        >
-                                            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-                                        </motion.div>
-                                    </div>
-                                    
-                                    {/* Mensaje de estado dinámico */}
-                                    <motion.div
-                                        key={loadingMessage}
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="text-center mt-3"
-                                    >
-                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-100/50 border border-sky-200 backdrop-blur-sm">
-                                            <span className="text-sm">{currentIcon}</span>
-                                            <span className="text-[10px] text-sky-700 terminal-text">
-                                                {loadingMessage}
-                                            </span>
-                                            {progress < 100 && (
-                                                <motion.div
-                                                    animate={{ rotate: 360 }}
-                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                    className="w-2 h-2 border border-sky-500 border-t-transparent rounded-full"
-                                                />
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                </div>
-                                
-                                {/* Métricas del sistema */}
-                                <div className="mt-5 pt-4 border-t border-sky-200/50">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="text-center p-2 rounded-lg bg-white/30 backdrop-blur-sm border border-sky-200/50">
-                                            <p className="text-[8px] text-sky-600/50 terminal-text uppercase tracking-wider">Base de Datos</p>
-                                            <p className="text-[10px] text-sky-700 font-mono font-bold">PostgreSQL 15</p>
-                                        </div>
-                                        <div className="text-center p-2 rounded-lg bg-white/30 backdrop-blur-sm border border-sky-200/50">
-                                            <p className="text-[8px] text-sky-600/50 terminal-text uppercase tracking-wider">API Gateway</p>
-                                            <p className="text-[10px] text-sky-700 font-mono font-bold">RESTful v2.1</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {/* Footer con información del sistema */}
-                                <div className="mt-4 text-center">
-                                    <div className="flex justify-center gap-3 text-[8px] text-sky-500/60 terminal-text">
-                                        <span className="flex items-center gap-1">
-                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                                            ONLINE
-                                        </span>
-                                        <span>🔒 TLS 1.3</span>
-                                        <span>⚡ REAL-TIME</span>
-                                        <span>📡 WEBSOCKET</span>
-                                    </div>
-                                    <div className="flex justify-center gap-3 text-[7px] text-sky-400/50 mt-2">
-                                        <span>© 2026 NeumatiQ</span>
-                                        <span>Sistema de Inteligencia v3.0.0</span>
-                                        <span>Build: 2026.04.07</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Barra de estado inferior */}
-                            <div className="bg-white/30 backdrop-blur-sm border-t border-sky-200/50 px-5 py-2 flex justify-between text-[8px] text-sky-600/50 terminal-text">
-                                <span>🔋 SISTEMA OPERATIVO</span>
-                                <span>💾 MEM: 2.4GB/8GB</span>
-                                <span>🔄 AUTO-UPDATE: ON</span>
-                                <span>🌐 LATENCIA: 23ms</span>
-                            </div>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            </div>
-        </div>
-    );
+          </div>
+          
+          {/* Progress Text */}
+          <div className="text-center mt-3">
+            <motion.span
+              className="text-yellow-400/90 text-sm font-bold tracking-wider drop-shadow-md font-mono"
+              animate={isComplete ? { scale: 1.2, opacity: 0 } : {}}
+              transition={{ duration: 0.3 }}
+            >
+              {progress < 100 ? `CARGANDO... ${progress}%` : '¡LISTO!'}
+            </motion.span>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
 export default SplashScreen;
