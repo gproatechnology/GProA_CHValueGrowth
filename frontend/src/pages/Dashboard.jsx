@@ -1,68 +1,76 @@
-import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BarChart3, LineChart as LineChartIcon, Filter, Search, CheckCircle, GitCompare, X, Package, DollarSign, Zap, AlertCircle, TrendingUp, Database } from 'lucide-react';
 import {
-    AreaChart, Area, LineChart, Line, XAxis, YAxis,
-    CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
-import {
-    TrendingUp, TrendingDown, DollarSign, ShoppingCart,
-    Package, Zap, Shield, RefreshCw, Download, Filter
-} from 'lucide-react';
-import AnimatedCounter from '../components/AnimatedCounter';
-import CircularProgress from '../components/CircularProgress';
-// Settings loaded lazily to avoid heavy upfront import
-const SettingsInline = lazy(() => import('./Settings'));
-// import { getProducts } from '../services/api'; // Para integración real
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
 
 // --------------------------------------------------------------
-// 1. Datos estáticos (mock para demo)
-// --------------------------------------------------------------
-const BRANDS = [
-    'Michelin', 'Bridgestone', 'Goodyear', 'Continental', 'Pirelli',
-    'Hankook', 'Yokohama', 'Dunlop', 'Cooper', 'BFGoodrich'
-];
-
-const SIZES = [
-    '205/55 R16', '195/65 R15', '225/45 R17', '215/60 R16', '235/55 R17',
-    '205/50 R17', '245/40 R18', '255/35 R19', '225/55 R18', '265/70 R16'
+const BRANDS = ['Michelin', 'Bridgestone', 'Goodyear', 'Continental', 'Pirelli', 'Hankook', 'Yokohama'];
+const TIRE_SIZES = [
+    { size: '205/55 R16', range: 'R16', width: 205, profile: 55 },
+    { size: '195/65 R15', range: 'R15', width: 195, profile: 65 },
+    { size: '225/45 R17', range: 'R17', width: 225, profile: 45 },
+    { size: '215/60 R16', range: 'R16', width: 215, profile: 60 },
+    { size: '235/55 R17', range: 'R17', width: 235, profile: 55 },
+    { size: '245/40 R18', range: 'R18', width: 245, profile: 40 },
+    { size: '255/35 R19', range: 'R19', width: 255, profile: 35 },
+    { size: '225/55 R18', range: 'R18', width: 225, profile: 55 },
 ];
 
 const SOURCES = {
-    ml: { name: 'MercadoLibre', isOfficialOnly: false },
-    radial: { name: 'Radial Llantas', isOfficialOnly: true },
-    serna: { name: 'Serna', isOfficialOnly: true },
-    contishop: { name: 'ContiShop', isOfficialOnly: true }
+    ml: { name: 'MercadoLibre', icon: '🛒', isOfficial: false },
+    radial: { name: 'Radial Llantas', icon: '🏪', isOfficial: true },
+    serna: { name: 'Serna', icon: '🏭', isOfficial: true },
+    contishop: { name: 'ContiShop', icon: '🌐', isOfficial: true },
 };
 
-// Generador de precios (mismo algoritmo)
-const generatePrice = (brand, size, sourceKey) => {
-    const basePrice = { Michelin: 2800, Bridgestone: 2600, Goodyear: 2400, Continental: 2700, Pirelli: 2650, Hankook: 2100, Yokohama: 2250, Dunlop: 2050, Cooper: 1950, BFGoodrich: 2300 }[brand] || 2200;
-    const sizeMultiplier = { '205/55 R16': 1.0, '195/65 R15': 0.9, '225/45 R17': 1.1, '215/60 R16': 1.05, '235/55 R17': 1.15, '205/50 R17': 1.02, '245/40 R18': 1.25, '255/35 R19': 1.35, '225/55 R18': 1.2, '265/70 R16': 1.3 }[size] || 1.0;
-    let finalPrice = basePrice * sizeMultiplier;
-    if (sourceKey === 'ml') finalPrice *= 1.12;
-    if (sourceKey === 'radial') finalPrice *= 0.95;
-    if (sourceKey === 'serna') finalPrice *= 0.98;
-    if (sourceKey === 'contishop') finalPrice *= 1.02;
-    return Math.round(finalPrice / 10) * 10;
-};
-
-const buildMockData = () => {
+const generateTireData = () => {
     const data = [];
     let id = 1;
     for (const brand of BRANDS) {
-        for (const size of SIZES) {
+        for (const tireSize of TIRE_SIZES) {
             for (const [sourceKey, sourceInfo] of Object.entries(SOURCES)) {
+                const basePrice = { Michelin: 320, Bridgestone: 290, Goodyear: 270, Continental: 310, Pirelli: 300, Hankook: 240, Yokohama: 260 }[brand] || 250;
+                const sizeMultiplier = tireSize.width / 200;
+                let finalPrice = basePrice * sizeMultiplier * (sourceKey === 'ml' ? 1.15 : 0.95);
+                finalPrice = Math.round(finalPrice / 5) * 5;
                 data.push({
                     id: id++,
                     brand,
-                    size,
+                    size: tireSize.size,
+                    range: tireSize.range,
+                    width: tireSize.width,
+                    profile: tireSize.profile,
                     source: sourceKey,
                     sourceName: sourceInfo.name,
-                    price: generatePrice(brand, size, sourceKey),
-                    isOfficial: sourceInfo.isOfficialOnly,
-                    stock: Math.random() > 0.2 ? 'High' : 'Low',
+                    price: finalPrice,
+                    isOfficial: sourceInfo.isOfficial,
+                    stock: Math.random() > 0.3 ? 'Alto' : Math.random() > 0.5 ? 'Medio' : 'Crítico',
+                    demand: Math.floor(Math.random() * 100) + 20,
                     scrapedAt: new Date().toISOString(),
-                    model: `${brand} ${size.replace(/\s/g, '')}`
                 });
             }
         }
@@ -70,430 +78,563 @@ const buildMockData = () => {
     return data;
 };
 
-const getScraperStatus = () => Object.entries(SOURCES).map(([key, source]) => ({
-    name: source.name,
-    status: Math.random() > 0.2 ? 'connected' : 'disconnected',
-    lastSync: `${Math.floor(Math.random() * 10) + 1} min ago`,
-    records: Math.floor(Math.random() * 200) + 20
-}));
-
-const trendData = [
-    { date: '03/21', avgPrice: 2350, volume: 42 },
-    { date: '03/22', avgPrice: 2380, volume: 45 },
-    { date: '03/23', avgPrice: 2400, volume: 48 },
-    { date: '03/24', avgPrice: 2390, volume: 52 },
-    { date: '03/25', avgPrice: 2420, volume: 55 },
-    { date: '03/26', avgPrice: 2450, volume: 58 },
-    { date: '03/27', avgPrice: 2480, volume: 62 },
-];
-
 // --------------------------------------------------------------
-// 2. Componente principal
+// 2. CUSTOM HOOKS (Clean Architecture)
 // --------------------------------------------------------------
-const Dashboard = () => {
-    const [activeMenu, setActiveMenu] = useState('resumen');
-    const [tireData, setTireData] = useState([]);
-    const [scraperStatus, setScraperStatus] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [filterOfficial, setFilterOfficial] = useState(false);
-    const [quantity, setQuantity] = useState(1);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [lastUpdated, setLastUpdated] = useState(null);
+const useTireData = () => {
+    const [state, setState] = useState({
+        data: [],
+        loading: true,
+        error: null,
+    });
 
-    // Cargar datos (simulado o real)
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-                // Simular delay de red
-                await new Promise(resolve => setTimeout(resolve, 800));
-                // Para API real: const products = await getProducts();
-                const mockData = buildMockData();
-                setTireData(mockData);
-                setScraperStatus(getScraperStatus());
-                setLastUpdated(new Date());
-                setError(null);
+                setState(prev => ({ ...prev, loading: true }));
+                await new Promise(resolve => setTimeout(resolve, 1200));
+                const mockData = generateTireData();
+                setState({ data: mockData, loading: false, error: null });
             } catch (err) {
-                setError('Error al cargar los datos del dashboard');
-                console.error(err);
-            } finally {
-                setLoading(false);
+                setState({ data: [], loading: false, error: 'Error al cargar datos' });
             }
         };
         fetchData();
     }, []);
 
-    // Agregación de productos (marca+medida)
-    const aggregatedProducts = useMemo(() => {
-        const map = new Map();
-        tireData.forEach(item => {
-            const key = `${item.brand}|${item.size}`;
-            if (!map.has(key)) map.set(key, { brand: item.brand, size: item.size, prices: {}, hasStock: item.stock === 'High' });
-            const product = map.get(key);
-            product.prices[item.source] = item.price;
-            if (item.stock === 'High') product.hasStock = true;
+    return state;
+};
+
+const useFilters = (data) => {
+    const [filters, setFilters] = useState({
+        searchTerm: '',
+        range: '',
+        widthMin: '',
+        widthMax: '',
+        profileMin: '',
+        profileMax: '',
+        onlyOfficial: false,
+    });
+
+    const filteredData = useMemo(() => {
+        if (!data.length) return [];
+
+        return data.filter(item => {
+            // Búsqueda por texto
+            if (filters.searchTerm && !`${item.brand} ${item.size}`.toLowerCase().includes(filters.searchTerm.toLowerCase())) {
+                return false;
+            }
+            // Filtro por rango
+            if (filters.range && item.range !== filters.range) return false;
+            // Filtro por ancho
+            if (filters.widthMin && item.width < parseInt(filters.widthMin)) return false;
+            if (filters.widthMax && item.width > parseInt(filters.widthMax)) return false;
+            // Filtro por perfil
+            if (filters.profileMin && item.profile < parseInt(filters.profileMin)) return false;
+            if (filters.profileMax && item.profile > parseInt(filters.profileMax)) return false;
+            // Filtro solo oficiales
+            if (filters.onlyOfficial && !item.isOfficial) return false;
+
+            return true;
         });
-        return Array.from(map.values()).map(product => {
-            const mlPrice = product.prices.ml || Infinity;
-            const directPrices = [product.prices.radial, product.prices.serna, product.prices.contishop].filter(p => p !== Infinity);
-            const bestDirectPrice = directPrices.length ? Math.min(...directPrices) : Infinity;
-            const bestSource = bestDirectPrice === product.prices.radial ? 'Radial Llantas' : bestDirectPrice === product.prices.serna ? 'Serna' : 'ContiShop';
-            const savings = (mlPrice !== Infinity && bestDirectPrice !== Infinity) ? mlPrice - bestDirectPrice : 0;
-            return { ...product, mlPrice: mlPrice !== Infinity ? mlPrice : null, bestDirectPrice: bestDirectPrice !== Infinity ? bestDirectPrice : null, bestSource, savings, hasStock: product.hasStock };
-        }).filter(p => p.mlPrice && p.bestDirectPrice);
-    }, [tireData]);
+    }, [data, filters]);
 
-    // Métricas globales
-    const filteredProducts = useMemo(() => filterOfficial ? aggregatedProducts.filter(p => ['Radial Llantas', 'Serna', 'ContiShop'].includes(p.bestSource)) : aggregatedProducts, [aggregatedProducts, filterOfficial]);
-    const metrics = useMemo(() => {
-        if (!filteredProducts.length) return null;
-        const totalProducts = filteredProducts.length;
-        const avgMl = filteredProducts.reduce((sum, p) => sum + p.mlPrice, 0) / totalProducts;
-        const avgBest = filteredProducts.reduce((sum, p) => sum + p.bestDirectPrice, 0) / totalProducts;
-        const totalSavings = filteredProducts.reduce((sum, p) => sum + p.savings, 0);
-        const coverage = (totalProducts / (BRANDS.length * SIZES.length)) * 100;
-        return { totalProducts, avgMl, avgBest, totalSavings, coverage };
-    }, [filteredProducts]);
+    const updateFilter = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
 
-    // Top oportunidades
-    const topArbitrage = useMemo(() => [...aggregatedProducts].sort((a, b) => b.savings - a.savings).slice(0, 3).map(p => ({ name: `${p.brand} ${p.size}`, direct: { source: p.bestSource, price: p.bestDirectPrice }, marketplace: { source: 'MercadoLibre', price: p.mlPrice }, arbitrage: p.savings })), [aggregatedProducts]);
-
-    // Matriz de cobertura
-    const coverageMatrix = useMemo(() => {
-        const matrix = {};
-        BRANDS.forEach(brand => {
-            matrix[brand] = {};
-            SIZES.forEach(size => {
-                const product = aggregatedProducts.find(p => p.brand === brand && p.size === size);
-                matrix[brand][size] = product ? { exists: true, savings: product.savings } : { exists: false, savings: 0 };
-            });
+    const clearFilters = () => {
+        setFilters({
+            searchTerm: '',
+            range: '',
+            widthMin: '',
+            widthMax: '',
+            profileMin: '',
+            profileMax: '',
+            onlyOfficial: false,
         });
-        return matrix;
-    }, [aggregatedProducts]);
+    };
 
-    // Exportar CSV
-    const exportCurrentView = useCallback(() => {
-        let dataToExport = [];
-        switch (activeMenu) {
-            case 'resumen':
-                dataToExport = topArbitrage.map(item => ({ Producto: item.name, 'Precio Directo': item.direct.price, Fuente: item.direct.source, 'Precio ML': item.marketplace.price, Ahorro: item.arbitrage }));
-                break;
-            case 'medidas':
-                dataToExport = SIZES.map(size => {
-                    const productsInSize = aggregatedProducts.filter(p => p.size === size);
-                    const avgPrice = productsInSize.reduce((s, p) => s + p.mlPrice, 0) / (productsInSize.length || 1);
-                    return { Medida: size, 'Cantidad de Productos': productsInSize.length, 'Precio ML Promedio': Math.round(avgPrice) };
-                });
-                break;
-            case 'marcas':
-                dataToExport = BRANDS.map(brand => {
-                    const productsInBrand = aggregatedProducts.filter(p => p.brand === brand);
-                    const avgPrice = productsInBrand.reduce((s, p) => s + p.mlPrice, 0) / (productsInBrand.length || 1);
-                    return { Marca: brand, 'Cantidad de Productos': productsInBrand.length, 'Precio ML Promedio': Math.round(avgPrice) };
-                });
-                break;
-            case 'fuentes':
-                dataToExport = scraperStatus;
-                break;
-            default: dataToExport = [{ message: 'No hay datos exportables' }];
+    return { filters, filteredData, updateFilter, clearFilters };
+};
+
+const useComparison = () => {
+    const [comparisonList, setComparisonList] = useState([]);
+
+    const addToComparison = (tire) => {
+        if (comparisonList.length >= 3) {
+            alert('Solo puedes comparar hasta 3 neumáticos');
+            return;
         }
-        const headers = Object.keys(dataToExport[0] || {});
-        const escapeCSV = (value) => typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n')) ? `"${value.replace(/"/g, '""')}"` : value;
-        const rows = dataToExport.map(item => headers.map(h => escapeCSV(item[h])));
-        const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.setAttribute('download', `${activeMenu}_${new Date().toISOString().slice(0, 19)}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }, [activeMenu, topArbitrage, aggregatedProducts, scraperStatus]);
-
-    // Estados de carga y error
-    if (loading) return <LoadingScreen />;
-    if (error) return <ErrorScreen error={error} onRetry={() => window.location.reload()} />;
-
-    // Renderizado de vistas
-    const renderContent = () => {
-        switch (activeMenu) {
-            case 'resumen': return <ResumenView metrics={metrics} topArbitrage={topArbitrage} quantity={quantity} coverageMatrix={coverageMatrix} scraperStatus={scraperStatus} />;
-            case 'medidas': return <MedidasView aggregatedProducts={aggregatedProducts} />;
-            case 'marcas': return <MarcasView aggregatedProducts={aggregatedProducts} />;
-            case 'fuentes': return <FuentesView scraperStatus={scraperStatus} />;
-            case 'alertas': return <AlertasView />;
-            case 'settings': return <Suspense fallback={<div className="text-gray-400 p-8 text-center">Cargando configuración...</div>}><SettingsInline /></Suspense>;
-            default: return <div>Selecciona una opción</div>;
+        if (!comparisonList.find(t => t.id === tire.id)) {
+            setComparisonList(prev => [...prev, tire]);
         }
     };
 
+    const removeFromComparison = (tireId) => {
+        setComparisonList(prev => prev.filter(t => t.id !== tireId));
+    };
+
+    const clearComparison = () => {
+        setComparisonList([]);
+    };
+
+    return { comparisonList, addToComparison, removeFromComparison, clearComparison };
+};
+
+// --------------------------------------------------------------
+// 3. COMPONENTES REUTILIZABLES
+// --------------------------------------------------------------
+const SkeletonCard = () => (
+    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-5 shadow-soft animate-pulse">
+        <div className="h-4 bg-sky-200 rounded w-3/4 mb-3"></div>
+        <div className="h-6 bg-sky-200 rounded w-1/2 mb-4"></div>
+        <div className="h-10 bg-sky-100 rounded w-full"></div>
+    </div>
+);
+
+const SearchBar = ({ value, onChange }) => (
+    <div className="relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-400 group-focus-within:text-sky-600 transition-colors" />
+        <input
+            type="text"
+            placeholder="Buscar por marca o medida (ej: Michelin R17)..."
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-sky-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent shadow-soft text-gray-700 placeholder-gray-400 transition-all"
+        />
+    </div>
+);
+
+const FilterChip = ({ label, active, onClick }) => (
+    <button
+        onClick={onClick}
+        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${active
+            ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-200'
+            : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white hover:shadow-soft border border-sky-100'
+        }`}
+    >
+        {label}
+    </button>
+);
+
+const AdvancedFilters = ({ filters, updateFilter, clearFilters }) => {
+    const ranges = ['R15', 'R16', 'R17', 'R18', 'R19'];
+
     return (
-        <div className="space-y-6 text-gray-300">
-            {/* Submenú interno del Dashboard */}
-            <div className="flex flex-wrap gap-2">
-                {[
-                    { id: 'resumen',  icon: '📊', text: 'Resumen' },
-                    { id: 'medidas',  icon: '📏', text: 'Medidas' },
-                    { id: 'marcas',   icon: '🏷️', text: 'Marcas' },
-                    { id: 'fuentes',  icon: '📡', text: 'Fuentes' },
-                    { id: 'alertas',  icon: '🔔', text: 'Alertas' },
-                    { id: 'settings', icon: '⚙️', text: 'Config' },
-                ].map(item => (
-                    <button
-                        key={item.id}
-                        onClick={() => setActiveMenu(item.id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            activeMenu === item.id
-                                ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40'
-                                : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-transparent'
-                        }`}
+        <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/40 backdrop-blur-md rounded-2xl p-5 shadow-soft border border-white/50 space-y-4"
+        >
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-sky-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Filtros Avanzados</h3>
+                </div>
+                <button onClick={clearFilters} className="text-xs text-sky-500 hover:text-sky-700 transition-colors">
+                    Limpiar todo
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label className="text-xs text-gray-500 block mb-1">Rango</label>
+                    <select
+                        value={filters.range}
+                        onChange={(e) => updateFilter('range', e.target.value)}
+                        className="w-full px-3 py-2 bg-white rounded-lg border border-sky-100 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
                     >
-                        <span>{item.icon}</span>
-                        <span>{item.text}</span>
-                    </button>
-                ))}
+                        <option value="">Todos</option>
+                        {ranges.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-xs text-gray-500 block mb-1">Ancho (mm)</label>
+                    <div className="flex gap-2">
+                        <input type="number" placeholder="Mín" value={filters.widthMin} onChange={(e) => updateFilter('widthMin', e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-sky-100 text-sm" />
+                        <input type="number" placeholder="Máx" value={filters.widthMax} onChange={(e) => updateFilter('widthMax', e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-sky-100 text-sm" />
+                    </div>
+                </div>
+                <div>
+                    <label className="text-xs text-gray-500 block mb-1">Perfil (%)</label>
+                    <div className="flex gap-2">
+                        <input type="number" placeholder="Mín" value={filters.profileMin} onChange={(e) => updateFilter('profileMin', e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-sky-100 text-sm" />
+                        <input type="number" placeholder="Máx" value={filters.profileMax} onChange={(e) => updateFilter('profileMax', e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-sky-100 text-sm" />
+                    </div>
+                </div>
+                <div className="flex items-end">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={filters.onlyOfficial}
+                            onChange={(e) => updateFilter('onlyOfficial', e.target.checked)}
+                            className="w-4 h-4 text-sky-500 rounded focus:ring-sky-400"
+                        />
+                        <span className="text-sm text-gray-600">Solo tiendas oficiales</span>
+                    </label>
+                </div>
             </div>
-
-            {/* Filtros globales */}
-            {(activeMenu === 'resumen' || activeMenu === 'medidas' || activeMenu === 'marcas') && (
-                <GlobalFilters filterOfficial={filterOfficial} setFilterOfficial={setFilterOfficial} quantity={quantity} setQuantity={setQuantity} exportCurrentView={exportCurrentView} />
-            )}
-
-            {/* Contenido de la vista activa */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeMenu}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25 }}
-                >
-                    {renderContent()}
-                </motion.div>
-            </AnimatePresence>
-
-            <Footer lastUpdated={lastUpdated} />
-        </div>
+        </motion.div>
     );
 };
 
-// --------------------------------------------------------------
-// 3. Subcomponentes para mejor organización
-// --------------------------------------------------------------
-const LoadingScreen = () => (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1b1e] to-[#0d0e11] flex items-center justify-center">
-        <div className="text-center">
-            <div className="relative">
-                <div className="w-20 h-20 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full animate-ping"></div>
-                </div>
-            </div>
-            <p className="text-gray-400 font-mono text-sm">Cargando inteligencia de mercado...</p>
-        </div>
-    </div>
-);
+const TireCard = ({ tire, onCompare, isComparing }) => {
+    const stockColors = {
+        Alto: 'text-green-600 bg-green-50',
+        Medio: 'text-yellow-600 bg-yellow-50',
+        Crítico: 'text-red-600 bg-red-50',
+    };
 
-const ErrorScreen = ({ error, onRetry }) => (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1b1e] to-[#0d0e11] flex items-center justify-center">
-        <div className="bg-red-900/20 backdrop-blur-md border border-red-500 rounded-2xl p-8 text-center max-w-md">
-            <p className="text-red-400 mb-4">{error}</p>
-            <button onClick={onRetry} className="neumorph-btn bg-red-600/20 text-red-400 px-6 py-2 rounded-xl hover:bg-red-600/30 transition">Reintentar</button>
-        </div>
-    </div>
-);
-
-const AnimatedBackground = () => (
-    <div className="fixed inset-0 pointer-events-none opacity-20">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMzAgMzBoMzB2MzBIMzB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMyZjMxMzgiIHN0cm9rZS13aWR0aD0iMC41Ii8+PC9zdmc+')] bg-repeat opacity-20"></div>
-        <div className="absolute top-0 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"></div>
-    </div>
-);
-
-const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => (
-    <header className="sticky top-0 z-20 backdrop-blur-xl bg-[#1a1b1e]/80 border-b border-gray-800/50 shadow-lg">
-        <div className="h-16 flex items-center justify-between px-4 md:px-6">
-            <div className="text-white font-bold text-lg flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <span className="text-sm">🛞</span>
-                </div>
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">CHValueGrowth</span>
-                <span className="text-xs text-gray-500 hidden md:inline">| Sistema de Inteligencia de Mercado</span>
-            </div>
-            <div className="flex items-center space-x-3">
-                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-full bg-[#1a1b1e] shadow-neumorph-inset">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                </button>
-                <div className="hidden md:flex items-center space-x-3">
-                    <div className="p-2 rounded-full bg-[#1a1b1e] shadow-neumorph-inset cursor-pointer hover:text-white transition">👤</div>
-                    <div className="p-2 rounded-full bg-[#1a1b1e] shadow-neumorph-inset cursor-pointer hover:text-white transition">🔔</div>
-                    <div className="p-2 rounded-full bg-[#1a1b1e] shadow-neumorph-inset cursor-pointer hover:text-white transition">🚪</div>
-                </div>
-            </div>
-        </div>
-    </header>
-);
-
-const Sidebar = ({ activeMenu, setActiveMenu, mobileMenuOpen, setMobileMenuOpen }) => {
-    const menuItems = [
-        { id: 'resumen', icon: '📊', text: 'Resumen Ejecutivo' },
-        { id: 'medidas', icon: '📏', text: 'Explorador de Medidas' },
-        { id: 'marcas', icon: '🏷️', text: 'Análisis de Marcas' },
-        { id: 'fuentes', icon: '📡', text: 'Fuentes Externas' },
-        { id: 'alertas', icon: '🔔', text: 'Alertas de Precio' },
-        { id: 'settings', icon: '⚙️', text: 'Configuración' }
-    ];
     return (
-        <aside className={`fixed md:sticky top-16 left-0 z-20 w-64 min-h-[calc(100vh-4rem)] bg-[#1a1b1e]/90 backdrop-blur-md border-r border-gray-800/50 transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-            <div className="p-4 space-y-2">
-                {menuItems.map(item => (
-                    <button key={item.id} onClick={() => { setActiveMenu(item.id); setMobileMenuOpen(false); }} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${activeMenu === item.id ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 shadow-neumorph-inset text-blue-400 border-l-2 border-blue-500' : 'hover:bg-white/5 hover:shadow-neumorph-inset'}`}>
-                        <span className="text-lg">{item.icon}</span>
-                        <span className="text-sm font-medium">{item.text}</span>
-                    </button>
-                ))}
-                <div className="pt-8 text-center text-[10px] text-gray-600 border-t border-gray-800 mt-4">devoryn02 · 2026<br />#CHValueGrowth</div>
+        <motion.div
+            layout
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            whileHover={{ y: -4 }}
+            className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 shadow-soft hover:shadow-xl transition-all border border-white/50 group"
+        >
+            <div className="flex justify-between items-start mb-3">
+                <div>
+                    <h3 className="font-bold text-gray-800">{tire.brand}</h3>
+                    <p className="text-xs text-gray-500">{tire.size}</p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full ${stockColors[tire.stock]}`}>
+                    Stock {tire.stock}
+                </span>
             </div>
-        </aside>
+
+            <div className="mb-4">
+                <p className="text-2xl font-bold text-sky-600">${tire.price.toLocaleString()} <span className="text-xs font-normal text-gray-400">MXN</span></p>
+                <p className="text-xs text-gray-400">{tire.sourceName}</p>
+            </div>
+
+            <div className="flex gap-2">
+                <button
+                    onClick={() => onCompare(tire)}
+                    disabled={isComparing}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-medium transition-all ${isComparing
+                        ? 'bg-green-100 text-green-600 cursor-default'
+                        : 'bg-sky-50 text-sky-600 hover:bg-sky-100 border border-sky-200'
+                    }`}
+                >
+                    {isComparing ? <CheckCircle className="w-4 h-4" /> : <GitCompare className="w-4 h-4" />}
+                    {isComparing ? 'En comparación' : 'Comparar'}
+                </button>
+            </div>
+        </motion.div>
     );
 };
 
-const GlobalFilters = ({ filterOfficial, setFilterOfficial, quantity, setQuantity, exportCurrentView }) => (
-    <div className="rounded-2xl p-4 bg-[#1a1b1e]/70 backdrop-blur-sm shadow-neumorph-outset flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-                <span className="text-sm">Solo Tiendas Oficiales</span>
-                <button onClick={() => setFilterOfficial(!filterOfficial)} className={`w-11 h-6 rounded-full transition-all shadow-neumorph-inset ${filterOfficial ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${filterOfficial ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
+const ComparisonPanel = ({ items, onRemove, onClear }) => {
+    if (items.length === 0) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            className="fixed right-4 top-24 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-sky-100 z-50 overflow-hidden"
+        >
+            <div className="p-4 bg-gradient-to-r from-sky-50 to-blue-50 border-b border-sky-100">
+                <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                        <GitCompare className="w-4 h-4 text-sky-500" />
+                        Comparación ({items.length}/3)
+                    </h3>
+                    <button onClick={onClear} className="text-xs text-red-400 hover:text-red-600">Limpiar</button>
+                </div>
             </div>
-            <div className="flex items-center gap-2">
-                <span className="text-sm">Cantidad:</span>
-                <div className="flex gap-1">
-                    {[1, 2, 4].map(q => (
-                        <button key={q} onClick={() => setQuantity(q)} className={`px-3 py-1 rounded-lg text-xs font-medium transition ${quantity === q ? 'bg-blue-600/30 shadow-neumorph-inset text-blue-400' : 'bg-[#1a1b1e] shadow-neumorph-outset'}`}>
-                            {q === 1 ? 'Unidad' : q === 2 ? 'Par (2)' : 'Juego (4)'}
+            <div className="max-h-96 overflow-y-auto">
+                {items.map(item => (
+                    <div key={item.id} className="p-4 border-b border-sky-50 hover:bg-sky-50/30 transition">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="font-semibold text-gray-800 text-sm">{item.brand}</p>
+                                <p className="text-xs text-gray-500">{item.size}</p>
+                                <p className="text-sm font-bold text-sky-600 mt-1">${item.price}</p>
+                                <p className="text-xs text-gray-400">{item.sourceName}</p>
+                            </div>
+                            <button onClick={() => onRemove(item.id)} className="text-gray-300 hover:text-red-500">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </motion.div>
+    );
+};
+
+// --------------------------------------------------------------
+// 4. GRÁFICAS CON CHART.JS
+// --------------------------------------------------------------
+const DemandChart = ({ data }) => {
+    const demandBySize = useMemo(() => {
+        const demandMap = new Map();
+        data.forEach(item => {
+            const current = demandMap.get(item.size) || 0;
+            demandMap.set(item.size, current + item.demand);
+        });
+        return Array.from(demandMap.entries()).map(([size, demand]) => ({ size, demand }));
+    }, [data]);
+
+    const chartData = {
+        labels: demandBySize.map(d => d.size),
+        datasets: [
+            {
+                label: 'Demanda (puntuación)',
+                data: demandBySize.map(d => d.demand),
+                backgroundColor: 'rgba(14, 165, 233, 0.6)',
+                borderColor: 'rgba(2, 132, 199, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { font: { size: 12 } } },
+            tooltip: { backgroundColor: 'white', titleColor: '#1e293b', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1 },
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#e2e8f0' }, title: { display: true, text: 'Nivel de Demanda', color: '#64748b' } },
+            x: { ticks: { rotation: 45, autoSkip: true, maxRotation: 45, minRotation: 45 }, grid: { display: false } },
+        },
+    };
+
+    return (
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-soft">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-sky-500" />
+                Demanda por Medida
+            </h3>
+            <div className="h-80">
+                <Bar data={chartData} options={options} />
+            </div>
+        </div>
+    );
+};
+
+const CriticalStockChart = ({ data }) => {
+    const criticalByBrand = useMemo(() => {
+        const criticalMap = new Map();
+        data.forEach(item => {
+            if (item.stock === 'Crítico') {
+                const current = criticalMap.get(item.brand) || 0;
+                criticalMap.set(item.brand, current + 1);
+            }
+        });
+        return Array.from(criticalMap.entries()).map(([brand, count]) => ({ brand, count }));
+    }, [data]);
+
+    const chartData = {
+        labels: criticalByBrand.map(c => c.brand),
+        datasets: [
+            {
+                label: 'Productos con stock crítico',
+                data: criticalByBrand.map(c => c.count),
+                borderColor: 'rgb(239, 68, 68)',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: 'rgb(239, 68, 68)',
+                pointBorderColor: 'white',
+                pointRadius: 6,
+                pointHoverRadius: 8,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top' },
+            tooltip: { backgroundColor: 'white', titleColor: '#1e293b', bodyColor: '#475569' },
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Cantidad de productos', color: '#64748b' }, grid: { color: '#e2e8f0' } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        },
+    };
+
+    return (
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-soft">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <LineChartIcon className="w-5 h-5 text-red-400" />
+                Stock Crítico por Marca
+            </h3>
+            <div className="h-80">
+                <Line data={chartData} options={options} />
+            </div>
+        </div>
+    );
+};
+
+// --------------------------------------------------------------
+// 5. COMPONENTE PRINCIPAL DASHBOARD
+// --------------------------------------------------------------
+const Dashboard = () => {
+    const { data: tireData, loading, error } = useTireData();
+    const { filters, filteredData, updateFilter, clearFilters } = useFilters(tireData);
+    const { comparisonList, addToComparison, removeFromComparison, clearComparison } = useComparison();
+    const [activeTab, setActiveTab] = useState('explorer');
+
+    // Métricas globales
+    const metrics = useMemo(() => {
+        if (!filteredData.length) return null;
+        const uniqueProducts = new Set(filteredData.map(p => `${p.brand}|${p.size}`)).size;
+        const avgPrice = filteredData.reduce((sum, p) => sum + p.price, 0) / filteredData.length;
+        const totalSavings = filteredData.filter(p => !p.isOfficial).reduce((sum, p) => {
+            const officialPrice = filteredData.find(op => op.brand === p.brand && op.size === p.size && op.isOfficial)?.price || p.price;
+            return sum + (officialPrice - p.price);
+        }, 0);
+        const criticalStock = filteredData.filter(p => p.stock === 'Crítico').length;
+        return { uniqueProducts, avgPrice, totalSavings, criticalStock };
+    }, [filteredData]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 p-6">
+                <div className="max-w-7xl mx-auto space-y-6">
+                    <div className="h-12 w-48 bg-sky-200 rounded-lg animate-pulse"></div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+                        {[1, 2, 3, 4].map(i => <SkeletonCard key={i} />)}
+                    </div>
+                    <div className="h-96 bg-white/50 rounded-2xl animate-pulse"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center">
+                <div className="text-center bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-soft">
+                    <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                    <p className="text-gray-600">{error}</p>
+                    <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition">Reintentar</button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50">
+            <div className="max-w-7xl mx-auto p-6 space-y-6">
+                {/* Header */}
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">NeoDashboard Tyres</h1>
+                        <p className="text-gray-500 text-sm">Inteligencia de mercado en tiempo real</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-soft">
+                            <Database className="w-4 h-4 text-sky-500" />
+                            <span className="text-sm text-gray-600">{filteredData.length} productos</span>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Tabs */}
+                <div className="flex gap-2 border-b border-sky-100">
+                    {[
+                        { id: 'explorer', label: 'Explorador', icon: <Search className="w-4 h-4" /> },
+                        { id: 'analytics', label: 'Analytics', icon: <TrendingUp className="w-4 h-4" /> },
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-t-xl font-medium transition-all ${activeTab === tab.id
+                                ? 'bg-white text-sky-600 shadow-soft'
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/30'
+                            }`}
+                        >
+                            {tab.icon}
+                            {tab.label}
                         </button>
                     ))}
                 </div>
+
+                {/* Métricas */}
+                {metrics && (
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {[
+                            { label: 'Productos Únicos', value: metrics.uniqueProducts, icon: <Package className="w-5 h-5" />, color: 'from-sky-500 to-blue-500' },
+                            { label: 'Precio Promedio', value: `$${Math.round(metrics.avgPrice).toLocaleString()}`, icon: <DollarSign className="w-5 h-5" />, color: 'from-emerald-500 to-teal-500' },
+                            { label: 'Ahorro Potencial', value: `$${Math.round(metrics.totalSavings).toLocaleString()}`, icon: <Zap className="w-5 h-5" />, color: 'from-amber-500 to-orange-500' },
+                            { label: 'Stock Crítico', value: metrics.criticalStock, icon: <AlertCircle className="w-5 h-5" />, color: 'from-red-500 to-rose-500' },
+                        ].map((metric, idx) => (
+                            <motion.div key={metric.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 shadow-soft hover:shadow-xl transition-all">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-sm text-gray-500">{metric.label}</p>
+                                    <div className={`p-2 bg-gradient-to-br ${metric.color} rounded-xl text-white shadow-md`}>{metric.icon}</div>
+                                </div>
+                                <p className="text-2xl font-bold text-gray-800">{metric.value}</p>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
+
+                {/* Búsqueda y Filtros */}
+                <div className="space-y-4">
+                    <SearchBar value={filters.searchTerm} onChange={(val) => updateFilter('searchTerm', val)} />
+                    <AdvancedFilters filters={filters} updateFilter={updateFilter} clearFilters={clearFilters} />
+                </div>
+
+                {/* Contenido Principal */}
+                <AnimatePresence mode="wait">
+                    {activeTab === 'explorer' && (
+                        <motion.div key="explorer" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                {filteredData.slice(0, 12).map(tire => (
+                                    <TireCard
+                                        key={tire.id}
+                                        tire={tire}
+                                        onCompare={addToComparison}
+                                        isComparing={comparisonList.some(t => t.id === tire.id)}
+                                    />
+                                ))}
+                            </div>
+                            {filteredData.length === 0 && (
+                                <div className="text-center py-12 bg-white/40 backdrop-blur-sm rounded-2xl">
+                                    <p className="text-gray-500">No se encontraron neumáticos con los filtros aplicados</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'analytics' && (
+                        <motion.div key="analytics" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                            <DemandChart data={filteredData} />
+                            <CriticalStockChart data={filteredData} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Panel de Comparación Flotante */}
+                <AnimatePresence>
+                    {comparisonList.length > 0 && (
+                        <ComparisonPanel
+                            items={comparisonList}
+                            onRemove={removeFromComparison}
+                            onClear={clearComparison}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Footer */}
+                <div className="text-center pt-8 border-t border-sky-100">
+                    <p className="text-xs text-gray-400">CHValueGrowth v2.0 · Sistema de Inteligencia de Mercado · Datos actualizados en tiempo real</p>
+                </div>
             </div>
         </div>
-        <button onClick={exportCurrentView} className="px-4 py-2 rounded-xl bg-[#1a1b1e] shadow-neumorph-outset hover:shadow-neumorph-inset transition text-sm flex items-center gap-2">
-            <Download size={14} /> Exportar CSV
-        </button>
-    </div>
-);
-
-const Footer = ({ lastUpdated }) => (
-    <div className="text-center text-[10px] text-gray-600 py-4 border-t border-gray-800/50">
-        CHValueGrowth v1.0 · Pipeline de datos en tiempo real · {lastUpdated && `Última actualización: ${lastUpdated.toLocaleString()}`}
-    </div>
-);
-
-// Vistas principales (extraídas para claridad)
-const ResumenView = ({ metrics, topArbitrage, quantity, coverageMatrix, scraperStatus }) => (
-    <div className="space-y-6">
-        {/* KPIs */}
-        {metrics && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {[
-                    { label: 'Cobertura de mercado', value: metrics.coverage, suffix: '%', color: 'blue', icon: <TrendingUp size={20} /> },
-                    { label: 'Precio Promedio ML', value: metrics.avgMl, prefix: '$', color: 'orange', icon: <DollarSign size={20} /> },
-                    { label: 'Mejor Precio Directo', value: metrics.avgBest, prefix: '$', color: 'green', icon: <Package size={20} /> },
-                    { label: 'Ahorro Total', value: metrics.totalSavings, prefix: '$', color: 'purple', icon: <Zap size={20} /> }
-                ].map((item, idx) => (
-                    <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} whileHover={{ scale: 1.02, y: -5 }} className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset group">
-                        <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><CircularProgress value={item.suffix ? metrics.coverage : 75} size={80} color={`#${item.color === 'blue' ? '3b82f6' : item.color === 'orange' ? 'f59e0b' : item.color === 'green' ? '10b981' : '8b5cf6'}`} /></div>
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-2"><p className="text-xs text-gray-400 uppercase tracking-wider">{item.label}</p>{item.icon}</div>
-                            <p className="text-3xl font-bold text-white mb-1">{item.prefix}<AnimatedCounter value={item.value} decimals={item.suffix ? 1 : 0} />{item.suffix}</p>
-                            {item.label === 'Cobertura de mercado' && <p className="text-[10px] text-gray-500">{metrics.totalProducts} de {BRANDS.length * SIZES.length} productos</p>}
-                        </div>
-                        <div className={`absolute bottom-0 left-0 h-1 bg-${item.color}-500/50 transition-all duration-500 group-hover:h-1.5`} style={{ width: `${item.suffix ? metrics.coverage : 100}%` }}></div>
-                    </motion.div>
-                ))}
-            </motion.div>
-        )}
-
-        {/* Gráfica de tendencia */}
-        <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-            <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2"><TrendingUp size={18} /> Tendencia de Precios (últimos 7 días)</h3>
-            <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={trendData}>
-                    <defs><linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} /><stop offset="95%" stopColor="#3b82f6" stopOpacity={0} /></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2d2f36" />
-                    <XAxis dataKey="date" stroke="#9ca3af" tick={{ fontSize: 11 }} />
-                    <YAxis stroke="#9ca3af" tickFormatter={(v) => `$${v}`} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1b1e', border: 'none', borderRadius: '0.75rem' }} formatter={(v) => `$${v}`} />
-                    <Legend />
-                    <Area type="monotone" dataKey="avgPrice" stroke="#3b82f6" fill="url(#priceGradient)" name="Precio Promedio (MXN)" strokeWidth={2} />
-                    <Line type="monotone" dataKey="volume" stroke="#f59e0b" name="Volumen de ventas" strokeWidth={2} dot={{ r: 4 }} />
-                </AreaChart>
-            </ResponsiveContainer>
-        </div>
-
-        {/* Scrapers */}
-        <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-            <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2"><Shield size={18} /> Estado de Scrapers</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {scraperStatus.map((scraper, idx) => (
-                    <motion.div key={scraper.name} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.05 }} className="rounded-xl p-4 bg-[#1a1b1e] shadow-neumorph-inset group hover:shadow-neumorph-outset transition-all duration-300">
-                        <div className="flex items-center justify-between mb-3"><span className="font-semibold text-white text-sm">{scraper.name}</span><div className="relative"><div className={`w-3 h-3 rounded-full ${scraper.status === 'connected' ? 'bg-green-500' : 'bg-red-500'} shadow-lg`}></div>{scraper.status === 'connected' && <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>}</div></div>
-                        <div className="space-y-1 text-xs text-gray-400"><div>Última sincro: {scraper.lastSync}</div><div className="flex items-center gap-1"><span>Registros:</span><span className="font-mono text-blue-400 font-semibold"><AnimatedCounter value={scraper.records} /></span></div></div>
-                    </motion.div>
-                ))}
-            </div>
-        </div>
-
-        {/* Matriz de cobertura */}
-        <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset overflow-x-auto">
-            <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">🗺️ Matriz de Cobertura (Heatmap)</h3>
-            <table className="min-w-[800px] w-full">
-                <thead><tr><th className="p-2 text-left text-xs text-gray-400 sticky left-0 bg-[#1f2125]">Marca / Medida</th>{SIZES.map(size => <th key={size} className="p-2 text-center text-[11px] text-gray-400">{size}</th>)}</tr></thead>
-                <tbody>{BRANDS.map(brand => (<tr key={brand}><td className="p-2 font-medium text-white text-sm sticky left-0 bg-[#1f2125] z-10">{brand}</td>{SIZES.map(size => { const cell = coverageMatrix[brand]?.[size]; const exists = cell?.exists; const savings = cell?.savings || 0; const intensity = exists ? Math.min(0.3 + (savings / 1000) * 0.5, 0.8) : 0.1; return (<td key={`${brand}-${size}`} className="p-2"><div className="w-9 h-9 rounded-lg mx-auto transition-all duration-200 hover:scale-110 cursor-help" style={{ backgroundColor: exists ? `rgba(59, 130, 246, ${intensity})` : 'rgba(239, 68, 68, 0.15)', boxShadow: exists ? 'inset 0 0 0 1px rgba(59,130,246,0.3)' : 'none' }} title={exists ? `Ahorro potencial: $${savings} MXN` : 'Sin cobertura'}></div></td>); })}</tr>))}</tbody>
-            </table>
-            <div className="flex justify-end mt-3 gap-4 text-xs"><div className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500/30 rounded"></div><span className="text-gray-400">Con datos</span></div><div className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500/20 rounded"></div><span className="text-gray-400">Sin datos</span></div></div>
-        </div>
-
-        {/* Oportunidades */}
-        <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-            <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">💰 Top Oportunidades de Arbitraje</h3>
-            <div className="space-y-4">{topArbitrage.map((item, idx) => (<motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="rounded-xl p-4 bg-[#1a1b1e] shadow-neumorph-inset"><div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3"><span className="font-medium text-white">{item.name}</span><span className="text-red-400 font-bold text-sm bg-red-500/10 px-3 py-1 rounded-full">Ahorro: +${item.arbitrage * quantity} MXN</span></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4"><div className="text-center p-3 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10"><div className="text-xs text-gray-400">Mejor Precio Directo</div><div className="font-bold text-green-400 text-lg">${(item.direct.price * quantity).toLocaleString()} MXN</div><div className="text-[10px] text-gray-500">{item.direct.source}</div></div><div className="text-center p-3 rounded-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10"><div className="text-xs text-gray-400">Mercado Libre</div><div className="font-bold text-yellow-400 text-lg">${(item.marketplace.price * quantity).toLocaleString()} MXN</div><div className="text-[10px] text-gray-500">{item.marketplace.source}</div></div></div></motion.div>))}</div>
-        </div>
-    </div>
-);
-
-const MedidasView = ({ aggregatedProducts }) => (
-    <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-        <h3 className="text-lg font-semibold mb-4 text-white">📏 Explorador de Medidas</h3>
-        <div className="overflow-x-auto"><table className="w-full min-w-[600px]"><thead className="bg-[#1f2125]"><tr><th className="p-3 text-left text-xs font-bold">Medida</th><th className="p-3 text-left text-xs font-bold">Cantidad de productos</th><th className="p-3 text-left text-xs font-bold">Precio ML Promedio</th><th className="p-3 text-left text-xs font-bold">Mejor Precio Promedio</th></tr></thead><tbody>{SIZES.map(size => { const products = aggregatedProducts.filter(p => p.size === size); const avgMl = products.reduce((s, p) => s + p.mlPrice, 0) / (products.length || 1); const avgBest = products.reduce((s, p) => s + p.bestDirectPrice, 0) / (products.length || 1); return (<tr key={size} className="border-t border-gray-800 hover:bg-[#232529] transition"><td className="p-3 text-white font-mono text-sm">{size}</td><td className="p-3">{products.length}</td><td className="p-3 font-mono">${Math.round(avgMl).toLocaleString()}</td><td className="p-3 font-mono text-green-400">${Math.round(avgBest).toLocaleString()}</td></tr>); })}</tbody></table></div>
-    </div>
-);
-
-const MarcasView = ({ aggregatedProducts }) => (
-    <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-        <h3 className="text-lg font-semibold mb-4 text-white">🏷️ Análisis de Marcas</h3>
-        <div className="overflow-x-auto"><table className="w-full min-w-[600px]"><thead className="bg-[#1f2125]"><tr><th className="p-3 text-left text-xs font-bold">Marca</th><th className="p-3 text-left text-xs font-bold">Cantidad de productos</th><th className="p-3 text-left text-xs font-bold">Precio ML Promedio</th><th className="p-3 text-left text-xs font-bold">Mejor Precio Promedio</th></tr></thead><tbody>{BRANDS.map(brand => { const products = aggregatedProducts.filter(p => p.brand === brand); const avgMl = products.reduce((s, p) => s + p.mlPrice, 0) / (products.length || 1); const avgBest = products.reduce((s, p) => s + p.bestDirectPrice, 0) / (products.length || 1); return (<tr key={brand} className="border-t border-gray-800 hover:bg-[#232529] transition"><td className="p-3 text-white font-semibold">{brand}</td><td className="p-3">{products.length}</td><td className="p-3 font-mono">${Math.round(avgMl).toLocaleString()}</td><td className="p-3 font-mono text-green-400">${Math.round(avgBest).toLocaleString()}</td></tr>); })}</tbody></table></div>
-    </div>
-);
-
-const FuentesView = ({ scraperStatus }) => (
-    <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset">
-        <h3 className="text-lg font-semibold mb-4 text-white">📡 Fuentes Externas - Detalle</h3>
-        <div className="grid gap-4 md:grid-cols-2">{scraperStatus.map(scraper => (<div key={scraper.name} className="rounded-xl p-4 bg-[#1a1b1e] shadow-neumorph-inset"><div className="flex justify-between items-start"><div><h4 className="font-bold text-white">{scraper.name}</h4><p className="text-xs text-gray-400 mt-1">Última sincronización: {scraper.lastSync}</p><p className="text-xs text-gray-400">Registros activos: <span className="font-mono text-blue-400"><AnimatedCounter value={scraper.records} /></span></p></div><div className={`px-2 py-1 rounded-full text-xs font-semibold ${scraper.status === 'connected' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>{scraper.status === 'connected' ? 'Conectado' : 'Desconectado'}</div></div></div>))}</div>
-    </div>
-);
-
-const AlertasView = () => (
-    <div className="rounded-2xl p-5 bg-gradient-to-br from-[#1f2125] to-[#16181c] shadow-neumorph-outset text-center">
-        <h3 className="text-lg font-semibold mb-4 text-white">🔔 Alertas de Precio</h3>
-        <p className="text-gray-400">Módulo en construcción. Próximamente podrás configurar alertas personalizadas.</p>
-        <div className="mt-6 p-4 rounded-xl bg-[#1a1b1e] shadow-neumorph-inset"><p className="text-sm text-gray-300">Ejemplo: Recibir notificación cuando el precio de <strong>Michelin 205/55 R16</strong> baje de $2,300 MXN.</p></div>
-    </div>
-);
+    );
+};
 
 export default Dashboard;
