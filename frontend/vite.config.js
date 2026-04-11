@@ -13,7 +13,7 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    base: '/',
+    base: '/app/',
     build: {
         outDir: '../static',
         emptyOutDir: true,
