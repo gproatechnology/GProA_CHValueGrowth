@@ -30,15 +30,26 @@ STATIC_DIR = BASE_DIR / "static"
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 if STATIC_DIR.exists():
-    app.mount("/app", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend_app")
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/app/assets", StaticFiles(directory=str(assets_dir)), name="frontend_assets")
 
-@app.exception_handler(StarletteHTTPException)
-async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
-    if exc.status_code == 404 and request.url.path.startswith("/app"):
-        index_path = STATIC_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(str(index_path))
-    return HTMLResponse(content=f"<h1>{exc.status_code} Not Found</h1>", status_code=exc.status_code)
+    @app.get("/app")
+    @app.get("/app/")
+    @app.get("/app/{full_path:path}")
+    async def serve_spa(full_path: str = ""):
+        if ".." in full_path:
+            return FileResponse(str(STATIC_DIR / "index.html"))
+            
+        target = STATIC_DIR / full_path
+        if target.is_file():
+            return FileResponse(str(target))
+            
+        index_file = STATIC_DIR / "index.html"
+        if index_file.is_file():
+            return FileResponse(str(index_file))
+            
+        return HTMLResponse("Frontend not built.", status_code=404)
 
 app.include_router(products_router)
 app.include_router(auth_router)
