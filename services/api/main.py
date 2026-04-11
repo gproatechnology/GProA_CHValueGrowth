@@ -62,6 +62,14 @@ def root():
         return RedirectResponse(url="/app/")
     return {"status": "ok", "project": "NeumatiQ"}
 
+@app.get("/favicon.ico")
+def favicon():
+    # Return a dummy transparent favicon or the actual file to satisfy browsers
+    file_path = STATIC_DIR / "favicon.ico"
+    if file_path.is_file():
+        return FileResponse(str(file_path))
+    return HTMLResponse("")
+
 
 @app.get("/dashboard")
 def dashboard(request: Request):
