@@ -348,7 +348,7 @@ const Login = ({ onLogin }) => {
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105 animate-[pulse_10s_ease-in-out_infinite]"
         style={{
-          backgroundImage: 'url("/assets/Crecimiento%20financiero%20futurista.png")'
+          backgroundImage: `url("${import.meta.env.BASE_URL}assets/Crecimiento%20financiero%20futurista.png")`
         }}
       />
       

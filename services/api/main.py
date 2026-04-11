@@ -9,6 +9,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
 
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from services.api.routes.products import router as products_router
 from services.api.routes.auth import router as auth_router
 
@@ -28,6 +31,14 @@ FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 if STATIC_DIR.exists():
     app.mount("/app", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend_app")
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404 and request.url.path.startswith("/app"):
+        index_path = STATIC_DIR / "index.html"
+        if index_path.exists():
+            return FileResponse(str(index_path))
+    return HTMLResponse(content=f"<h1>{exc.status_code} Not Found</h1>", status_code=exc.status_code)
 
 app.include_router(products_router)
 app.include_router(auth_router)

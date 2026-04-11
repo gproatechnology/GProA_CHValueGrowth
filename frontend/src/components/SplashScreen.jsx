@@ -130,7 +130,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
         animate={isComplete ? 'exit' : 'visible'}
         exit="exit"
         style={{
-          backgroundImage: 'url("/assets/Crecimiento%20financiero%20futurista.png")',
+          backgroundImage: `url("${import.meta.env.BASE_URL}assets/Crecimiento%20financiero%20futurista.png")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
