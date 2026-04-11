@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set "VIRTUAL_ENV=C:\Users\Mao\OneDrive\Documentos\GProA Desarrollo\GProA_CHValueGrowth\venv"
+set "VIRTUAL_ENV=C:\Users\X1\OneDrive\Documentos\Python_VS Code\GProA\Desarrollo_chvaluegrowth\venv"
 
 if not defined PROMPT set PROMPT=$P$G
 

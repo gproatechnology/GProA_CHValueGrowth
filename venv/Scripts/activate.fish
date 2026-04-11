@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV 'C:\Users\Mao\OneDrive\Documentos\GProA Desarrollo\GProA_CHValueGrowth\venv'
+set -gx VIRTUAL_ENV 'C:\Users\X1\OneDrive\Documentos\Python_VS Code\GProA\Desarrollo_chvaluegrowth\venv'
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"Scripts $PATH

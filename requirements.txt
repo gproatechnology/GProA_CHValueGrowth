@@ -10,3 +10,5 @@ gunicorn
 passlib[bcrypt]>=1.7.4
 redis>=4.5.0
 python-jose[cryptography]>=3.3.0
+cryptography<43.0.0
+pyOpenSSL>=24.2.1
