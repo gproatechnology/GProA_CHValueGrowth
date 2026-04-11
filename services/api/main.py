@@ -38,7 +38,8 @@ app.include_router(products_router)
 app.include_router(auth_router)
 
 
-@app.head("/")`r`n@app.get("/")
+@app.head("/")
+@app.get("/")
 def root():
     index_file = STATIC_DIR / "index.html"
     if index_file.is_file():
@@ -71,7 +72,8 @@ def health():
     }
 
 
-@app.head("/{full_path:path}")`r`n@app.get("/{full_path:path}")
+@app.head("/{full_path:path}")
+@app.get("/{full_path:path}")
 async def catch_all_spa(full_path: str, request: Request):
     """
     Catch-all route to serve the SPA index.html for all unrecognized frontend routes.
