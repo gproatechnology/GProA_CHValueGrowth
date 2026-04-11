@@ -32,24 +32,7 @@ FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 if STATIC_DIR.exists():
     assets_dir = STATIC_DIR / "assets"
     if assets_dir.exists():
-        app.mount("/app/assets", StaticFiles(directory=str(assets_dir)), name="frontend_assets")
-
-    @app.get("/app")
-    @app.get("/app/")
-    @app.get("/app/{full_path:path}")
-    async def serve_spa(full_path: str = ""):
-        if ".." in full_path:
-            return FileResponse(str(STATIC_DIR / "index.html"))
-            
-        target = STATIC_DIR / full_path
-        if target.is_file():
-            return FileResponse(str(target))
-            
-        index_file = STATIC_DIR / "index.html"
-        if index_file.is_file():
-            return FileResponse(str(index_file))
-            
-        return HTMLResponse("Frontend not built.", status_code=404)
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="frontend_assets")
 
 app.include_router(products_router)
 app.include_router(auth_router)
@@ -57,9 +40,9 @@ app.include_router(auth_router)
 
 @app.get("/")
 def root():
-    from fastapi.responses import RedirectResponse
-    if (STATIC_DIR / "index.html").exists():
-        return RedirectResponse(url="/app/")
+    index_file = STATIC_DIR / "index.html"
+    if index_file.is_file():
+        return FileResponse(str(index_file))
     return {"status": "ok", "project": "NeumatiQ"}
 
 @app.get("/favicon.ico")
@@ -86,3 +69,26 @@ def health():
         "version": "1.0.0",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
+
+
+@app.get("/{full_path:path}")
+async def catch_all_spa(full_path: str, request: Request):
+    """
+    Catch-all route to serve the SPA index.html for all unrecognized frontend routes.
+    Avoids intercepting actual API errors.
+    """
+    if full_path.startswith("api/"):
+        raise FastAPIHTTPException(status_code=404, detail="API route not found")
+        
+    if ".." in full_path:
+        raise FastAPIHTTPException(status_code=403, detail="Forbidden")
+        
+    target_file = STATIC_DIR / full_path
+    if target_file.is_file():
+        return FileResponse(str(target_file))
+        
+    index_file = STATIC_DIR / "index.html"
+    if index_file.is_file():
+        return FileResponse(str(index_file))
+        
+    return HTMLResponse("Frontend not built.", status_code=404)
