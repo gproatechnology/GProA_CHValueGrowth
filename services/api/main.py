@@ -27,10 +27,7 @@ STATIC_DIR = BASE_DIR / "static"
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-if FRONTEND_DIST.exists():
-    app.mount("/app", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+    app.mount("/app", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend_app")
 
 app.include_router(products_router)
 app.include_router(auth_router)
@@ -38,8 +35,9 @@ app.include_router(auth_router)
 
 @app.get("/")
 def root():
-    if (FRONTEND_DIST / "index.html").exists():
-        return FileResponse(str(FRONTEND_DIST / "index.html"))
+    from fastapi.responses import RedirectResponse
+    if (STATIC_DIR / "index.html").exists():
+        return RedirectResponse(url="/app/")
     return {"status": "ok", "project": "NeumatiQ"}
 
 
