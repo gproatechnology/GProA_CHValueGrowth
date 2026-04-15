@@ -74,12 +74,13 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
   });
 
   useEffect(() => {
-    mountedRef.current = true;
-    simulateLoading.current();
-    
-    return () => {
-      mountedRef.current = false;
-    };
+  mountedRef.current = true;
+  startTimeRef.current = Date.now(); // 🔥 aquí, no arriba
+  simulateLoading.current();
+
+  return () => {
+    mountedRef.current = false;
+  };
   }, []);
 
   if (!isVisible) return null;
