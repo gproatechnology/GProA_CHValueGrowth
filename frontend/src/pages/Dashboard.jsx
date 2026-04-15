@@ -15,7 +15,7 @@ import {
   Save, Bookmark, Download, RefreshCw, Globe, Flag, Info,
   Eye, Grid3x3, List, ArrowUpDown, Star, Clock as ClockIcon,
   TrendingDown, Thermometer, CloudRain, Sun, Truck as TruckIcon,
-  Calendar, AlertTriangle as AlertTriangleIcon
+  Calendar, AlertTriangle as AlertTriangleIcon, User, Bell, Settings, LogOut, ChevronDown, ChevronRight, Maximize2, Minimize2, RefreshCw
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -1031,6 +1031,23 @@ const Dashboard = () => {
     const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
     const [searchName, setSearchName] = useState('');
     const [selectedBrand, setSelectedBrand] = useState(null);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            setIsFullscreen(true);
+        } else {
+            document.exitFullscreen();
+            setIsFullscreen(false);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('chvalue_token');
+        window.location.href = '/login';
+    };
     
     // KPIs con valores realistas
     const kpis = useMemo(() => {
@@ -1152,15 +1169,69 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* Imagen de usuario Heredia */}
-                        <div className="flex items-center gap-2 ml-auto">
-                            <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
-                                <img 
-                                    src="/assets/Heredia_logo_circular.png" 
-                                    alt="Usuario" 
-                                    className="w-full h-full object-contain rounded-full" 
-                                />
-                            </div>
+                        {/* User Profile Dropdown */}
+                        <div className="relative z-[9999]">
+                            <button
+                                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                                className="flex items-center gap-3 p-2 rounded-xl hover:bg-blue-900/50 transition-all group border border-blue-900/50"
+                            >
+                                <div className="w-9 h-9 bg-gradient-to-br from-[#1E90FF] to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg border border-white/20">
+                                    CH
+                                </div>
+                                <div className="hidden lg:block">
+                                    <p className="text-sm font-bold text-white truncate">Carlos Rafael</p>
+                                    <p className="text-xs text-blue-200">Administrador</p>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-blue-300 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {/* Dropdown */}
+                            <AnimatePresence>
+                                {userDropdownOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                                        className="absolute top-full right-0 mt-2 w-72 bg-[#020617] rounded-2xl shadow-2xl border border-blue-900/50 backdrop-blur-xl overflow-hidden z-[10000]"
+                                    >
+                                        <div className="p-5 border-b border-blue-900/50 bg-gradient-to-b from-blue-900/50 to-transparent">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-[#1E90FF] to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                                                    CH
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-white text-sm">Carlos Rafael Heredia Loperena</p>
+                                                    <p className="text-xs text-blue-200">carlos@neumatiq.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-2 space-y-1">
+                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                                                <User size={16} />
+                                                Mi Perfil
+                                            </button>
+                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                                                <Bell size={16} />
+                                                Notificaciones
+                                            </button>
+                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                                                <Settings size={16} />
+                                                Configuración
+                                            </button>
+                                            <div className="border-t border-blue-900/50 my-1 pt-2">
+                                                <button 
+                                                    onClick={handleLogout}
+                                                    className="w-full text-left px-4 py-3 rounded-xl text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 transition-all flex items-center gap-3 font-medium"
+                                                >
+                                                    <LogOut size={16} />
+                                                    Cerrar Sesión
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                         
                         {/* Búsqueda inteligente */}
