@@ -25,18 +25,16 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
 
+app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
 @app.get("/")
-@app.get("/{path:path}")
-async def serveSPA(path: str = None):
-    if not path or path.startswith("assets/") or path.startswith("static/"):
-        return None
+def root():
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return HTMLResponse("<h1>NeumatiQ - Loading...</h1>")
-
-app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets"), html=True), name="assets")
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    return {"status": "ok", "project": "NeumatiQ"}
 
 app.include_router(products_router)
 app.include_router(auth_router)
