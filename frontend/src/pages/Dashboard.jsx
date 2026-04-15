@@ -1141,7 +1141,7 @@ const Dashboard = () => {
                         <div className="flex items-center gap-2">
                             <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
                                 <img 
-                                    src="/assets/Logo de NeumatiQ.png" 
+                                    src="/assets/Logo_de_NeumatiQ-.png" 
                                     alt="NeumatiQ Logo" 
                                     className="w-full h-full object-contain rounded-full" 
                                 />
