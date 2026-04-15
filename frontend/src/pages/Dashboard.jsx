@@ -85,7 +85,7 @@ const BRAND_LOGOS = {
   'Pirelli': '/assets/Pirelli.png',
   'Bridgestone': '/assets/Bridgestone.png',
   'Continental': '/assets/Continental.png',
-'Goodyear': '/assets/GooYear.png',
+'Goodyear': '/assets/GoodYear.png',
   'Dunlop': '/assets/Dunlop.png',
   'Yokohama': '/assets/Yokohama.png',
   'Hankook': '/assets/Hankook.png',
@@ -583,21 +583,21 @@ const CountryMarketCard = ({ country, data, onViewDetails }) => {
             name: 'México', 
             flag: '🇲🇽', 
             color: 'from-green-600 to-red-600',
-            flagImage: '/assets/mexico-circular.png',
+            flagImage: '/assets/MEXICO.jpeg',
             alt: 'Bandera de México'
         },
         CO: { 
             name: 'Colombia', 
             flag: '🇨🇴', 
             color: 'from-yellow-600 to-blue-600 to-red-600',
-            flagImage: '/assets/colombia-circular.png',
+            flagImage: '/assets/COLOMBIA.jpeg',
             alt: 'Bandera de Colombia'
         },
         PA: { 
             name: 'Panamá', 
             flag: '🇵🇦', 
             color: 'from-blue-600 to-red-600',
-            flagImage: '/assets/panama-circular.png',
+            flagImage: '/assets/PANAMA.jpeg',
             alt: 'Bandera de Panamá'
         },
     };
