@@ -15,7 +15,7 @@ import {
   Save, Bookmark, Download, RefreshCw, Globe, Flag, Info,
   Eye, Grid3x3, List, ArrowUpDown, Star, Clock as ClockIcon,
   TrendingDown, Thermometer, CloudRain, Sun, Truck as TruckIcon,
-  Calendar, AlertTriangle as AlertTriangleIcon, User, Bell, Settings, LogOut, ChevronDown, ChevronRight, Maximize2, Minimize2, RefreshCw
+  Calendar, AlertTriangle as AlertTriangleIcon, User, Bell, Settings, LogOut, Settings, RefreshCw
 } from 'lucide-react';
 import {
     Chart as ChartJS,
