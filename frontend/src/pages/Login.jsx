@@ -1,715 +1,210 @@
-import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Eye, EyeOff, Lock, User, AlertCircle, LogIn, Shield,
-  TrendingUp, Activity, Cpu, Zap, Fingerprint, CheckCircle,
-  Wifi, Database, Cloud, Server, HardDrive, Terminal, Sparkles
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff, Lock, User, AlertCircle, LogIn, Zap } from 'lucide-react';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [touched, setTouched] = useState({ username: false, password: false });
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [capsLockOn, setCapsLockOn] = useState(false);
-  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const canvasRef = useRef(null);
 
-  // Verificar soporte biométrico
-  useEffect(() => {
-    setIsBiometricSupported(
-      window.PublicKeyCredential && 
-      typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function'
-    );
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Canvas avanzado con gráficas de mercado - Tema Azul
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    let time = 0;
-    let particles = [];
-    
-    const updateDimensions = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    // Datos de mercado de neumáticos
-    const marketData = {
-      michelin: [245, 248, 243, 250, 247, 252, 249, 251, 248, 253, 250, 256],
-      bridgestone: [235, 238, 240, 237, 242, 239, 241, 244, 240, 245, 243, 248],
-      goodyear: [225, 228, 230, 227, 232, 229, 231, 234, 230, 236, 233, 238],
-      pirelli: [255, 258, 253, 260, 257, 262, 259, 261, 258, 263, 260, 266]
-    };
-
-    // Sistema de partículas en azul
-    class Particle {
-      constructor(w, h) {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.3;
-        this.speedY = (Math.random() - 0.5) * 0.3;
-        this.opacity = Math.random() * 0.3;
-      }
-      
-      update(w, h) {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x < 0) this.x = w;
-        if (this.x > w) this.x = 0;
-        if (this.y < 0) this.y = h;
-        if (this.y > h) this.y = 0;
-      }
-      
-      draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(30, 144, 255, ${this.opacity})`;
-        ctx.fill();
-      }
-    }
-
-    const initParticles = (w, h) => {
-      particles = [];
-      const particleCount = Math.min(80, Math.floor(w * h / 20000));
-      for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle(w, h));
-      }
-    };
-
-    const drawTechGrid = (ctx, w, h) => {
-      ctx.strokeStyle = 'rgba(30, 144, 255, 0.06)';
-      ctx.lineWidth = 0.5;
-      
-      for (let x = 0; x < w; x += 50) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += 50) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-      
-      ctx.strokeStyle = 'rgba(30, 144, 255, 0.03)';
-      for (let x = 0; x < w; x += 25) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += 25) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-    };
-
-    const drawAreaChart = (ctx, w, h, data, color, offsetY = 0, alpha = 0.6) => {
-      if (!data.length) return;
-      
-      const step = w / (data.length - 1);
-      const maxVal = Math.max(...data);
-      const minVal = Math.min(...data);
-      const range = maxVal - minVal || 1;
-      
-      ctx.beginPath();
-      data.forEach((value, index) => {
-        const x = index * step;
-        const y = h * 0.25 + offsetY - ((value - minVal) / range) * 80;
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.lineTo(w, h * 0.25 + offsetY);
-      ctx.lineTo(0, h * 0.25 + offsetY);
-      ctx.closePath();
-      ctx.fillStyle = color.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = color;
-      data.forEach((value, index) => {
-        const x = index * step;
-        const y = h * 0.25 + offsetY - ((value - minVal) / range) * 80;
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      
-      ctx.shadowBlur = 0;
-      data.forEach((value, index) => {
-        const x = index * step;
-        const y = h * 0.25 + offsetY - ((value - minVal) / range) * 80;
-        ctx.beginPath();
-        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = color;
-      });
-      ctx.shadowBlur = 0;
-    };
-
-    const drawFrequencyRings = (ctx, w, h, time) => {
-      const centerX = w * 0.85;
-      const centerY = h * 0.85;
-      
-      for (let i = 0; i < 3; i++) {
-        const radius = 40 + i * 25 + Math.sin(time * 2) * 5;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(30, 144, 255, ${0.1 - i * 0.03})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 8 + Math.sin(time * 4) * 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(30, 144, 255, ${0.3 + Math.sin(time * 4) * 0.1})`;
-      ctx.fill();
-    };
-
-    const drawMetrics = (ctx, w, h, time) => {
-      const metrics = [
-        { label: 'LATENCIA', value: `${Math.floor(15 + Math.sin(time) * 5)}ms` },
-        { label: 'THROUGHPUT', value: `${Math.floor(850 + Math.sin(time * 1.3) * 50)}MB/s` },
-        { label: 'UPTIME', value: '99.98%' }
-      ];
-      
-      ctx.font = 'bold 8px "Courier New", monospace';
-      metrics.forEach((metric, idx) => {
-        const x = w - 120;
-        const y = 30 + idx * 18;
-        ctx.fillStyle = 'rgba(30, 144, 255, 0.5)';
-        ctx.fillText(`${metric.label}:`, x, y);
-        ctx.fillStyle = 'rgba(30, 144, 255, 0.9)';
-        ctx.fillText(metric.value, x + 65, y);
-      });
-    };
-
-    const animate = () => {
-      if (!ctx) return;
-      
-      const w = canvas.width;
-      const h = canvas.height;
-      
-      if (w < 10 || h < 10) {
-        animationId = requestAnimationFrame(animate);
-        return;
-      }
-      
-      // Fondo azul profundo
-      ctx.fillStyle = '#0B1E3A';
-      ctx.fillRect(0, 0, w, h);
-      
-      const gradient = ctx.createLinearGradient(0, 0, w, h);
-      gradient.addColorStop(0, '#0B1E3A');
-      gradient.addColorStop(1, '#102A4C');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, w, h);
-      
-      drawTechGrid(ctx, w, h);
-      
-      const offsetY = Math.sin(time * 0.3) * 8;
-      drawAreaChart(ctx, w, h, marketData.michelin, '#1E90FF', offsetY, 0.08);
-      drawAreaChart(ctx, w, h, marketData.bridgestone, '#3B82F6', offsetY + 15, 0.06);
-      drawAreaChart(ctx, w, h, marketData.goodyear, '#8B5CF6', offsetY + 30, 0.05);
-      drawAreaChart(ctx, w, h, marketData.pirelli, '#EC4899', offsetY + 45, 0.04);
-      
-      drawFrequencyRings(ctx, w, h, time);
-      drawMetrics(ctx, w, h, time);
-      
-      particles.forEach(particle => {
-        particle.update(w, h);
-        particle.draw(ctx);
-      });
-      
-      time += 0.016;
-      animationId = requestAnimationFrame(animate);
-    };
-
-    updateDimensions();
-    initParticles(canvas.width, canvas.height);
-    animate();
-    
-    const handleResize = () => {
-      updateDimensions();
-      initParticles(canvas.width, canvas.height);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      if (animationId) cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const calculateStrength = useCallback((pass) => {
-    let score = 0;
-    if (pass.length >= 8) score += 20;
-    if (pass.length >= 12) score += 15;
-    if (/[A-Z]/.test(pass)) score += 20;
-    if (/[a-z]/.test(pass)) score += 10;
-    if (/[0-9]/.test(pass)) score += 15;
-    if (/[^A-Za-z0-9]/.test(pass)) score += 20;
-    return Math.min(score, 100);
-  }, []);
-
-  useEffect(() => {
-    setPasswordStrength(calculateStrength(credentials.password));
-  }, [credentials.password, calculateStrength]);
-
-  const handleKeyPress = (e) => setCapsLockOn(e.getModifierState('CapsLock'));
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleBlur = (field) => setTouched(prev => ({ ...prev, [field]: true }));
-  
-  const validateField = (field) => {
-    if (!touched[field]) return null;
-    if (!credentials[field]?.trim()) return 'Campo requerido';
-    if (field === 'password' && credentials.password.length < 6) return 'Mínimo 6 caracteres';
-    return null;
+    if (error) setError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setTouched({ username: true, password: true });
-    
-    if (!credentials.username.trim() || !credentials.password.trim()) {
-      setError('Complete todos los campos');
+    setError('');
+
+    if (credentials.username === 'admin' && credentials.password === 'admin123') {
+      setLoading(true);
+      setTimeout(() => {
+        localStorage.setItem('chvalue_token', Date.now().toString());
+        setLoading(false);
+        navigate('/');
+      }, 1200);
       return;
     }
-    
-    setLoading(true);
-    setError('');
-    
-    try {
-      // Simulación de autenticación rápida
-      const user = { name: credentials.username, role: 'Administrador', avatar: '👨‍💼' };
-      localStorage.setItem('chvalue_token', 'demo_token_' + Date.now());
-      localStorage.setItem('chvalue_user', JSON.stringify(user));
-      sessionStorage.setItem('chvalue_token', 'demo_token_' + Date.now());
-      onLogin(user);
-    } catch (err) {
-      setError('Credenciales incorrectas. Verifique usuario y contraseña.');
-    } finally {
-      setLoading(false);
-    }
+
+    setError('Credenciales incorrectas');
   };
 
-  const handleBiometricAuth = async () => {
-    if (!isBiometricSupported) return;
-    setLoading(true);
-    setTimeout(() => {
-      setCredentials({ username: 'admin', password: 'admin123' });
-      handleSubmit({ preventDefault: () => {} });
-      setLoading(false);
-    }, 1000);
-  };
-
-  const usernameError = validateField('username');
-  const passwordError = validateField('password');
-  
-  const strengthColor = passwordStrength < 40 ? '#ef4444' : passwordStrength < 70 ? '#f59e0b' : '#10b981';
-  const strengthText = passwordStrength < 40 ? 'BAJA' : passwordStrength < 70 ? 'MEDIA' : 'ALTA';
+  const togglePassword = () => setShowPassword(!showPassword);
 
   return (
-    <div className="relative min-h-screen overflow-hidden font-['Inter', system-ui, sans-serif]">
-      
-      {/* Imagen de fondo */}
-      <div 
-        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105 animate-[pulse_10s_ease-in-out_infinite]"
-        style={{
-          backgroundImage: 'url("/assets/Crecimiento%20financiero%20futurista.png")'
-        }}
-      />
-      
-      {/* Overlay oscuro */}
-      <div className="fixed inset-0 z-0 bg-[#0B1E3A]/60 mix-blend-multiply" />
-      <div className="fixed inset-0 z-0 bg-black/50 backdrop-blur-[12px]" />
-      
-      {/* Gradiente dinámico que sigue al mouse */}
-      <div 
-        className="fixed pointer-events-none z-0 mix-blend-screen"
-        style={{
-          width: '800px',
-          height: '800px',
-          background: 'radial-gradient(circle, rgba(234,179,8,0.12) 0%, rgba(30,144,255,0.05) 40%, transparent 70%)',
-          borderRadius: '50%',
-          left: cursorPosition.x - 400,
-          top: cursorPosition.y - 400,
-          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-        }}
-      />
-      
-      {/* Contenedor principal */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-8">
-        
-        {/* Tarjeta de Login */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ 
-            duration: 0.6,
-            type: "spring",
-            stiffness: 100,
-            damping: 20
-          }}
-          className="w-full max-w-[440px]"
-        >
-          {/* Efecto de glow externo */}
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF] rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500" />
-            
-            {/* Tarjeta Glassmorphism con gradiente azul */}
-            <div className="relative bg-gradient-to-br from-[#163A6B] to-[#102A4C] backdrop-blur-xl rounded-2xl border border-[#1E90FF]/20 shadow-2xl overflow-hidden">
-              
-              {/* Barra superior estilo terminal */}
-              <div className="relative">
-                <div className="flex items-center gap-2 px-5 pt-4 pb-3 bg-[#0B1E3A]/80 backdrop-blur-sm border-b border-[#1E90FF]/20">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full hover:bg-red-400 transition-all cursor-pointer" />
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-all cursor-pointer" />
-                    <div className="w-3 h-3 bg-emerald-500 rounded-full hover:bg-emerald-400 transition-all cursor-pointer" />
-                  </div>
-                  <div className="flex-1 text-center">
-                    <span className="text-[9px] text-[#1E90FF]/60 font-mono tracking-wider">NeumatiQ@terminal:~</span>
-                  </div>
-                  <div className="w-16" />
-                </div>
-                
-                {/* Barra de progreso de sistema */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1E90FF]/50 to-transparent" />
-              </div>
-              
-              {/* Contenido principal */}
-              <div className="p-6 md:p-7">
-                
-                {/* Header */}
-                <motion.div
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-center mb-7"
-                >
-                  <div className="relative inline-block mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-xl blur-md opacity-60 animate-pulse" />
-                    <div className="relative w-16 h-16 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-xl flex items-center justify-center shadow-lg">
-                      <Terminal size={28} className="text-white" />
-                    </div>
-                  </div>
-                  
-                  <h1 className="text-2xl md:text-3xl font-black tracking-tighter bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF] bg-clip-text text-transparent mb-1.5">
-                    NeumatiQ
-                  </h1>
-                  <p className="text-[#1E90FF]/60 text-[10px] font-mono tracking-wider flex items-center justify-center gap-2">
-                    <Activity size={10} />
-                    <span>TERMINAL DE MERCADO · SECURE ACCESS v3.0</span>
-                    <Wifi size={10} />
-                  </p>
-                  <div className="w-12 h-px bg-gradient-to-r from-[#1E90FF] to-transparent mx-auto mt-3" />
-                </motion.div>
-                
-                {/* Formulario */}
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  
-                  {/* Campo Usuario */}
-                  <motion.div
-                    initial={{ x: -15, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.15 }}
-                  >
-                    <label className="block text-[#1E90FF] text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
-                      <User size="11" className="inline mr-1" />
-                      USUARIO
-                    </label>
-                    <div className="relative group">
-                      <User size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 group-focus-within:text-[#1E90FF] transition-all duration-300" />
-                      <input
-                        type="text"
-                        name="username"
-                        value={credentials.username}
-                        onChange={handleChange}
-                        onBlur={() => handleBlur('username')}
-                        className={`w-full pl-10 pr-4 py-3 rounded-xl bg-[#0B1E3A]/80 border-2 font-mono text-sm
-                          ${usernameError && touched.username
-                            ? 'border-red-500/50 focus:border-red-500'
-                            : 'border-[#1E90FF]/30 focus:border-[#1E90FF]'
-                          }
-                          text-[#EAF3FF] placeholder-[#AFC8E6]/50 outline-none transition-all duration-300
-                          focus:shadow-[0_0_15px_rgba(30,144,255,0.15)] focus:bg-[#0B1E3A]`}
-                        placeholder="admin"
-                        disabled={loading}
-                        autoComplete="username"
-                      />
-                    </div>
-                    <AnimatePresence>
-                      {usernameError && touched.username && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -3 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="text-red-400 text-[10px] mt-1.5 ml-1 flex items-center gap-1 font-mono"
-                        >
-                          <AlertCircle size="10" /> {usernameError}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                  
-                  {/* Campo Contraseña */}
-                  <motion.div
-                    initial={{ x: -15, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <label className="block text-[#1E90FF] text-[10px] font-bold uppercase tracking-wider mb-2 font-mono">
-                      <Lock size="11" className="inline mr-1" />
-                      CONTRASEÑA
-                    </label>
-                    <div className="relative group">
-                      <Lock size="16" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 group-focus-within:text-[#1E90FF] transition-all duration-300" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={credentials.password}
-                        onChange={handleChange}
-                        onBlur={() => handleBlur('password')}
-                        onKeyUp={handleKeyPress}
-                        className={`w-full pl-10 pr-10 py-3 rounded-xl bg-[#0B1E3A]/80 border-2 font-mono text-sm
-                          ${passwordError && touched.password
-                            ? 'border-red-500/50 focus:border-red-500'
-                            : 'border-[#1E90FF]/30 focus:border-[#1E90FF]'
-                          }
-                          text-[#EAF3FF] placeholder-[#AFC8E6]/50 outline-none transition-all duration-300
-                          focus:shadow-[0_0_15px_rgba(30,144,255,0.15)] focus:bg-[#0B1E3A]`}
-                        placeholder="admin123"
-                        disabled={loading}
-                        autoComplete="current-password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1E90FF]/50 hover:text-[#1E90FF] transition-all duration-300"
-                      >
-                        {showPassword ? <EyeOff size="16" /> : <Eye size="16" />}
-                      </button>
-                    </div>
-                    
-                    {/* Indicadores */}
-                    <div className="mt-2 space-y-1.5">
-                      {capsLockOn && (
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="text-yellow-400 text-[10px] flex items-center gap-1 font-mono"
-                        >
-                          <AlertCircle size="10" /> CAPS LOCK ACTIVADO
-                        </motion.p>
-                      )}
-                      
-                      {credentials.password.length > 0 && (
-                        <div className="space-y-1">
-                          <div className="h-1 w-full bg-[#0B1E3A] rounded-full overflow-hidden border border-[#1E90FF]/20">
-                            <motion.div
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{ 
-                                backgroundColor: strengthColor,
-                                width: `${passwordStrength}%`,
-                                boxShadow: `0 0 6px ${strengthColor}`
-                              }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${passwordStrength}%` }}
-                            />
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[9px] text-[#AFC8E6] font-mono">FORTALEZA:</span>
-                            <span className="text-[9px] font-mono font-bold" style={{ color: strengthColor }}>{strengthText}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <AnimatePresence>
-                      {passwordError && touched.password && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -3 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="text-red-400 text-[10px] mt-1.5 ml-1 flex items-center gap-1 font-mono"
-                        >
-                          <AlertCircle size="10" /> {passwordError}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                  
-                  {/* Opciones */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.25 }}
-                    className="flex items-center justify-between"
-                  >
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          className="w-3.5 h-3.5 rounded border-[#1E90FF]/50 bg-[#0B1E3A] text-[#1E90FF] focus:ring-[#1E90FF] focus:ring-offset-0 cursor-pointer"
-                        />
-                      </div>
-                      <span className="text-[10px] text-[#1E90FF]/70 group-hover:text-[#1E90FF] transition font-mono">RECORDARME</span>
-                    </label>
-                    <button
-                      type="button"
-                      className="text-[10px] text-[#1E90FF]/70 hover:text-[#1E90FF] transition-colors duration-200 font-mono"
-                      onClick={() => setError('Contacte al administrador del sistema')}
-                    >
-                      ¿OLVIDASTE TU CONTRASEÑA?
-                    </button>
-                  </motion.div>
-                  
-                  {/* Mensaje de error */}
-                  <AnimatePresence>
-                    {error && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="bg-red-500/10 border border-red-500/30 rounded-xl p-3"
-                      >
-                        <div className="flex items-center gap-2">
-                          <AlertCircle size="14" className="text-red-400 flex-shrink-0" />
-                          <span className="text-red-300 text-xs font-mono">{error}</span>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  {/* Botones de acción */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="space-y-3"
-                  >
-                    {/* Botón principal */}
-                    <motion.button
-                      whileHover={{ scale: loading ? 1 : 1.01 }}
-                      whileTap={{ scale: loading ? 1 : 0.99 }}
-                      type="submit"
-                      disabled={loading}
-                      className="group relative w-full py-3.5 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all duration-300 overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF]" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                      
-                      <span className="relative z-10 flex items-center gap-2 text-sm font-mono tracking-wider">
-                        {loading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>AUTENTICANDO...</span>
-                          </>
-                        ) : (
-                          <>
-                            <LogIn size="16" />
-                            <span>INGRESAR AL SISTEMA</span>
-                            <Zap size="12" className="opacity-50" />
-                          </>
-                        )}
-                      </span>
-                    </motion.button>
-                    
-                    {/* Botón biométrico */}
-                    {isBiometricSupported && (
-                      <motion.button
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
-                        type="button"
-                        onClick={handleBiometricAuth}
-                        disabled={loading}
-                        className="w-full py-3 rounded-xl font-mono text-xs transition-all duration-300
-                          flex items-center justify-center gap-2
-                          bg-[#0B1E3A]/80 border border-[#1E90FF]/30 text-[#1E90FF]/70
-                          hover:bg-[#1E4D7A] hover:border-[#1E90FF]/50 hover:text-[#1E90FF]"
-                      >
-                        <Fingerprint size="14" />
-                        <span>ACCESO BIOMÉTRICO</span>
-                      </motion.button>
-                    )}
-                  </motion.div>
-                </form>
+    <div 
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 40%, #0B2B5E 0%, #030712 100%)',
+      }}
+    >
+      {/* Efecto de gradiente de fondo animado */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1E90FF]/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#3B82F6]/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00D4FF]/5 rounded-full blur-3xl" />
+      </div>
 
-                {/* Credenciales de demostración */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="mt-5 pt-4 border-t border-[#1E90FF]/20"
+      {/* Patrón de puntos decorativo */}
+      <div className="absolute inset-0 opacity-10" style={{
+        backgroundImage: 'radial-gradient(circle, #1E90FF 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
+
+      <div className="w-full max-w-sm relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-[#0A1628]/95 backdrop-blur-xl rounded-2xl p-6 border border-[#1E90FF]/20 shadow-2xl shadow-[#1E90FF]/5"
+          style={{
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(30, 144, 255, 0.1) inset',
+          }}
+        >
+          <div className="text-center mb-6">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[#0A1628] to-[#0F2040] rounded-full flex items-center justify-center shadow-lg border border-[#1E90FF]/30 overflow-hidden"
+            >
+              <img 
+                src="/assets/neumatiq-logo.png" 
+                alt="NeumatiQ Logo" 
+                className="w-full h-full object-contain rounded-full" 
+              />
+            </motion.div>
+            <motion.h1 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-bold bg-gradient-to-r from-white to-[#AFC8E6] bg-clip-text text-transparent mb-1"
+            >
+              NeumatiQ
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-[#AFC8E6]/60 font-mono text-xs uppercase tracking-wider"
+            >
+              Terminal Seguro
+            </motion.p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
+                IDENTIFICADOR
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#38BDF8]/70" />
+                <input
+                  name="username"
+                  type="text"
+                  value={credentials.username}
+                  onChange={handleChange}
+                  placeholder="admin"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#0A1628]/80 border border-[#1E90FF]/20 rounded-lg font-mono text-white placeholder-[#AFC8E6]/50 focus:ring-2 focus:ring-[#1E90FF]/50 focus:border-[#1E90FF] transition-all duration-300"
+                  disabled={loading}
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
+                CLAVE DE ACCESO
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#38BDF8]/70" />
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={credentials.password}
+                  onChange={handleChange}
+                  placeholder="admin123"
+                  className="w-full pl-10 pr-10 py-2.5 bg-[#0A1628]/80 border border-[#1E90FF]/20 rounded-lg font-mono text-white placeholder-[#AFC8E6]/50 focus:ring-2 focus:ring-[#1E90FF]/50 focus:border-[#1E90FF] transition-all duration-300"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={togglePassword}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#38BDF8]/60 hover:text-[#38BDF8] transition-colors"
                 >
-                  <div className="p-2.5 rounded-xl bg-[#0B1E3A]/60 border border-[#1E90FF]/20">
-                    <p className="text-[9px] text-[#1E90FF]/50 text-center mb-2 flex items-center justify-center gap-1 font-mono">
-                      <Shield size="10" />
-                      CREDENCIALES DE DEMOSTRACIÓN
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-2 text-[9px] font-mono">
-                      <div className="flex items-center justify-center gap-1.5 px-2 py-1 rounded-md bg-[#1E90FF]/10">
-                        <code className="text-[#1E90FF]">admin</code>
-                        <span className="text-[#1E90FF]/30">/</span>
-                        <code className="text-[#1E90FF]">admin123</code>
-                        <span className="text-[#1E90FF]/50 ml-0.5">(ADMIN)</span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-                
-                {/* Footer con métricas del sistema */}
-                <div className="mt-4 text-center">
-                  <div className="flex justify-center gap-3 text-[8px] text-[#1E90FF]/40 font-mono">
-                    <span className="flex items-center gap-1">
-                      <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                      ONLINE
-                    </span>
-                    <span>🔒 SECURE</span>
-                    <span>📡 LIVE</span>
-                    <span>⚡ 23ms</span>
-                  </div>
-                  <p className="text-[8px] text-[#1E90FF]/30 mt-2 font-mono">
-                    © 2026 NeumatiQ · TERMINAL DE MERCADO v3.0
-                  </p>
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </motion.div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 bg-red-500/20 border border-red-400/50 rounded-lg backdrop-blur text-red-200 font-mono text-xs flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </motion.div>
+            )}
+
+            <motion.button
+              type="submit"
+              disabled={loading}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(30, 144, 255, 0.4)" }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full h-12 bg-gradient-to-r from-[#1E90FF] to-[#00D4FF] hover:from-[#1677D7] hover:to-[#00B0D9] text-white font-bold text-base rounded-lg shadow-xl hover:shadow-2xl focus:ring-4 focus:ring-[#1E90FF]/50 transition-all duration-300 flex items-center justify-center gap-2 font-mono uppercase tracking-wide backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Autenticando...
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  Acceder Terminal
+                </>
+              )}
+            </motion.button>
+          </form>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 pt-6 border-t border-[#1E90FF]/20"
+          >
+            <div className="p-4 rounded-lg bg-[#0A1628]/60 border border-[#1E90FF]/20 backdrop-blur">
+              <p className="text-xs font-bold text-[#38BDF8]/80 text-center mb-3 uppercase tracking-wider font-mono">
+                Credenciales Prueba
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div className="text-center p-2 bg-blue-500/10 rounded border border-blue-500/30">
+                  <code className="block font-bold text-blue-300">admin</code>
+                  <span className="text-blue-400 text-[10px] uppercase">Usuario</span>
+                </div>
+                <div className="text-center p-2 bg-green-500/10 rounded border border-green-500/30">
+                  <code className="block font-bold text-green-300">admin123</code>
+                  <span className="text-green-400 text-[10px] uppercase">Clave</span>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </div>
