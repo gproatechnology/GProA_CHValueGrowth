@@ -130,7 +130,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
         animate={isComplete ? 'exit' : 'visible'}
         exit="exit"
         style={{
-          backgroundImage: 'url("/assets/Fondo_Login.gif")',
+          backgroundImage: 'url("/assets/Splashscreen_inicio.gif")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

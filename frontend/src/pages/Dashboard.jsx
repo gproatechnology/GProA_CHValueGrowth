@@ -79,11 +79,26 @@ const SOURCES = {
 };
 
 const BRAND_LOGOS = {
-    'Michelin': 'https://cdn-icons-png.flaticon.com/512/888/888848.png',
-    'Pirelli': 'https://cdn-icons-png.flaticon.com/512/888/888849.png',
-    'Bridgestone': 'https://cdn-icons-png.flaticon.com/512/888/888850.png',
-    'Continental': 'https://cdn-icons-png.flaticon.com/512/888/888851.png',
-    'Goodyear': 'https://cdn-icons-png.flaticon.com/512/888/888852.png',
+    'Michelin': '/assets/Michelin.png',
+    'Pirelli': '/assets/Pirelli.png',
+    'Bridgestone': '/assets/Bridgestone.png',
+    'Continental': '/assets/Continental.png',
+    'Goodyear': '/assets/GooYear.png',
+    'Dunlop': '/assets/Dunlop.png',
+    'Yokohama': '/assets/Yokohama.png',
+    'Hankook': '/assets/Hankook.png',
+    'Firestone': '/assets/Firestone.png',
+    'BF Goodrich': '/assets/BFGoodrich.jpg',
+    'Cooper': '/assets/Cooper.png',
+    'General Tire': '/assets/GeneralTire.jpg',
+    'Kumho': '/assets/Kumho.png',
+    'Nexen': '/assets/Nexen.jpg',
+    'Toyo': '/assets/ToyoTire.png',
+    'Maxxis': '/assets/Maxis.png',
+    'Nokian': '/assets/Nokian.jpg',
+    'Uniroyal': '/assets/Uniroyal.png',
+    'Falken': '/assets/Falken.png',
+    'GT Radial': '/assets/GT_Radial.png',
 };
 
 const PRICES_BY_COUNTRY = {
