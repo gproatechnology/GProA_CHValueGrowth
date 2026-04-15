@@ -15,11 +15,8 @@ const Login = ({ onLogin }) => {
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [capsLockOn, setCapsLockOn] = useState(false);
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
-  const [progressValue, setProgressValue] = useState(0);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
 
   // Verificar soporte biométrico
   useEffect(() => {
@@ -29,23 +26,6 @@ const Login = ({ onLogin }) => {
     );
   }, []);
 
-  // Animación de progreso para loading
-  useEffect(() => {
-    let interval;
-    if (loading) {
-      interval = setInterval(() => {
-        setProgressValue(prev => {
-          if (prev >= 100) return 0;
-          return prev + 2;
-        });
-      }, 20);
-    } else {
-      setProgressValue(0);
-    }
-    return () => clearInterval(interval);
-  }, [loading]);
-
-  // Seguimiento del mouse para efecto de gradiente
   useEffect(() => {
     const handleMouseMove = (e) => {
       setCursorPosition({ x: e.clientX, y: e.clientY });
@@ -332,8 +312,7 @@ const Login = ({ onLogin }) => {
     setError('');
     
     try {
-      // Simulación de autenticación
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulación de autenticación rápida
       const user = { name: credentials.username, role: 'Administrador', avatar: '👨‍💼' };
       localStorage.setItem('chvalue_token', 'demo_token_' + Date.now());
       localStorage.setItem('chvalue_user', JSON.stringify(user));
@@ -363,22 +342,31 @@ const Login = ({ onLogin }) => {
   const strengthText = passwordStrength < 40 ? 'BAJA' : passwordStrength < 70 ? 'MEDIA' : 'ALTA';
 
   return (
-    <div className="relative min-h-screen overflow-hidden font-['Inter', system-ui, sans-serif] bg-[#0B1E3A]">
+    <div className="relative min-h-screen overflow-hidden font-['Inter', system-ui, sans-serif]">
       
-      {/* Canvas de fondo con gráficas */}
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full" />
+      {/* Imagen de fondo */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105 animate-[pulse_10s_ease-in-out_infinite]"
+        style={{
+          backgroundImage: 'url("/assets/Crecimiento%20financiero%20futurista.png")'
+        }}
+      />
+      
+      {/* Overlay oscuro */}
+      <div className="fixed inset-0 z-0 bg-[#0B1E3A]/60 mix-blend-multiply" />
+      <div className="fixed inset-0 z-0 bg-black/50 backdrop-blur-[12px]" />
       
       {/* Gradiente dinámico que sigue al mouse */}
       <div 
-        className="fixed pointer-events-none z-0"
+        className="fixed pointer-events-none z-0 mix-blend-screen"
         style={{
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(30,144,255,0.12) 0%, transparent 70%)',
+          width: '800px',
+          height: '800px',
+          background: 'radial-gradient(circle, rgba(234,179,8,0.12) 0%, rgba(30,144,255,0.05) 40%, transparent 70%)',
           borderRadius: '50%',
-          left: cursorPosition.x - 300,
-          top: cursorPosition.y - 300,
-          transition: 'all 0.2s ease-out'
+          left: cursorPosition.x - 400,
+          top: cursorPosition.y - 400,
+          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}
       />
       
@@ -680,18 +668,7 @@ const Login = ({ onLogin }) => {
                     )}
                   </motion.div>
                 </form>
-                
-                {/* Barra de progreso durante loading */}
-                {loading && (
-                  <motion.div
-                    className="mt-4 h-0.5 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-full"
-                    style={{ width: `${progressValue}%` }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressValue}%` }}
-                    transition={{ duration: 0.1 }}
-                  />
-                )}
-                
+
                 {/* Credenciales de demostración */}
                 <motion.div
                   initial={{ opacity: 0 }}
