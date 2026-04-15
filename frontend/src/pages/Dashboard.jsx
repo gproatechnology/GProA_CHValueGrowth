@@ -13,7 +13,9 @@ import {
   Database, PanelLeftClose, PanelLeftOpen, ChevronDown,
   Activity, Target, Award, Shield, ShoppingCart, Plus, Minus,
   Save, Bookmark, Download, RefreshCw, Globe, Flag, Info,
-  Eye, Grid3x3, List, ArrowUpDown, Star, Clock as ClockIcon
+  Eye, Grid3x3, List, ArrowUpDown, Star, Clock as ClockIcon,
+  TrendingDown, Thermometer, CloudRain, Sun, Truck as TruckIcon,
+  Calendar, AlertTriangle as AlertTriangleIcon
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -79,26 +81,26 @@ const SOURCES = {
 };
 
 const BRAND_LOGOS = {
-    'Michelin': '/assets/Michelin.png',
-    'Pirelli': '/assets/Pirelli.png',
-    'Bridgestone': '/assets/Bridgestone.png',
-    'Continental': '/assets/Continental.png',
-    'Goodyear': '/assets/GooYear.png',
-    'Dunlop': '/assets/Dunlop.png',
-    'Yokohama': '/assets/Yokohama.png',
-    'Hankook': '/assets/Hankook.png',
-    'Firestone': '/assets/Firestone.png',
-    'BF Goodrich': '/assets/BFGoodrich.jpg',
-    'Cooper': '/assets/Cooper.png',
-    'General Tire': '/assets/GeneralTire.jpg',
-    'Kumho': '/assets/Kumho.png',
-    'Nexen': '/assets/Nexen.jpg',
-    'Toyo': '/assets/ToyoTire.png',
-    'Maxxis': '/assets/Maxis.png',
-    'Nokian': '/assets/Nokian.jpg',
-    'Uniroyal': '/assets/Uniroyal.png',
-    'Falken': '/assets/Falken.png',
-    'GT Radial': '/assets/GT_Radial.png',
+  'Michelin': '/assets/Michelin.png',
+  'Pirelli': '/assets/Pirelli.png',
+  'Bridgestone': '/assets/Bridgestone.png',
+  'Continental': '/assets/Continental.png',
+'Goodyear': '/assets/GoodYear.png',
+  'Dunlop': '/assets/Dunlop.png',
+  'Yokohama': '/assets/Yokohama.png',
+  'Hankook': '/assets/Hankook.png',
+  'Firestone': '/assets/Firestone.png',
+'BF Goodrich': '/assets/BFGoodrich.jpg',
+  'Cooper': '/assets/Cooper.png',
+  'General Tire': '/assets/GeneralTire.jpg',
+  'Kumho': '/assets/Kumho.png',
+  'Nexen': '/assets/Nexen.jpg',
+  'Toyo': '/assets/ToyoTire.png',
+  'Maxxis': '/assets/Maxxis.png',
+  'Nokian': '/assets/Nokian.jpg',
+  'Uniroyal': '/assets/Uniroyal.png',
+  'Falken': '/assets/Falken.png',
+  'GT Radial': '/assets/GT_Radial.png',
 };
 
 const PRICES_BY_COUNTRY = {
@@ -116,7 +118,6 @@ const generateTireData = () => {
         for (const tireSize of TIRE_SIZES) {
             for (const [sourceKey, sourceInfo] of Object.entries(SOURCES)) {
                 const country = sourceInfo.country;
-                // Precios base realistas en MXN
                 const basePriceMap = { 
                     Michelin: 2850, Pirelli: 2750, Bridgestone: 2650, 
                     Continental: 2700, Goodyear: 2450, Dunlop: 2350,
@@ -138,7 +139,6 @@ const generateTireData = () => {
                 
                 finalPrice = Math.round(finalPrice / 5) * 5;
                 
-                // Stock realista: distribución normal
                 let stock;
                 const stockRand = Math.random();
                 if (stockRand > 0.7) stock = Math.floor(Math.random() * 200) + 100;
@@ -175,6 +175,18 @@ const generateTireData = () => {
         }
     }
     return data;
+};
+
+// Datos estacionales para el Predictor
+const seasonalData = {
+    'Michelin': { forecast: '+15%', season: 'Verano', recommendation: 'Aumentar stock 20%', color: 'emerald' },
+    'Pirelli': { forecast: '+22%', season: 'Racing', recommendation: 'Priorizar pedidos', color: 'emerald' },
+    'Bridgestone': { forecast: '-5%', season: 'Invierno', recommendation: 'Reducir inventario', color: 'red' },
+    'Continental': { forecast: '+18%', season: 'Todo tiempo', recommendation: 'Stock óptimo', color: 'emerald' },
+    'Goodyear': { forecast: '+8%', season: 'Verano', recommendation: 'Mantener nivel', color: 'amber' },
+    'BF Goodrich': { forecast: '+30%', season: 'Lluvias', recommendation: 'Urgente aumentar stock', color: 'emerald' },
+    'Hankook': { forecast: '-3%', season: 'Invierno', recommendation: 'Reducir pedidos', color: 'red' },
+    'Yokohama': { forecast: '+12%', season: 'Verano', recommendation: 'Stock adecuado', color: 'emerald' },
 };
 
 // --------------------------------------------------------------
@@ -316,7 +328,7 @@ const SearchSuggestions = ({ searchTerm, data, onSelect }) => {
     if (suggestions.length === 0) return null;
     
     return (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-[#102A4C] rounded-lg border border-[#1E90FF]/30 shadow-xl z-20 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-[#102A4C] rounded-lg border border-[#1E90FF]/30 shadow-xl z-50 max-h-64 overflow-y-auto pointer-events-auto">
             {suggestions.map(s => (
                 <button
                     key={s.id}
@@ -330,6 +342,120 @@ const SearchSuggestions = ({ searchTerm, data, onSelect }) => {
                 </button>
             ))}
         </div>
+    );
+};
+
+// Componente de Tarjeta de Marca para el Centro de Inteligencia
+const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
+    const seasonalInfo = seasonalData[brand] || { forecast: '+5%', season: 'Normal', recommendation: 'Monitorear', color: 'sky' };
+    const marketShare = ((stats.units / stats.totalUnits) * 100).toFixed(1);
+    const stockHealth = stats.criticalCount > 0 ? 'critical' : stats.lowCount > 0 ? 'warning' : 'healthy';
+    
+    const healthColors = {
+        healthy: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', label: 'Stock óptimo' },
+        warning: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30', label: 'Stock bajo' },
+        critical: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', label: 'Stock crítico' }
+    };
+    
+    const health = healthColors[stockHealth];
+    const trendIcon = seasonalInfo.forecast.startsWith('+') ? <TrendingUp size={10} className="text-emerald-400" /> : <TrendingDown size={10} className="text-red-400" />;
+    
+    return (
+        <motion.div
+            whileHover={{ y: -4, scale: 1.02 }}
+            onClick={() => onSelectBrand(brand)}
+            className="flex-shrink-0 w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all"
+        >
+            <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl flex items-center justify-center p-2 mb-2 border border-[#1E90FF]/30">
+                    <img src={BRAND_LOGOS[brand]} alt={brand} className="w-12 h-12 object-contain" onError={(e) => e.target.src = 'https://cdn-icons-png.flaticon.com/512/888/888848.png'} />
+                </div>
+                <h4 className="font-bold text-[#EAF3FF] text-sm truncate w-full">{brand}</h4>
+                <div className="flex items-center gap-1 mt-1">
+                    <span className="text-[10px] text-[#AFC8E6]">Market Share:</span>
+                    <span className="text-xs font-bold text-[#1E90FF]">{marketShare}%</span>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-semibold ${health.bg} ${health.text} border ${health.border}`}>
+                        {health.label}
+                    </div>
+                </div>
+                <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#1E90FF]/20">
+                    <div className="flex items-center gap-1">
+                        {trendIcon}
+                        <span className={`text-[10px] font-semibold ${seasonalInfo.forecast.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {seasonalInfo.forecast}
+                        </span>
+                    </div>
+                    <div className="text-[9px] text-[#AFC8E6]">{seasonalInfo.season}</div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Componente de Predictor Estacional (PAE)
+const SeasonalPredictor = ({ selectedBrand, onClose }) => {
+    const seasonalInfo = seasonalData[selectedBrand] || { forecast: '+5%', season: 'Normal', recommendation: 'Monitorear demanda', color: 'sky' };
+    
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20 mb-4"
+        >
+            <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-[#1E90FF]" />
+                    Predictor de Abastecimiento Estacional (PAE) - {selectedBrand}
+                </h3>
+                <button onClick={onClose} className="p-1 rounded-lg hover:bg-[#1E4D7A] transition-colors">
+                    <X className="w-4 h-4 text-[#AFC8E6]" />
+                </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-2 text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                        <TrendingUp size={12} className="text-emerald-400" />
+                        <span className="text-[10px] text-[#AFC8E6]">Pronóstico</span>
+                    </div>
+                    <p className={`text-base font-bold ${seasonalInfo.forecast.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {seasonalInfo.forecast}
+                    </p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-2 text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                        <Sun size={12} className="text-amber-400" />
+                        <span className="text-[10px] text-[#AFC8E6]">Temporada</span>
+                    </div>
+                    <p className="text-base font-bold text-[#EAF3FF]">{seasonalInfo.season}</p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-2 text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                        <TruckIcon size={12} className="text-[#1E90FF]" />
+                        <span className="text-[10px] text-[#AFC8E6]">Recomendación</span>
+                    </div>
+                    <p className="text-xs font-semibold text-[#1E90FF]">{seasonalInfo.recommendation}</p>
+                </div>
+                <div className="bg-gradient-to-r from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-lg p-2 text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                        <CloudRain size={12} className="text-sky-400" />
+                        <span className="text-[10px] text-[#AFC8E6]">Acción sugerida</span>
+                    </div>
+                    <button className="text-xs font-semibold text-white bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] px-3 py-1 rounded-lg">
+                        Generar Orden
+                    </button>
+                </div>
+            </div>
+            
+            <div className="mt-3 p-2 bg-[#0B1E3A]/40 rounded-lg">
+                <p className="text-[10px] text-[#AFC8E6] text-center">
+                    💡 Basado en datos históricos y tendencias estacionales. Se recomienda {seasonalInfo.recommendation.toLowerCase()} para la marca {selectedBrand}.
+                </p>
+            </div>
+        </motion.div>
     );
 };
 
@@ -453,9 +579,27 @@ const TireListItem = ({ tire, onCompare, isComparing, onAddToCart, onClick }) =>
 // Tarjeta de mercado por país
 const CountryMarketCard = ({ country, data, onViewDetails }) => {
     const countryInfo = {
-        MX: { name: 'México', flag: '🇲🇽', color: 'from-green-600 to-red-600' },
-        CO: { name: 'Colombia', flag: '🇨🇴', color: 'from-yellow-600 to-blue-600 to-red-600' },
-        PA: { name: 'Panamá', flag: '🇵🇦', color: 'from-blue-600 to-red-600' },
+        MX: { 
+            name: 'México', 
+            flag: '🇲🇽', 
+            color: 'from-green-600 to-red-600',
+            flagImage: '/assets/mexico-circular.png',
+            alt: 'Bandera de México'
+        },
+        CO: { 
+            name: 'Colombia', 
+            flag: '🇨🇴', 
+            color: 'from-yellow-600 to-blue-600 to-red-600',
+            flagImage: '/assets/colombia-circular.png',
+            alt: 'Bandera de Colombia'
+        },
+        PA: { 
+            name: 'Panamá', 
+            flag: '🇵🇦', 
+            color: 'from-blue-600 to-red-600',
+            flagImage: '/assets/panama-circular.png',
+            alt: 'Bandera de Panamá'
+        },
     };
     
     const info = countryInfo[country];
@@ -473,7 +617,17 @@ const CountryMarketCard = ({ country, data, onViewDetails }) => {
         >
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                    <span className="text-2xl">{info.flag}</span>
+                    <div className="relative w-12 h-12 flex-shrink-0">
+                        <img 
+                            src={info.flagImage}
+                            alt={info.alt}
+                            className="w-full h-full rounded-full object-cover shadow-md border-2 border-[#1E90FF]/30"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = `<span class="text-2xl">${info.flag}</span>`;
+                            }}
+                        />
+                    </div>
                     <h3 className="font-bold text-[#EAF3FF]">{info.name}</h3>
                 </div>
                 {criticalStock > 0 && (
@@ -695,7 +849,7 @@ const DemandHeatmap = ({ data }) => {
     );
 };
 
-// Gráfico de Stock Crítico - MEJORADO
+// Gráfico de Stock Crítico
 const CriticalStockChart = ({ data }) => {
     const criticalStockByBrand = useMemo(() => {
         const brandMap = new Map();
@@ -759,7 +913,7 @@ const CriticalStockChart = ({ data }) => {
     );
 };
 
-// Gráfico de Demanda - MEJORADO
+// Gráfico de Demanda
 const DemandChart = ({ data }) => {
     const demandBySize = useMemo(() => {
         const sizeMap = new Map();
@@ -876,6 +1030,7 @@ const Dashboard = () => {
     const [cart, setCart] = useState([]);
     const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
     const [searchName, setSearchName] = useState('');
+    const [selectedBrand, setSelectedBrand] = useState(null);
     
     // KPIs con valores realistas
     const kpis = useMemo(() => {
@@ -886,6 +1041,34 @@ const Dashboard = () => {
         const lowStock = filteredData.filter(p => p.stock < 10);
         
         return { totalStock, totalValue, avgMargin, avgRotation, lowStock };
+    }, [filteredData]);
+    
+    // Datos para el Centro de Inteligencia de Marcas
+    const brandIntelligence = useMemo(() => {
+        const brandMap = new Map();
+        let totalUnits = 0;
+        
+        filteredData.forEach(item => {
+            totalUnits += item.stock;
+            if (!brandMap.has(item.brand)) {
+                brandMap.set(item.brand, { units: 0, margin: 0, count: 0, criticalCount: 0, lowCount: 0 });
+            }
+            const brandData = brandMap.get(item.brand);
+            brandData.units += item.stock;
+            brandData.margin += item.margin;
+            brandData.count++;
+            if (item.stock < 5) brandData.criticalCount++;
+            else if (item.stock < 20) brandData.lowCount++;
+        });
+        
+        return Array.from(brandMap.entries()).map(([brand, data]) => ({
+            brand,
+            units: data.units,
+            avgMargin: data.margin / data.count,
+            criticalCount: data.criticalCount,
+            lowCount: data.lowCount,
+            totalUnits
+        })).sort((a, b) => b.units - a.units);
     }, [filteredData]);
     
     const countryMarkets = ['MX', 'CO', 'PA'];
@@ -917,6 +1100,15 @@ const Dashboard = () => {
         setSortOrder(search.sortOrder || 'asc');
     }, [updateFilter, setSortBy, setSortOrder]);
     
+    const handleSelectBrand = useCallback((brand) => {
+        setSelectedBrand(brand);
+        updateFilter('brands', [brand]);
+        setTimeout(() => {
+            const element = document.getElementById('explorer-tab');
+            if (element) element.click();
+        }, 100);
+    }, [updateFilter]);
+    
     if (loading) return (
         <div className="h-screen w-full bg-[#0B1E3A] flex items-center justify-center">
             <div className="text-center">
@@ -947,8 +1139,12 @@ const Dashboard = () => {
                 >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                            <div className="w-9 h-9 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-lg flex items-center justify-center shadow-lg">
-                                <span className="text-white text-lg">🛞</span>
+                            <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
+                                <img 
+                                    src="/assets/neumatiq-logo.png" 
+                                    alt="NeumatiQ Logo" 
+                                    className="w-full h-full object-contain rounded-full" 
+                                />
                             </div>
                             <div>
                                 <h1 className="text-base md:text-lg font-bold bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] bg-clip-text text-transparent">NeumatiQ</h1>
@@ -979,10 +1175,10 @@ const Dashboard = () => {
                             </button>
                             <div className="flex items-center gap-1 bg-[#102A4C]/80 rounded-lg p-0.5 border border-[#1E90FF]/20">
                                 {[
-                                    { value: 'all', label: 'Todos', flag: '🌎' },
-                                    { value: 'MX', label: 'México', flag: '🇲🇽' },
-                                    { value: 'CO', label: 'Colombia', flag: '🇨🇴' },
-                                    { value: 'PA', label: 'Panamá', flag: '🇵🇦' },
+                                    { value: 'all', label: 'Todos', icon: '🌎' },
+                                    { value: 'MX', label: 'México', image: '/assets/MEXICO.jpeg' },
+                                    { value: 'CO', label: 'Colombia', image: '/assets/COLOMBIA.jpeg' },
+                                    { value: 'PA', label: 'Panamá', image: '/assets/PANAMA.jpeg' },
                                 ].map(c => (
                                     <button 
                                         key={c.value} 
@@ -993,7 +1189,7 @@ const Dashboard = () => {
                                                 : 'text-[#AFC8E6] hover:bg-[#1E4D7A]'
                                         }`}
                                     >
-                                        {c.flag} {c.label}
+                                        {c.value === 'all' ? c.icon : <img src={c.image} alt={c.label} className="w-3.5 h-3.5 rounded-full object-cover inline-block mr-1 -mt-0.5" />} {c.label}
                                     </button>
                                 ))}
                             </div>
@@ -1001,7 +1197,7 @@ const Dashboard = () => {
                     </div>
                 </motion.div>
                 
-                {/* KPIs animados - VALORES REALISTAS */}
+                {/* KPIs animados */}
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1031,6 +1227,42 @@ const Dashboard = () => {
                         </div>
                     ))}
                 </motion.div>
+                
+                {/* CENTRO DE INTELIGENCIA DE MARCAS - NUEVA SECCIÓN */}
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2">
+                            <Award className="w-4 h-4 text-[#1E90FF]" />
+                            Marcas Detectadas en Sistema
+                            <span className="text-[10px] text-[#AFC8E6] font-normal">({brandIntelligence.length} marcas activas)</span>
+                        </h2>
+                        <button className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors">
+                            Ver todas
+                        </button>
+                    </div>
+                    <div className="overflow-x-auto pb-2">
+                        <div className="flex gap-3">
+                            {brandIntelligence.slice(0, 10).map((brand) => (
+                                <BrandIntelligenceCard 
+                                    key={brand.brand} 
+                                    brand={brand.brand} 
+                                    stats={brand}
+                                    onSelectBrand={handleSelectBrand}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                
+                {/* PREDICTOR DE ABASTECIMIENTO ESTACIONAL (PAE) */}
+                <AnimatePresence>
+                    {selectedBrand && (
+                        <SeasonalPredictor 
+                            selectedBrand={selectedBrand} 
+                            onClose={() => setSelectedBrand(null)} 
+                        />
+                    )}
+                </AnimatePresence>
                 
                 {/* Tabs y contenido principal */}
                 <div className="flex-1 flex gap-3 overflow-hidden min-h-0">
@@ -1150,6 +1382,7 @@ const Dashboard = () => {
                                 ].map(tab => (
                                     <button 
                                         key={tab.id} 
+                                        id={`${tab.id}-tab`}
                                         onClick={() => setActiveTab(tab.id)} 
                                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-medium transition-all ${
                                             activeTab === tab.id 
@@ -1184,7 +1417,7 @@ const Dashboard = () => {
                         </div>
                         
                         <div className="flex-1 overflow-y-auto p-3">
-                            <AnimatePresence mode="wait">
+                            <AnimatePresence mode="popLayout" key={`dashboard-${activeTab}`}>
                                 {activeTab === 'explorer' && (
                                     <motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                         {viewMode === 'grid' ? (
