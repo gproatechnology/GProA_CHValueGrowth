@@ -31,7 +31,7 @@ const NewHeader = ({ onLogout }) => {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/20 overflow-hidden">
-            <img src="/assets/Logo_de_NeumatiQ-.png" alt="Usuario" className="w-full h-full object-contain rounded-full" />
+            <img src="/assets/Heredia_logo_circular.png" alt="Usuario" className="w-full h-full object-contain rounded-full" />
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ const NewHeader = ({ onLogout }) => {
             className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-blue-900/50 transition-all group border border-blue-900/50 z-[9999]"
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
-              <img src="/assets/Logo_de_NeumatiQ-.png" alt="Usuario" className="w-full h-full object-contain rounded-xl" />
+              <img src="/assets/Heredia_logo_circular.png" alt="Usuario" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div className="hidden lg:block">
               <p className="text-sm font-bold text-white truncate max-w-32">{USER_DATA.shortName}</p>
@@ -111,7 +111,7 @@ const NewHeader = ({ onLogout }) => {
                 <div className="p-5 border-b border-blue-900/50 bg-gradient-to-b from-blue-900/50 to-transparent">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-                      <img src="/assets/Logo_de_NeumatiQ-.png" alt="Usuario" className="w-full h-full object-contain rounded-xl" />
+                      <img src="/assets/Heredia_logo_circular.png" alt="Usuario" className="w-full h-full object-contain rounded-xl" />
                     </div>
                     <div>
                       <p className="font-bold text-white text-sm">{USER_DATA.name}</p>
