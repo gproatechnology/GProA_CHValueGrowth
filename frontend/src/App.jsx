@@ -259,12 +259,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const hasVisitedBefore = localStorage.getItem('neumatiq_visited');
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      if (!hasVisitedBefore) {
+        localStorage.setItem('neumatiq_visited', 'true');
+      }
+    }, hasVisitedBefore ? 500 : 2000);
     return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    return <SplashScreen onComplete={() => setIsLoading(false)} minDuration={2000} />;
+    const hasVisitedBefore = localStorage.getItem('neumatiq_visited');
+    return <SplashScreen onComplete={() => setIsLoading(false)} minDuration={hasVisitedBefore ? 500 : 2000} />;
   }
 
   return (

@@ -163,15 +163,50 @@ const Header = ({ isMobile, mobileMenuOpen, setMobileMenuOpen, isFullscreen, tog
 
                 {/* Menu */}
                 <div className="p-2 space-y-1">
-                  <button onClick={() => { setUserDropdownOpen(false); window.location.href = '/profile'; }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                  <button onClick={() => { setUserDropdownOpen(false); navigate('/profile'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
                     <User size={16} />
                     Mi Perfil
                   </button>
-                  <button onClick={() => { setUserDropdownOpen(false); window.location.href = '/notifications'; }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                  <button onClick={() => { setUserDropdownOpen(false); navigate('/notifications'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                    <Bell size={16} />
+                    Notificaciones
+                  </button>
+                  <button onClick={() => { setUserDropdownOpen(false); navigate('/profile'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                    <User size={16} />
+                    Mi Perfil
+                  </button>
+                  <button onClick={() => { setUserDropdownOpen(false); navigate('/notifications'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
                     <Bell size={16} />
                     Notificaciones
                   </button>
                   <button onClick={() => { setUserDropdownOpen(false); navigate('/settings'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                    <Settings size={16} />
+                    Configuración
+                  </button>
+                  <div className="border-t border-blue-900/50 my-1 pt-2">
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 rounded-xl text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 transition-all flex items-center gap-3 font-medium"
+                    >
+                      <LogOut size={16} />
+                      Cerrar Sesión
+                    </button>
+                    <button 
+                      onClick={handleExit}
+                      className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3"
+                    >
+                      <X size={16} />
+                      Salir
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+                    <Settings size={16} />
+                    Configuración
+                  </button>
                     <Settings size={16} />
                     Configuración
                   </button>

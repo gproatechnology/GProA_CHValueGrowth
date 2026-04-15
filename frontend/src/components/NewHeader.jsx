@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, RefreshCw, Maximize2, ChevronDown, User, Bell, Settings, LogOut, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,6 +12,7 @@ const USER_DATA = {
 };
 
 const NewHeader = ({ onLogout }) => {
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -120,13 +122,13 @@ const NewHeader = ({ onLogout }) => {
                   </div>
                 </div>
                 <div className="p-2 space-y-1">
-                  <button onClick={() => { setDropdownOpen(false); window.location.href = '/profile'; }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                  <button onClick={() => { setDropdownOpen(false); navigate('/profile'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
                     <User className="w-4 h-4" aria-hidden="true" /> Mi Perfil
                   </button>
-                  <button onClick={() => { setDropdownOpen(false); window.location.href = '/notifications'; }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                  <button onClick={() => { setDropdownOpen(false); navigate('/notifications'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
                     <Bell className="w-4 h-4" aria-hidden="true" /> Notificaciones
                   </button>
-                  <button onClick={() => { setDropdownOpen(false); window.location.href = '/settings'; }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
+                  <button onClick={() => { setDropdownOpen(false); navigate('/settings'); }} className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
                     <Settings className="w-4 h-4" aria-hidden="true" /> Configuración
                   </button>
                   <div className="border-t border-blue-900/50 my-1 pt-2">
