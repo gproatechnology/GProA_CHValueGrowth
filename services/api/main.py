@@ -28,20 +28,6 @@ STATIC_DIR = BASE_DIR / "static"
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR)), name="assets")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-
-@app.get("/")
-@app.get("/{path:path}")
-def serve_frontend(path: str = None):
-    if not path or "." not in str(path):
-        index_path = STATIC_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(str(index_path))
-    return {"status": "ok", "project": "NeumatiQ"}
-
-app.include_router(products_router)
-app.include_router(auth_router)
-
-
 @app.get("/health")
 def health():
     return {
@@ -51,3 +37,22 @@ def health():
         "version": "1.0.0",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
+
+@app.get("/{path:path}")
+def serve_frontend(path: str):
+    if path.startswith("assets/"):
+        return {"status": "not found"}
+    index_path = STATIC_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
+    return {"status": "ok", "project": "NeumatiQ"}
+
+@app.get("/")
+def serve_root():
+    index_path = STATIC_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
+    return {"status": "ok", "project": "NeumatiQ"}
+
+app.include_router(products_router)
+app.include_router(auth_router)
