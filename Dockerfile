@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY --from=frontend-build /app/frontend/static ./static
+COPY --from=frontend-build /app/static ./static
 
 RUN mkdir -p /app/data
 
