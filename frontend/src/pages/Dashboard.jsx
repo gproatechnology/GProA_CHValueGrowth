@@ -14,7 +14,7 @@ import {
   Activity, Target, Award, Shield, ShoppingCart, Plus, Minus,
   Save, Bookmark, Download, RefreshCw, Globe, Flag, Info,
   Eye, Grid3x3, List, ArrowUpDown, Star, Clock as ClockIcon,
-  TrendingDown, Thermometer, CloudRain, Sun, Truck as TruckIcon,
+  TrendingDown, Thermometer, CloudRain, Sun, Truck as TruckIcon, Wifi, Battery, Volume2, Maximize2,
   Calendar, AlertTriangle as AlertTriangleIcon, User, Bell, LogOut
 } from 'lucide-react';
 import {
@@ -1148,85 +1148,49 @@ const Dashboard = () => {
     return (
         <div className="h-screen w-full overflow-hidden bg-[#0B1E3A]">
             <div className="h-full w-full flex flex-col p-3 md:p-4">
-                {/* Header */}
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0"
-                >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="h-12 flex items-center justify-between px-4">
+                    <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                            <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
-                                <img 
-                                    src="/assets/Logo_de_NeumatiQ-.png" 
-                                    alt="NeumatiQ Logo" 
-                                    className="w-full h-full object-contain rounded-full" 
-                                />
+                            <div className="w-7 h-7 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-lg flex items-center justify-center shadow-md">
+                                <span className="text-white text-sm">🛞</span>
                             </div>
-                            <div>
-                                <h1 className="text-base md:text-lg font-bold bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] bg-clip-text text-transparent">NeumatiQ</h1>
-                                <p className="text-[9px] text-[#AFC8E6] hidden sm:block">Sistema de Gestión Integral para Neumáticos</p>
+                            <span className="text-white font-semibold text-sm tracking-tight">NeumatiQ</span>
+                            <span className="text-[10px] text-[#AFC8E6]/50 border-l border-[#1E90FF]/20 pl-2 ml-1">Enterprise</span>
+                        </div>
+                    </div>
+                    <div className="flex-1 max-w-md mx-8">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#AFC8E6]/50" />
+                            <input
+                                type="text"
+                                placeholder="Buscar en toda la aplicación..."
+                                className="w-full bg-white/5 border border-[#1E90FF]/15 rounded-lg py-1.5 pl-9 pr-10 text-sm text-[#EAF3FF] placeholder-[#AFC8E6]/40 focus:outline-none focus:border-[#1E90FF]/30 focus:bg-white/10 transition-all"
+                            />
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                                <kbd className="text-[10px] px-1.5 py-0.5 bg-white/10 rounded text-[#AFC8E6]/60">⌘</kbd>
+                                <kbd className="text-[10px] px-1.5 py-0.5 bg-white/10 rounded text-[#AFC8E6]/60">K</kbd>
                             </div>
                         </div>
-
-                        {/* User Profile Dropdown */}
-                        <div className="relative z-[9999]">
-                            <button
-                                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                                className="flex items-center gap-3 p-2 rounded-xl hover:bg-blue-900/50 transition-all group border border-blue-900/50"
-                            >
-                                <div className="w-9 h-9 bg-gradient-to-br from-[#1E90FF] to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg border border-white/20">
-                                    CH
-                                </div>
-                                <div className="hidden lg:block">
-                                    <p className="text-sm font-bold text-white truncate">Carlos Rafael</p>
-                                    <p className="text-xs text-blue-200">Administrador</p>
-                                </div>
-                                <ChevronDown className={`w-4 h-4 text-blue-300 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-lg border border-[#1E90FF]/10">
+                            <Wifi className="w-3 h-3 text-emerald-400" />
+                            <Battery className="w-3 h-3 text-[#AFC8E6]" />
+                            <Volume2 className="w-3 h-3 text-[#AFC8E6]" />
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <button onClick={() => window.location.reload()} className="p-1.5 rounded hover:bg-white/10 transition-colors">
+                                <RefreshCw className="w-3 h-3 text-[#AFC8E6]" />
                             </button>
-
-                            {/* Dropdown */}
-                            <AnimatePresence>
-                                {userDropdownOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                                        className="absolute top-full right-0 mt-2 w-72 bg-[#020617] rounded-2xl shadow-2xl border border-blue-900/50 backdrop-blur-xl overflow-hidden z-[10000]"
-                                    >
-                                        <div className="p-5 border-b border-blue-900/50 bg-gradient-to-b from-blue-900/50 to-transparent">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 bg-gradient-to-br from-[#1E90FF] to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                                                    CH
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-white text-sm">Carlos Rafael Heredia Loperena</p>
-                                                    <p className="text-xs text-blue-200">carlos@neumatiq.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="p-2 space-y-1">
-                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
-                                                <User size={16} />
-                                                Mi Perfil
-                                            </button>
-                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
-                                                <Bell size={16} />
-                                                Notificaciones
-                                            </button>
-                                            <button className="w-full text-left px-4 py-3 rounded-xl text-blue-200 hover:bg-blue-900/50 hover:text-white transition-all flex items-center gap-3">
-                                                <Settings size={16} />
-                                                Configuración
-                                            </button>
-                                            <div className="border-t border-blue-900/50 my-1 pt-2">
-                                                <button 
-                                                    onClick={handleLogout}
-                                                    className="w-full text-left px-4 py-3 rounded-xl text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 transition-all flex items-center gap-3 font-medium"
-                                                >
-                                                    <LogOut size={16} />
-                                                    Cerrar Sesión
-                                                </button>
+                            <button onClick={toggleFullscreen} className="p-1.5 rounded hover:bg-white/10 transition-colors">
+                                <Maximize2 className="w-3 h-3 text-[#AFC8E6]" />
+                            </button>
+                            <button onClick={handleLogout} className="p-1.5 rounded hover:bg-red-500/20 transition-colors ml-1">
+                                <X className="w-3 h-3 text-[#AFC8E6] hover:text-red-400" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
                                             </div>
                                         </div>
                                     </motion.div>
