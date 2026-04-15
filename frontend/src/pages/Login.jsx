@@ -39,21 +39,14 @@ const Login = () => {
     <div 
       className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
       style={{
-        background: 'radial-gradient(ellipse at 50% 40%, #0B2B5E 0%, #030712 100%)',
+        backgroundImage: 'url(/assets/fONDO lOGIN.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Efecto de gradiente de fondo animado */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1E90FF]/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#3B82F6]/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00D4FF]/5 rounded-full blur-3xl" />
-      </div>
-
-      {/* Patrón de puntos decorativo */}
-      <div className="absolute inset-0 opacity-10" style={{
-        backgroundImage: 'radial-gradient(circle, #1E90FF 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-      }} />
+      {/* Overlay oscuro para asegurar visibilidad */}
+      <div className="absolute inset-0 bg-black/40" />
 
       <div className="w-full max-w-sm relative z-10">
         <motion.div
