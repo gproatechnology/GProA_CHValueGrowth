@@ -28,7 +28,7 @@ const Profile = () => {
     email: 'carlos@neumatiq.com',
     role: 'Administrador',
     phone: '+52 55 1234 5678',
-    avatar: 'CH',
+    avatar: '/assets/Heredia_logo_circular.png',
     position: 'CEO & Fundador',
     department: 'Tecnología',
     location: 'Ciudad de México, México',
@@ -214,11 +214,11 @@ const Profile = () => {
             {/* Avatar */}
             <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-2xl p-6 shadow-lg border border-[#1E90FF]/20 text-center">
               <div className="relative inline-block">
-                <div className="w-28 h-28 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-2xl border-4 border-white/20">
+                <div className="w-28 h-28 bg-transparent rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white/20 overflow-hidden">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar" className="w-full h-full rounded-2xl object-cover" />
+                    <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    userData.avatar
+                    <img src="/assets/Heredia_logo_circular.png" alt="Avatar" className="w-full h-full object-contain" />
                   )}
                 </div>
                 <button 
