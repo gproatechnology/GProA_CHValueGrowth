@@ -341,7 +341,7 @@ const Settings = () => {
                                             <div className="flex-shrink-0">
                                                 <div className="relative">
                                                     <img 
-                                                        src="/assets/Logo_de_NeumatiQ-.png"
+                                                        src="/assets/Heredia_logo_circular.png"
                                                         alt="Carlos Heredia" 
                                                         className="w-24 h-24 rounded-2xl object-contain shadow-lg border-2 border-[#1E90FF]/50 bg-gradient-to-br from-[#163A6B] to-[#102A4C] ring-2 ring-[#1E90FF]/30"
                                                     />
