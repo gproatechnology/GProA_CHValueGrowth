@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
@@ -37,17 +37,17 @@ def health():
     }
 
 
-@app.get("/assets/{file_path:path}")
-def serve_assets(file_path: str):
-    file_path_full = STATIC_DIR / "assets" / file_path
+@app.get("/assets/{path:path}")
+def serve_assets(path: str):
+    file_path_full = STATIC_DIR / "assets" / path
     if file_path_full.exists() and file_path_full.is_file():
         return FileResponse(str(file_path_full))
     return Response(status_code=404)
 
 
-@app.get("/static/{file_path:path}")
-def serve_static(file_path: str):
-    file_path_full = STATIC_DIR / file_path
+@app.get("/static/{path:path}")
+def serve_static(path: str):
+    file_path_full = STATIC_DIR / path
     if file_path_full.exists() and file_path_full.is_file():
         return FileResponse(str(file_path_full))
     return Response(status_code=404)
