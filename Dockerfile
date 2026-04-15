@@ -4,7 +4,7 @@
 # ============================================
 # STAGE 1: Build del Frontend (Node.js)
 # ============================================
-FROM node:20-alpine AS frontend-build
+FROM node:20 AS frontend-build
 
 WORKDIR /app/frontend
 
@@ -12,12 +12,12 @@ COPY frontend/package*.json ./
 RUN npm install
 
 COPY frontend/ ./
-RUN npm install && npx vite build
+RUN npm install && node node_modules/vite/bin/vite.js build
 
 # ============================================
 # STAGE 2: Backend (Python)
 # ============================================
-FROM python:3.14-slim AS backend
+FROM python:3.14 AS backend
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
