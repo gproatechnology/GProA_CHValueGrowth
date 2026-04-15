@@ -9,7 +9,7 @@
 
 ### Navegar proyecto
 ```powershell
-cd "c:/Users/Mao/OneDrive/Documentos/GProA Desarrollo/GProA_CHValueGrowth"
+cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollo\GProA_CHValueGrowth"
 ```
 
 ### venv (primera vez)
@@ -40,7 +40,7 @@ http://localhost:8000/docs → Swagger UI
 
 ## 🚀 2. Frontend (terminal nueva)
 ```powershell
-cd "c:/Users/Mao/OneDrive/Documentos/GProA Desarrollo/GProA_CHValueGrowth/frontend"
+cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollo\GProA_CHValueGrowth\frontend"
 npm install
 npm run dev
 # http://localhost:5173
@@ -96,11 +96,18 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 **Change password after first login!**
 
+## 🏗️ Build Frontend (producción)
+```powershell
+cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollo\GProA_CHValueGrowth\frontend"
+npm run build
+# Genera static/ en raíz del proyecto
+```
+
 ## Notas
 - 2 terminals: backend + frontend
 - PYTHONPATH = '.' required
 - Ctrl+C to stop
 - Changes auto-reload (--reload)
 
-*Updated: 09/04/2026 by BLACKBOXAI*
+*Updated: 14/04/2026 by Kilo - NeumatiQ v3.0*
 

@@ -25,12 +25,12 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
 
-app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+app.mount("/assets", StaticFiles(directory=str(STATIC_DIR), html=True), name="assets")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 
-@app.get("/")
-def root():
+@app.get("/{path:path}")
+def serve_frontend(path: str = None):
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
