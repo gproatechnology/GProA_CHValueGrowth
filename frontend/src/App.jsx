@@ -211,8 +211,8 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#050c1a] to-[#0B1E3A] flex items-center justify-center p-4">
       <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-2xl p-8 w-full max-w-md border border-[#1E90FF]/20 shadow-2xl">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
-            <span className="text-white text-2xl">🛞</span>
+          <div className="w-16 h-16 bg-transparent rounded-full flex items-center justify-center mx-auto mb-4 shadow-md border-2 border-white/20 overflow-hidden">
+            <img src="/assets/Logo_de_NeumatiQ-.png" alt="NeumatiQ Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#1E90FF] via-[#3B82F6] to-[#1E90FF] bg-clip-text text-transparent">NeumatiQ</h1>
           <p className="text-[#AFC8E6] text-sm mt-2">Sistema de Gestión Integral de Neumáticos</p>
