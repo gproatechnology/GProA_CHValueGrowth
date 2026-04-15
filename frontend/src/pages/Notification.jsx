@@ -9,7 +9,7 @@ import {
   Star, Award, TrendingUp, Activity, Users, FileText
 } from 'lucide-react';
 
-const Notifications = () => {
+const Notification = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -622,4 +622,4 @@ const InfoIcon = ({ className }) => (
   </svg>
 );
 
-export default Notifications;
+export default Notification;
