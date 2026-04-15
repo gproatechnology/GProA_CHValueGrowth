@@ -24,28 +24,11 @@ app.add_middleware(
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
-FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
-
-app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend")
 
 app.include_router(products_router)
 app.include_router(auth_router)
-
-
-@app.get("/")
-def root():
-    if (FRONTEND_DIST / "index.html").exists():
-        return FileResponse(str(FRONTEND_DIST / "index.html"))
-    return {"status": "ok", "project": "NeumatiQ"}
-
-
-@app.get("/dashboard")
-def dashboard(request: Request):
-    dashboard_path = BASE_DIR / "services" / "dashboard" / "templates" / "index.html"
-    return FileResponse(str(dashboard_path))
 
 
 @app.get("/health")
