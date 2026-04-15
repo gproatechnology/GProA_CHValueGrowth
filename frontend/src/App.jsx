@@ -20,6 +20,8 @@ const AssistantPage = lazy(() => import('./pages/AssistantPage.jsx'));
 const Logistic = lazy(() => import('./pages/Logistic.jsx'));
 const Analytics = lazy(() => import('./pages/Analytics.jsx'));
 const SettingsPage = lazy(() => import('./pages/Settings.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const Notification = lazy(() => import('./pages/Notification.jsx'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -178,6 +180,8 @@ const Layout = () => {
                 {location.pathname === '/analytics' && <Analytics />}
                 {location.pathname === '/assistant' && <AssistantPage />}
                 {location.pathname === '/settings' && <SettingsPage />}
+                {location.pathname === '/profile' && <Profile />}
+                {location.pathname === '/notifications' && <Notification />}
               </Suspense>
             </div>
           </div>
