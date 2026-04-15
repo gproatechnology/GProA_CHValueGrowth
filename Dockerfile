@@ -1,9 +1,6 @@
 # CHValueGrowth Dockerfile - Backend + Frontend
 # Uses pre-built static files from repo
 
-# ============================================
-# STAGE 1: Backend (Python)
-# ============================================
 FROM python:3.14
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -16,10 +13,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . ./static
-
+COPY static/ ./static
 COPY services/ ./services
-COPY pyproject.toml ./.env ./
 
 RUN mkdir -p /app/data
 
