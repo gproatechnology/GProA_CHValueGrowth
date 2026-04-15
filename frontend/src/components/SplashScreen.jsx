@@ -84,9 +84,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
 
   if (!isVisible) return null;
 
-  const demoStylePosition = {
-    top: demoTextPosition === 'up' ? '30%' : demoTextPosition === 'down' ? '70%' : '50%'
-  };
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -124,15 +122,15 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="fixed inset-0 z-50"
+        className="fixed inset-0 z-50 h-screen w-screen flex items-center justify-center"
         variants={containerVariants}
         initial="hidden"
         animate={isComplete ? 'exit' : 'visible'}
         exit="exit"
         style={{
           backgroundImage: 'url("/assets/Splashscreen_inicio.gif")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat'
         }}
       >
@@ -143,25 +141,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
           transition={{ duration: 0.5 }}
         />
 
-        {/* Demo Label */}
-        <motion.div
-          variants={demoVariants}
-          initial="hidden"
-          animate={isComplete ? 'exit' : 'visible'}
-          className="absolute left-1/2 -translate-x-1/2"
-          style={demoStylePosition}
-        >
-          <motion.div
-            className="bg-yellow-500/90 text-black px-8 py-3 rounded-lg shadow-[0_0_20px_rgba(234,179,8,0.5)] border border-yellow-400"
-            animate={isComplete ? {
-              scale: 1.1,
-              boxShadow: '0 0 50px rgba(234, 179, 8, 0.8)'
-            } : {}}
-            transition={{ duration: 0.3 }}
-          >
-            <span className="text-3xl font-black tracking-widest drop-shadow-sm">DEMO</span>
-          </motion.div>
-        </motion.div>
+
 
         {/* Loading Bar Container */}
         <motion.div
@@ -173,7 +153,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
           <div className="bg-black/40 backdrop-blur-md rounded-full p-1.5 border border-white/10 shadow-2xl">
             <div className="relative h-3 bg-black/50 rounded-full overflow-hidden">
               <motion.div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-full"
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: isComplete ? '100%' : `${progress}%` }}
                 transition={{ duration: 0.3 }}
@@ -186,11 +166,11 @@ const SplashScreen = ({ onComplete, minDuration = 7000, demoTextPosition = 'cent
           {/* Progress Text */}
           <div className="text-center mt-3">
             <motion.span
-              className="text-yellow-400/90 text-sm font-bold tracking-wider drop-shadow-md font-mono"
+              className="text-sky-300/90 text-sm font-bold tracking-wider drop-shadow-md font-mono"
               animate={isComplete ? { scale: 1.2, opacity: 0 } : {}}
               transition={{ duration: 0.3 }}
             >
-              {progress < 100 ? `CARGANDO... ${progress}%` : '¡LISTO!'}
+              CARGANDO... {progress}%
             </motion.span>
           </div>
         </motion.div>

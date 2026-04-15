@@ -8,6 +8,7 @@ import {
   Target, ChevronLeft, Maximize2, Minimize2, Wifi, Battery,
   Volume2, VolumeX, RefreshCw, Globe, AlertCircle, CheckCircle
 } from 'lucide-react';
+import NewHeader from './components/NewHeader.jsx';
 import SplashScreen from './components/SplashScreen.jsx';
 
 // Lazy load pages for better performance
@@ -16,7 +17,7 @@ const Products = lazy(() => import('./pages/Products.jsx'));
 const Orders = lazy(() => import('./pages/Orders.jsx'));
 const Customers = lazy(() => import('./pages/Customers.jsx'));
 const AssistantPage = lazy(() => import('./pages/AssistantPage.jsx'));
-// const Logistic = lazy(() => import('./pages/Logistic.jsx'));
+const Logistic = lazy(() => import('./pages/Logistic.jsx'));
 const Analytics = lazy(() => import('./pages/Analytics.jsx'));
 const SettingsPage = lazy(() => import('./pages/Settings.jsx'));
 
@@ -41,7 +42,7 @@ const NAVIGATION_CONFIG = [
   { id: 'products', path: '/products', name: 'Productos', icon: Package, description: 'Gestión de inventario' },
   { id: 'orders', path: '/orders', name: 'Órdenes', icon: ShoppingCart, description: 'Seguimiento de pedidos' },
   { id: 'customers', path: '/customers', name: 'Clientes', icon: Users, description: 'Base de datos' },
-  { id: 'logistica', path: '/logistica', name: 'Logística', icon: Truck, description: 'Envíos y tracking' },
+{ id: 'logistica', path: '/logistic', name: 'Logística', icon: Truck, description: 'Envíos y tracking' },
   { id: 'analytics', path: '/analytics', name: 'Analytics', icon: TrendingUp, description: 'Métricas y KPIs' },
   { id: 'assistant', path: '/assistant', name: 'AI Assistant', icon: Sparkles, description: 'Análisis inteligente' },
   { id: 'settings', path: '/settings', name: 'Configuración', icon: Settings, description: 'Preferencias' },
@@ -57,96 +58,7 @@ const USER_DATA = {
   lastActive: 'Ahora'
 };
 
-// Componente de Perfil de Usuario - CORREGIDO (z-index alto)
-const UserProfile = ({ onLogout }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Cerrar dropdown al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isOpen && !event.target.closest('.user-profile-dropdown')) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-  
-  return (
-    <div className="relative user-profile-dropdown">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all group border border-[#1E90FF]/10"
-      >
-        <div className="relative">
-          <div className="w-9 h-9 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md">
-            {USER_DATA.avatar}
-          </div>
-          <div className="absolute -bottom-0.5 -right-0.5">
-            <div className="relative">
-              <Circle className="w-3 h-3 text-green-500 fill-green-500" />
-              <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
-            </div>
-          </div>
-        </div>
-        <div className="hidden lg:block text-left">
-          <p className="text-sm font-semibold text-[#EAF3FF]">{USER_DATA.name.split(' ')[0]} {USER_DATA.name.split(' ')[1]}</p>
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-[#AFC8E6]">{USER_DATA.role}</span>
-            <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-[#1E90FF]/20 text-[#1E90FF]">Admin</span>
-          </div>
-        </div>
-        <ChevronRight className={`w-4 h-4 text-[#AFC8E6] transition-transform hidden lg:block ${isOpen ? 'rotate-90' : ''}`} />
-      </button>
-      
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-72 bg-[#102A4C] rounded-xl shadow-2xl border border-[#1E90FF]/20 overflow-hidden z-[100] backdrop-blur-xl"
-          >
-            <div className="p-4 border-b border-[#1E90FF]/20 bg-gradient-to-r from-[#0B1E3A] to-[#102A4C]">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
-                  {USER_DATA.avatar}
-                </div>
-                <div>
-                  <p className="font-bold text-[#EAF3FF] text-sm">{USER_DATA.name}</p>
-                  <p className="text-xs text-[#AFC8E6]">{USER_DATA.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded-full w-fit">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Conectado</span>
-              </div>
-            </div>
-            <div className="p-2">
-              <button className="w-full text-left px-3 py-2 rounded-lg text-[#AFC8E6] hover:bg-[#1E4D7A] transition-colors text-sm flex items-center gap-2">
-                <User size={14} /> Mi perfil
-              </button>
-              <button className="w-full text-left px-3 py-2 rounded-lg text-[#AFC8E6] hover:bg-[#1E4D7A] transition-colors text-sm flex items-center gap-2">
-                <Bell size={14} /> Notificaciones
-              </button>
-              <button className="w-full text-left px-3 py-2 rounded-lg text-[#AFC8E6] hover:bg-[#1E4D7A] transition-colors text-sm flex items-center gap-2">
-                <Settings size={14} /> Preferencias
-              </button>
-              <div className="border-t border-[#1E90FF]/20 my-2"></div>
-              <button 
-                onClick={onLogout}
-                className="w-full text-left px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors text-sm flex items-center gap-2"
-              >
-                <LogOut size={14} /> Cerrar sesión
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+
 
 // Componente de Navegación
 const NavItem = ({ item, isActive, onClick, isSidebarCollapsed }) => (
@@ -210,54 +122,7 @@ const Layout = () => {
   
   return (
     <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-[#050c1a] to-[#0B1E3A] flex flex-col">
-      {/* Title Bar - Estilo Windows/macOS */}
-      <div className="flex-shrink-0 bg-[#050c1a]/95 backdrop-blur-md border-b border-[#1E90FF]/10 shadow-xl">
-        <div className="h-12 flex items-center justify-between px-4">
-          {/* Logo y título */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-gradient-to-br from-[#1E90FF] to-[#3B82F6] rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-white text-sm">🛞</span>
-              </div>
-              <span className="text-white font-semibold text-sm tracking-tight">NeumatiQ</span>
-              <span className="text-[10px] text-[#AFC8E6]/50 border-l border-[#1E90FF]/20 pl-2 ml-1">Enterprise</span>
-            </div>
-          </div>
-          
-          {/* Barra de búsqueda central */}
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AFC8E6]/50" />
-              <input 
-                type="text" 
-                placeholder="Buscar en toda la aplicación..." 
-                className="w-full bg-white/5 border border-[#1E90FF]/15 rounded-lg py-1.5 pl-9 pr-3 text-sm text-[#EAF3FF] placeholder-[#AFC8E6]/40 focus:outline-none focus:border-[#1E90FF]/30 focus:bg-white/10 transition-all"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-white/10 rounded text-[#AFC8E6]/60">⌘</kbd>
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-white/10 rounded text-[#AFC8E6]/60">K</kbd>
-              </div>
-            </div>
-          </div>
-          
-          {/* Acciones de sistema */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-lg border border-[#1E90FF]/10">
-              <Wifi size={12} className="text-emerald-400" />
-              <Battery size={12} className="text-[#AFC8E6]" />
-              <Volume2 size={12} className="text-[#AFC8E6]" />
-            </div>
-            <div className="flex items-center gap-1">
-              <button onClick={() => window.location.reload()} className="p-1.5 rounded hover:bg-white/10 transition-colors">
-                <RefreshCw size={12} className="text-[#AFC8E6]" />
-              </button>
-              <button onClick={toggleFullscreen} className="p-1.5 rounded hover:bg-white/10 transition-colors">
-                {isFullscreen ? <Minimize2 size={12} className="text-[#AFC8E6]" /> : <Maximize2 size={12} className="text-[#AFC8E6]" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NewHeader onLogout={handleLogout} />
       
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
@@ -309,7 +174,7 @@ const Layout = () => {
                 {location.pathname === '/products' && <Products />}
                 {location.pathname === '/orders' && <Orders />}
                 {location.pathname === '/customers' && <Customers />}
-                {/* {location.pathname === '/logistica' && <Logistic />} */}
+{location.pathname === '/logistic' && <Logistic />}
                 {location.pathname === '/analytics' && <Analytics />}
                 {location.pathname === '/assistant' && <AssistantPage />}
                 {location.pathname === '/settings' && <SettingsPage />}
@@ -319,10 +184,6 @@ const Layout = () => {
         </main>
       </div>
       
-      {/* User Profile Dropdown - Fijo en esquina inferior derecha para fácil acceso */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <UserProfile onLogout={handleLogout} />
-      </div>
     </div>
   );
 };
