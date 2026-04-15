@@ -25,6 +25,13 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_DIR = BASE_DIR / "static"
 
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"STATIC_DIR: {STATIC_DIR}")
+print(f"STATIC_DIR exists: {STATIC_DIR.exists()}")
+
+if STATIC_DIR.exists():
+    print(f"Static contents: {list(STATIC_DIR.iterdir())}")
+    
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend")
 
 app.include_router(products_router)
