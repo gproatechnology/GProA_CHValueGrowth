@@ -85,7 +85,7 @@ const BRAND_LOGOS = {
   'Pirelli': '/assets/Pirelli.png',
   'Bridgestone': '/assets/Bridgestone.png',
   'Continental': '/assets/Continental.png',
-'Goodyear': '/assets/GoodYear.png',
+'Goodyear': '/assets/GooYear.png',
   'Dunlop': '/assets/Dunlop.png',
   'Yokohama': '/assets/Yokohama.png',
   'Hankook': '/assets/Hankook.png',
@@ -1141,7 +1141,7 @@ const Dashboard = () => {
                         <div className="flex items-center gap-2">
                             <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
                                 <img 
-                                    src="/assets/neumatiq-logo.png" 
+                                    src="/assets/Logo de NeumatiQ.png" 
                                     alt="NeumatiQ Logo" 
                                     className="w-full h-full object-contain rounded-full" 
                                 />
