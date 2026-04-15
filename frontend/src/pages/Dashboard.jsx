@@ -1151,6 +1151,17 @@ const Dashboard = () => {
                                 <p className="text-[9px] text-[#AFC8E6] hidden sm:block">Sistema de Gestión Integral para Neumáticos</p>
                             </div>
                         </div>
+
+                        {/* Imagen de usuario Heredia */}
+                        <div className="flex items-center gap-2 ml-auto">
+                            <div className="w-9 h-9 bg-transparent rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 overflow-hidden">
+                                <img 
+                                    src="/assets/Heredia_logo_circular.png" 
+                                    alt="Usuario" 
+                                    className="w-full h-full object-contain rounded-full" 
+                                />
+                            </div>
+                        </div>
                         
                         {/* Búsqueda inteligente */}
                         <div className="flex-1 max-w-md relative">
