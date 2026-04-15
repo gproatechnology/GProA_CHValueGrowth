@@ -46,7 +46,7 @@ const Login = () => {
       }}
     >
       {/* Overlay oscuro para asegurar visibilidad */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/10" />
 
       <div className="w-full max-w-sm relative z-10">
         <motion.div

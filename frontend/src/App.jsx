@@ -217,7 +217,7 @@ const Login = () => {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/10" />
       <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-2xl p-8 w-full max-w-md border border-[#1E90FF]/20 shadow-2xl relative z-10">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-transparent rounded-full flex items-center justify-center mx-auto mb-4 shadow-md border-2 border-white/20 overflow-hidden">
