@@ -27,10 +27,9 @@ STATIC_DIR = BASE_DIR / "static"
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
 
 if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
-if FRONTEND_DIST.exists():
-    app.mount("/app", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
 
 app.include_router(products_router)
 app.include_router(auth_router)
