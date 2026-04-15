@@ -1,23 +1,10 @@
 # CHValueGrowth Dockerfile - Backend + Frontend
-# Multi-stage build para producción
+# Uses pre-built static files from repo
 
 # ============================================
-# STAGE 1: Build del Frontend (Node.js)
+# STAGE 1: Backend (Python)
 # ============================================
-FROM node:20 AS frontend-build
-
-WORKDIR /app/frontend
-
-COPY frontend/package*.json ./
-RUN npm install
-
-COPY frontend/ ./
-RUN npm install && npm install @rollup/rollup-linux-x64-gnu && node node_modules/vite/bin/vite.js build
-
-# ============================================
-# STAGE 2: Backend (Python)
-# ============================================
-FROM python:3.14 AS backend
+FROM python:3.14
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -29,9 +16,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY . ./static
 
-COPY --from=frontend-build /app/static ./static
+COPY services/ ./services
+COPY pyproject.toml ./.env ./
 
 RUN mkdir -p /app/data
 
