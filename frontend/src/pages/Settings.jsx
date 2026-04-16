@@ -358,6 +358,8 @@ const Settings = () => {
                                                             Nombre Completo
                                                         </label>
                                                         <input 
+                                                            id="fullName"
+                                                            name="fullName"
                                                             type="text" 
                                                             value={profileData.fullName}
                                                             onChange={(e) => handleProfileChange('fullName', e.target.value)}
@@ -365,11 +367,13 @@ const Settings = () => {
                                                         />
                                                     </motion.div>
                                                     <motion.div variants={fadeInUp}>
-                                                        <label className="block text-sm font-semibold text-[#AFC8E6] mb-1 flex items-center gap-2">
+                                                        <label htmlFor="email" className="block text-sm font-semibold text-[#AFC8E6] mb-1 flex items-center gap-2">
                                                             <Mail className="w-3 h-3 text-[#1E90FF]" />
                                                             Correo Electrónico
                                                         </label>
                                                         <input 
+                                                            id="email"
+                                                            name="email"
                                                             type="email" 
                                                             value={profileData.email}
                                                             onChange={(e) => handleProfileChange('email', e.target.value)}
@@ -417,7 +421,7 @@ const Settings = () => {
                                                             <Globe className="w-3 h-3 text-[#1E90FF]" />
                                                             Zona Horaria
                                                         </label>
-                                                        <select
+                                                        <select id="timezone" name="timezone"
                                                             value={profileData.timezone}
                                                             onChange={(e) => handleProfileChange('timezone', e.target.value)}
                                                             className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
@@ -432,7 +436,7 @@ const Settings = () => {
                                                             <MapPin className="w-3 h-3 text-[#1E90FF]" />
                                                             Dirección
                                                         </label>
-                                                        <input 
+                                                        <input id="address" name="address"
                                                             type="text" 
                                                             value={profileData.address}
                                                             onChange={(e) => handleProfileChange('address', e.target.value)}
