@@ -50,6 +50,8 @@ const NewHeader = ({ onLogout }) => {
         <div className="relative">
           <Search className="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-300" aria-hidden="true" />
           <input 
+            id="global-search"
+            name="global-search"
             type="text" 
             placeholder="Buscar por medida, modelo o SKU..." 
             className="w-full pl-12 pr-12 py-3 bg-white/5 border border-blue-900/50 rounded-2xl text-white placeholder-blue-300/70 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all backdrop-blur-sm shadow-inner" 

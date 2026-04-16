@@ -586,7 +586,7 @@ const AllBrandsModal = ({ brands, onClose, onSelectBrand }) => {
                 <div className="flex justify-between items-center mb-4 sticky top-0 bg-[#102A4C]/90 backdrop-blur p-2 -mt-2 rounded-lg">
                     <h2 className="text-lg font-bold text-[#EAF3FF] flex items-center gap-2"><Award className="w-5 h-5 text-[#1E90FF]" /> Todas las Marcas ({brands.length})</h2>
                     <div className="flex gap-2">
-                        <input type="text" placeholder="Buscar marca..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-1.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-xs text-[#EAF3FF] w-48" />
+                        <input id="brand-search" name="brand-search" type="text" placeholder="Buscar marca..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-1.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-xs text-[#EAF3FF] w-48" />
                         <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#1E4D7A]"><X className="w-4 h-4 text-[#AFC8E6]" /></button>
                     </div>
                 </div>

@@ -425,7 +425,7 @@ const Products = () => {
                     <div className="flex flex-col gap-4">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E90FF]" />
-                            <input type="text" placeholder="Buscar por marca, modelo, medida o rin..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                            <input id="product-search" name="product-search" type="text" placeholder="Buscar por marca, modelo, medida o rin..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0B1E3A]/60 border border-[#1E90FF]/40 focus:outline-none focus:ring-2 focus:ring-[#1E90FF] focus:ring-opacity-80 focus:border-transparent transition-all text-[#EAF3FF] placeholder-[#AFC8E6]/50 shadow-inner"
                                 style={{ transition: 'all 0.2s ease', boxShadow: searchTerm ? '0 0 8px rgba(30,144,255,0.5)' : 'none' }} />
                             <SearchSuggestions searchTerm={searchTerm} products={productsData} onSelect={handleSearchSelect} />

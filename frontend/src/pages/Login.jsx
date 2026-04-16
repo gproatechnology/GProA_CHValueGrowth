@@ -92,12 +92,13 @@ const Login = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
+              <label htmlFor="username" className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
                 IDENTIFICADOR
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#38BDF8]/70" />
                 <input
+                  id="username"
                   name="username"
                   type="text"
                   value={credentials.username}
@@ -114,12 +115,13 @@ const Login = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
+              <label htmlFor="password" className="block mb-2 text-xs font-bold uppercase tracking-wider text-[#38BDF8] font-mono">
                 CLAVE DE ACCESO
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#38BDF8]/70" />
                 <input
+                  id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={credentials.password}
