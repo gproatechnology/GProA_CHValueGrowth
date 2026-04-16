@@ -652,7 +652,7 @@ const Orders = () => {
         animate="visible"
         className="space-y-4"
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {paginatedOrders.length === 0 ? (
             <motion.div
               key="empty"

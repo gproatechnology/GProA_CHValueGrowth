@@ -1,13 +1,22 @@
-# TODO Progress Tracker
+# TODO List for GProA_CHValueGrowth
 
-## Backend Sync (GProA_CHValueGrowth)
-- [x] Created backup branch blackboxai/backend-recovery
-- [ ] Checkout services/ from origin/blackboxai/app-audit-2024  
-- [ ] git add & commit recovered backend
-- [ ] Push & create PR
+## Progress Tracking for Current Task: Commit Current State (Confirmed Plan)
 
-## Frontend Polish
-- [x] Fixed Logistic.jsx syntax errors (Vite compiling)
-- [x] Removed duplicate hardcoded user button from Dashboard.jsx (syntax fixed)
-- [x] Test /dashboard route (console warnings fixed)
-- [x] Commit & deploy updates
+✅ **Step 1:** User confirmed the commit plan.
+
+✅ **Step 2:** Create this TODO.md to track progress.
+
+**Pending Steps:**
+- [ ] Step 3: Create branch `blackboxai/port-5173-activated`
+- [ ] Step 4: `git add .`
+- [ ] Step 5: `git commit`
+- [ ] Step 6: `git push`
+- [ ] Step 7: Complete task
+
+---
+
+**Previous/Other TODOs:**
+- Puerto 5173 activado y corriendo.
+- Actualizaciones en frontend pages (Logistic, Orders, etc.).
+- Build assets regenerados.
+

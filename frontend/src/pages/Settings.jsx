@@ -326,7 +326,7 @@ const Settings = () => {
 
                         {/* Dynamic Content */}
                         <div className="p-6">
-                            <AnimatePresence mode="wait">
+                            <AnimatePresence mode="popLayout">
                                 {/* Perfil */}
                                 {activeTab === 'profile' && (
                                     <motion.section

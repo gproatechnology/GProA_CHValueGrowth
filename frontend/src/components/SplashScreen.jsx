@@ -82,7 +82,7 @@ const SplashScreen = ({ onComplete, minDuration = 7000 }) => {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         className="fixed inset-0 z-50 flex items-center justify-center"
         variants={containerVariants}

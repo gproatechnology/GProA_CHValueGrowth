@@ -282,11 +282,11 @@ const SearchSuggestions = ({ searchTerm, products, onSelect }) => {
     );
 };
 
-const ProductCard = ({ product, onViewAnalysis }) => {
+const ProductCard = React.forwardRef(({ product, onViewAnalysis }, ref) => {
     const savingsBg = product.savingsPercent > 18 ? 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30' : product.savingsPercent > 10 ? 'from-amber-500/20 to-orange-500/20 border-amber-500/30' : 'from-red-500/20 to-rose-500/20 border-red-500/30';
     const savingsColor = product.savingsPercent > 18 ? 'text-emerald-400' : product.savingsPercent > 10 ? 'text-amber-400' : 'text-red-400';
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, scale: 1.02 }}
+        <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, scale: 1.02 }}
             className="group bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl overflow-hidden shadow-lg hover:shadow-xl hover:shadow-[#1E90FF]/20 transition-all duration-300 border border-[#1E90FF]/20">
             <div className="relative">
                 <div className="h-28 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center">
@@ -312,7 +312,7 @@ const ProductCard = ({ product, onViewAnalysis }) => {
             </div>
         </motion.div>
     );
-};
+});
 
 // =============================================
 // COMPONENTE PRINCIPAL
@@ -451,7 +451,7 @@ const Products = () => {
 
                 {/* Grid de productos */}
                 <motion.section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="popLayout">
                         {paginatedProducts.length === 0 ? (
                             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="col-span-full text-center py-12 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl border border-[#1E90FF]/20">
                                 <Package className="w-16 h-16 text-[#1E90FF]/30 mx-auto mb-4" /><p className="text-[#AFC8E6] text-lg">No se encontraron productos</p>

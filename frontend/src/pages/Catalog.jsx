@@ -389,7 +389,7 @@ const Catalog = () => {
                     : "space-y-4"
                 }
             >
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout">
                     {filteredProducts.length === 0 ? (
                         <motion.div
                             key="empty"

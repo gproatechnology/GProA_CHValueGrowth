@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Truck, Plus, MapPin, Clock, CheckCircle, AlertCircle, 
@@ -8,125 +8,124 @@ import {
   Globe, Phone, Mail, Navigation, Target, Activity,
   AlertTriangle, Gauge, Route, Bell, Zap, Wind, Sun, CloudRain,
   Thermometer, Compass, Fuel, Battery, Wifi, Signal, Car,
-  Map as MapIcon, Layers, Navigation2, Radio, Radar, Info, FileSpreadsheet
+  Map as MapIcon, Layers, Navigation2, Radio, Radar, Info
 } from 'lucide-react';
 
-// ==================== COMPONENTE DE MAPA CON CARGA DINÁMICA ====================
-const LazyMap = ({ center, zoom, mapContent, ...props }) => {
-  const [LeafletComponents, setLeafletComponents] = useState(null);
-  const [L, setL] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+// ==================== LEAFLET VANILLA (SIN REACT-LEAFLET) ====================
+// Este componente recibe los datos y se actualiza automáticamente cuando cambian
+const VanillaMap = ({ center, zoom = 6, markers = [], routes = [], onMarkerClick }) => {
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const leafletRef = useRef(null);
+  const markersLayer = useRef({});
+  const routesLayer = useRef({});
 
-  const createVehicleIcon = React.useCallback((status, isSelected = false) => {
-    if (!L) return null;
-    const colors = {
-      'En tránsito': '#1E90FF',
-      'Pendiente': '#F59E0B',
-      'Entregado': '#10B981',
-      'Retrasado': '#EF4444'
-    };
-    const color = colors[status] || '#6B7280';
-    const size = isSelected ? 36 : 32;
-    return L.divIcon({
-      html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-        <svg width="${size-12}" height="${size-12}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <circle cx="12" cy="12" r="3" fill="white"/>
-        </svg>
-      </div>`,
-      className: 'custom-vehicle-marker',
-      iconSize: [size, size],
-      iconAnchor: [size/2, size/2],
-      popupAnchor: [0, -size/2]
-    });
-  }, [L]);
-
+  // Inicializar mapa una sola vez
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    let isMounted = true;
-    Promise.all([
-      import('leaflet'),
-      import('react-leaflet'),
-      import('leaflet/dist/leaflet.css')
-    ]).then(([leafletModule, reactLeafletModule]) => {
-      if (!isMounted) return;
+    if (!mapRef.current || typeof window === 'undefined') return;
+    
+    const initMap = async () => {
       try {
-        const L = leafletModule.default;
+        const L = (await import('leaflet')).default;
+        leafletRef.current = L;
+        
+        if (mapInstance.current) {
+          mapInstance.current.remove();
+          mapInstance.current = null;
+        }
+        
+        // Configurar iconos por defecto
         delete L.Icon.Default.prototype._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
           iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
           shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
         });
-        setL(L);
-        setLeafletComponents(reactLeafletModule);
-        setIsLoading(false);
+        
+        const createIcon = (status, isSelected) => {
+          const colors = { 'En tránsito': '#1E90FF', 'Pendiente': '#F59E0B', 'Entregado': '#10B981', 'Retrasado': '#EF4444' };
+          const color = colors[status] || '#6B7280';
+          const size = isSelected ? 36 : 32;
+          return L.divIcon({
+            html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+              <svg width="${size-12}" height="${size-12}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <circle cx="12" cy="12" r="3" fill="white"/>
+              </svg>
+            </div>`,
+            className: 'custom-marker',
+            iconSize: [size, size],
+            iconAnchor: [size/2, size/2]
+          });
+        };
+        
+        mapInstance.current = L.map(mapRef.current).setView([center?.lat || 23.6345, center?.lng || -102.5528], zoom);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(mapInstance.current);
+        
+        // Guardar la función de creación de iconos para uso posterior
+        mapInstance.current.createIcon = createIcon;
+        
       } catch (e) {
-        console.error('Error configuring Leaflet:', e);
-        setIsLoading(false);
+        console.error('Map init error:', e);
       }
-    }).catch(err => {
-      console.error('Error cargando Leaflet:', err);
-      setIsLoading(false);
-    });
-    return () => { isMounted = false; };
+    };
+    
+    initMap();
+    
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
   }, []);
 
-  if (isLoading || !LeafletComponents || !L) {
-    return (
-      <div className="h-full w-full bg-[#0B1E3A] rounded-xl flex items-center justify-center text-[#AFC8E6]">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#1E90FF] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p className="text-xs">Cargando mapa...</p>
-        </div>
-      </div>
-    );
-  }
+  // Actualizar centro y zoom cuando cambien
+  useEffect(() => {
+    if (mapInstance.current && center) {
+      mapInstance.current.setView([center.lat, center.lng], zoom);
+    }
+  }, [center, zoom]);
 
-  const { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap } = LeafletComponents;
-
-  const MapUpdater = () => {
-    const map = useMap();
-    useEffect(() => {
-      if (center && map) {
-        try {
-          map.setView([center.lat, center.lng], zoom || 6);
-        } catch (e) {
-          console.error('Error setting view:', e);
-        }
-      }
-    }, [center, map, zoom]);
-    return null;
-  };
-
-  const content = typeof mapContent === 'function' 
-    ? mapContent({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) 
-    : mapContent;
-
-  return (
-    <MapContainer
-      center={[center.lat, center.lng]}
-      zoom={zoom}
-      style={{ height: '100%', width: '100%', background: '#0B1E3A' }}
-      zoomControl={false}
-      {...props}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      />
-      <MapUpdater />
-      {content}
-    </MapContainer>
-  );
+  // Actualizar marcadores y rutas cuando cambien los datos
+  useEffect(() => {
+    if (!mapInstance.current || !leafletRef.current) return;
+    const map = mapInstance.current;
+    const L = leafletRef.current;
+    
+    // Limpiar capas anteriores
+    Object.values(markersLayer.current).forEach(marker => marker.remove());
+    Object.values(routesLayer.current).forEach(route => route.remove());
+    markersLayer.current = {};
+    routesLayer.current = {};
+    
+    // Dibujar rutas (polylines)
+    routes.forEach(route => {
+      const polyline = L.polyline(route.points.map(p => [p.lat, p.lng]), { 
+        color: '#1E90FF', weight: 3, opacity: 0.6, dashArray: '5, 10' 
+      }).addTo(map);
+      routesLayer.current[route.id] = polyline;
+    });
+    
+    // Dibujar marcadores
+    markers.forEach(marker => {
+      const icon = map.createIcon(marker.status, marker.selected);
+      const m = L.marker([marker.lat, marker.lng], { icon })
+        .addTo(map)
+        .on('click', () => onMarkerClick?.(marker.id));
+      if (marker.popup) m.bindPopup(marker.popup);
+      markersLayer.current[marker.id] = m;
+    });
+    
+  }, [markers, routes, onMarkerClick]);
+  
+  return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />;
 };
 
-// ==================== COMPONENTE DOLLAR SIGN ====================
-const DollarSign = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
+// Alias para compatibilidad (ya no se usa children, pero lo dejamos para evitar errores)
+const LazyMap = VanillaMap;
 
 // ==================== COMPONENTE PRINCIPAL LOGISTIC ====================
 const Logistic = () => {
@@ -255,9 +254,6 @@ const Logistic = () => {
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Filtros de fecha
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const itemsPerPage = 5;
 
   // Estados para el mapa
@@ -397,33 +393,13 @@ const Logistic = () => {
   }, [shipments]);
 
   const createNewShipment = useCallback(() => {
-    // Validaciones
     if (!newShipment.customer || !newShipment.product || !newShipment.quantity) {
       showNotification("❌ Completa los campos obligatorios", 'error');
       return;
     }
 
-    // Validación de cantidad
-    const qty = parseInt(newShipment.quantity);
-    if (isNaN(qty) || qty <= 0) {
-      showNotification("❌ La cantidad debe ser un número mayor a 0", 'error');
-      return;
-    }
-
-    // Validación de fecha estimada
-    if (newShipment.estimated) {
-      const estimatedDate = new Date(newShipment.estimated);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (estimatedDate < today) {
-        showNotification("❌ La fecha estimada no puede ser anterior a hoy", 'error');
-        return;
-      }
-    }
-
-    // Validación de stock
     const productStock = inventory[newShipment.product]?.stock || 0;
-    if (qty > productStock) {
+    if (parseInt(newShipment.quantity) > productStock) {
       showNotification(`❌ Stock insuficiente. Solo hay ${productStock} unidades disponibles`, 'error');
       return;
     }
@@ -501,63 +477,9 @@ const Logistic = () => {
     ));
   };
 
-  // ==================== EXPORTAR A EXCEL/CSV ====================
-  const exportToCSV = useCallback((shipmentsToExport) => {
-    const headers = ['ID', 'Cliente', 'Producto', 'Cantidad', 'Fecha', 'Estado', 'Destino', 'Conductor', 'Retraso (min)'];
-    const rows = shipmentsToExport.map(s => [
-      s.id,
-      s.customer,
-      s.product,
-      s.quantity,
-      s.date,
-      s.status,
-      s.destination,
-      s.driver,
-      s.delay || 0
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `envios_neumatiq_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    showNotification('✅ Envíos exportados a CSV', 'success');
-  }, []);
-
-  const exportHistoryToCSV = useCallback(() => {
-    const headers = ['Fecha', 'Tipo', 'Producto', 'Cantidad', 'Destino/Origen', 'Usuario', 'Estado'];
-    const rows = history.map(item => [
-      item.date,
-      item.type,
-      item.product,
-      item.qty,
-      item.destination,
-      item.user,
-      item.status
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `historial_neumatiq_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    showNotification('✅ Historial exportado a CSV', 'success');
-  }, [history]);
-
   const filteredShipments = useMemo(() => {
     let filtered = [...shipments];
     
-    // Filtro por búsqueda
     if (search) {
       filtered = filtered.filter(s => 
         s.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -568,7 +490,6 @@ const Logistic = () => {
       );
     }
     
-    // Filtro por estado
     if (filter !== 'all') {
       filtered = filtered.filter(s => {
         if (filter === 'pending') return s.status === 'Pendiente';
@@ -578,20 +499,10 @@ const Logistic = () => {
       });
     }
     
-    // Filtro por estado seleccionado
     if (selectedStatus !== 'all') {
       filtered = filtered.filter(s => s.status === selectedStatus);
     }
     
-    // Filtro por rango de fechas
-    if (dateRange.start) {
-      filtered = filtered.filter(s => new Date(s.date) >= new Date(dateRange.start));
-    }
-    if (dateRange.end) {
-      filtered = filtered.filter(s => new Date(s.date) <= new Date(dateRange.end));
-    }
-    
-    // Ordenamiento
     filtered.sort((a, b) => {
       let valA, valB;
       switch(sortField) {
@@ -607,7 +518,7 @@ const Logistic = () => {
     });
     
     return filtered;
-  }, [shipments, search, filter, selectedStatus, sortField, sortOrder, dateRange]);
+  }, [shipments, search, filter, selectedStatus, sortField, sortOrder]);
 
   const totalPages = Math.ceil(filteredShipments.length / itemsPerPage);
   const paginatedShipments = filteredShipments.slice(
@@ -660,6 +571,44 @@ const Logistic = () => {
   };
 
   const activeShipments = shipments.filter(s => s.status === 'En tránsito');
+
+  // ==================== PREPARAR DATOS PARA EL MAPA ====================
+  // Generar marcadores (vehículos en tránsito)
+  const mapMarkers = useMemo(() => {
+    return shipments.filter(s => s.status === 'En tránsito').map(ship => ({
+      id: ship.id,
+      lat: ship.currentLocation.lat,
+      lng: ship.currentLocation.lng,
+      status: ship.status,
+      selected: selectedVehicle === ship.id,
+      popup: `
+        <div class="text-sm">
+          <p class="font-bold text-[#1E90FF]">${ship.id}</p>
+          <p>🚛 ${ship.driver}</p>
+          <p>📍 ${ship.destination}</p>
+          <p>📦 ${ship.product} x${ship.quantity}</p>
+          <p>📊 Progreso: ${Math.round(ship.currentLocation.progress * 100)}%</p>
+          <p>⚡ Velocidad: ${ship.speed} km/h</p>
+          <p>⛽ Combustible: ${ship.fuel}%</p>
+          ${ship.delay > 0 ? `<p class="text-red-400">⚠️ Retraso: ${ship.delay} min</p>` : ''}
+        </div>
+      `
+    }));
+  }, [shipments, selectedVehicle]);
+
+  // Generar rutas (solo si showRoutesPanel está activo)
+  const mapRoutes = useMemo(() => {
+    if (!showRoutesPanel) return [];
+    return shipments.filter(s => s.status === 'En tránsito' && s.route).map(ship => ({
+      id: ship.id,
+      points: ship.route.map(p => ({ lat: p.lat, lng: p.lng }))
+    }));
+  }, [shipments, showRoutesPanel]);
+
+  // Función para manejar clic en marcador
+  const handleMarkerClick = (id) => {
+    setSelectedVehicle(prev => prev === id ? null : id);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#050c1a] to-[#0B1E3A]">
@@ -779,60 +728,26 @@ const Logistic = () => {
                     className="w-full pl-10 pr-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm text-[#EAF3FF] placeholder-[#AFC8E6]/50 focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
                   />
                 </div>
-                
-                {/* Filtros de fecha */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-[#AFC8E6]">Desde:</span>
-                  <input
-                    type="date"
-                    value={dateRange.start}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                    className="px-2 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-xs text-[#EAF3FF]"
-                  />
-                  <span className="text-xs text-[#AFC8E6]">Hasta:</span>
-                  <input
-                    type="date"
-                    value={dateRange.end}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                    className="px-2 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-xs text-[#EAF3FF]"
-                  />
-                  {(dateRange.start || dateRange.end) && (
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'all', label: 'Todos', color: 'sky' },
+                    { value: 'pending', label: 'Pendientes', color: 'amber' },
+                    { value: 'transit', label: 'En Tránsito', color: 'blue' },
+                    { value: 'completed', label: 'Entregados', color: 'emerald' }
+                  ].map(f => (
                     <button
-                      onClick={() => setDateRange({ start: '', end: '' })}
-                      className="px-2 py-1 text-xs text-red-400 hover:text-red-300"
+                      key={f.value}
+                      onClick={() => setFilter(f.value)}
+                      className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                        filter === f.value
+                          ? `bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white shadow-md`
+                          : 'bg-[#0B1E3A]/80 text-[#AFC8E6] hover:bg-[#1E4D7A] border border-[#1E90FF]/30'
+                      }`}
                     >
-                      Limpiar
+                      {f.label}
                     </button>
-                  )}
+                  ))}
                 </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mt-3">
-                {[
-                  { value: 'all', label: 'Todos', color: 'sky' },
-                  { value: 'pending', label: 'Pendientes', color: 'amber' },
-                  { value: 'transit', label: 'En Tránsito', color: 'blue' },
-                  { value: 'completed', label: 'Entregados', color: 'emerald' }
-                ].map(f => (
-                  <button
-                    key={f.value}
-                    onClick={() => setFilter(f.value)}
-                    className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-                      filter === f.value
-                        ? `bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white shadow-md`
-                        : 'bg-[#0B1E3A]/80 text-[#AFC8E6] hover:bg-[#1E4D7A] border border-[#1E90FF]/30'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-                <button
-                  onClick={() => exportToCSV(filteredShipments)}
-                  className="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all flex items-center gap-1"
-                >
-                  <FileSpreadsheet className="w-3 h-3" />
-                  Exportar
-                </button>
               </div>
             </div>
 
@@ -1061,6 +976,8 @@ const Logistic = () => {
                         const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
                         const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
                         setMapCenter({ lat: centerLat, lng: centerLng });
+                      } else {
+                        setMapCenter({ lat: 23.6345, lng: -102.5528 });
                       }
                     }}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B1E3A]/80 text-[#AFC8E6] border border-[#1E90FF]/30 hover:bg-[#1E4D7A] transition-all"
@@ -1072,64 +989,14 @@ const Logistic = () => {
               </div>
               
               <div className="h-[500px] relative">
-                <LazyMap center={mapCenter} zoom={6} mapContent={({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
-                  <>
-                    {shipments.filter(s => s.status === 'En tránsito' && s.route).map(ship => (
-                      showRoutesPanel && (
-                        <Polyline
-                          key={`route-${ship.id}`}
-                          positions={ship.route.map(p => [p.lat, p.lng])}
-                          color="#1E90FF"
-                          weight={3}
-                          opacity={0.6}
-                          dashArray="5, 10"
-                        />
-                      )
-                    ))}
-                    {shipments.filter(s => s.status === 'En tránsito').map(ship => (
-                      <Marker
-                        key={ship.id}
-                        position={[ship.currentLocation.lat, ship.currentLocation.lng]}
-                        icon={createVehicleIcon(ship.status, selectedVehicle === ship.id)}
-                        eventHandlers={{
-                          click: () => setSelectedVehicle(selectedVehicle === ship.id ? null : ship.id)
-                        }}
-                      >
-                        <Popup>
-                          <div className="text-sm">
-                            <p className="font-bold text-[#1E90FF]">{ship.id}</p>
-                            <p>{ship.driver}</p>
-                            <p>{ship.destination}</p>
-                            <p>{ship.product} x{ship.quantity}</p>
-                            <p>Progreso: {Math.round(ship.currentLocation.progress * 100)}%</p>
-                            <p>{ship.speed} km/h</p>
-<p>Combustible: {ship.fuel}%</p>
-                          {ship.delay > 0 && <p className="text-red-400">Retraso: {ship.delay} min</p>}
-                        </div>
-                        </Popup>
-                      </Marker>
-                    ))}
-                    {showRoutesPanel && [...new Set(shipments.map(s => s.destination))].map(dest => {
-                      const loc = locations[dest];
-                      if (!loc) return null;
-                      return (
-                        <CircleMarker
-                          key={`dest-${dest}`}
-                          center={[loc.lat, loc.lng]}
-                          radius={8}
-                          fillColor="#10B981"
-                          color="#fff"
-                          weight={2}
-                          opacity={1}
-                          fillOpacity={0.8}
-                        >
-                          <Popup>{loc.name}</Popup>
-                        </CircleMarker>
-                      );
-                    })}
-                  </>
-                )} />
-            </div>
+                <VanillaMap 
+                  center={mapCenter} 
+                  zoom={6} 
+                  markers={mapMarkers}
+                  routes={mapRoutes}
+                  onMarkerClick={handleMarkerClick}
+                />
+              </div>
               
               {/* Leyenda */}
               <div className="p-3 border-t border-[#1E90FF]/20 flex flex-wrap gap-4 text-xs">
@@ -1230,18 +1097,11 @@ const Logistic = () => {
             animate={{ opacity: 1 }}
             className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl shadow-lg border border-[#1E90FF]/20 overflow-hidden"
           >
-            <div className="p-4 border-b border-[#1E90FF]/20 flex justify-between items-center">
+            <div className="p-4 border-b border-[#1E90FF]/20">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-[#1E90FF]" />
                 <h2 className="text-lg font-bold text-[#EAF3FF]">Historial de Movimientos</h2>
               </div>
-              <button
-                onClick={exportHistoryToCSV}
-                className="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all flex items-center gap-1"
-              >
-                <FileSpreadsheet className="w-3 h-3" />
-                Exportar
-              </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -1560,7 +1420,7 @@ const Logistic = () => {
           )}
         </AnimatePresence>
 
-        {/* Modal Mapa detallado (también necesita carga dinámica, pero lo dejamos similar) */}
+        {/* Modal Mapa detallado (usando VanillaMap) */}
         <AnimatePresence>
           {showMapModal && selectedShipment && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1580,41 +1440,18 @@ const Logistic = () => {
                   </button>
                 </div>
                 <div className="h-96 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl relative overflow-hidden">
-                  <LazyMap center={selectedShipment.currentLocation} zoom={10} mapContent={({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
-                    <>
-                      {selectedShipment.route && (
-                        <Polyline
-                          positions={selectedShipment.route.map(p => [p.lat, p.lng])}
-                          color="#1E90FF"
-                          weight={4}
-                            opacity={0.8}
-                          />
-                        )}
-                        <Marker
-                          position={[selectedShipment.currentLocation.lat, selectedShipment.currentLocation.lng]}
-                          icon={createVehicleIcon(selectedShipment.status)}
-                        >
-                          <Popup>
-                            <div className="text-sm">
-                              <p className="font-bold">{selectedShipment.id}</p>
-                              <p>Velocidad: {selectedShipment.speed} km/h</p>
-                              <p>ETA: {selectedShipment.estimated}</p>
-                            </div>
-                          </Popup>
-                        </Marker>
-                        {selectedShipment.route && selectedShipment.route[1] && (
-                          <CircleMarker
-                          center={[selectedShipment.route[1].lat, selectedShipment.route[1].lng]}
-                          radius={8}
-                          fillColor="#10B981"
-                          color="#fff"
-                          weight={2}
-                        >
-                          <Popup>Destino: {selectedShipment.destination}</Popup>
-                        </CircleMarker>
-                      )}
-                    </>
-                  )} />
+                  <VanillaMap 
+                    center={selectedShipment.currentLocation} 
+                    zoom={10}
+                    markers={[{
+                      id: selectedShipment.id,
+                      lat: selectedShipment.currentLocation.lat,
+                      lng: selectedShipment.currentLocation.lng,
+                      status: selectedShipment.status,
+                      popup: `Velocidad: ${selectedShipment.speed} km/h<br>ETA: ${selectedShipment.estimated}`
+                    }]}
+                    routes={selectedShipment.route ? [{ id: selectedShipment.id, points: selectedShipment.route.map(p => ({ lat: p.lat, lng: p.lng })) }] : []}
+                  />
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                   <div className="bg-[#0B1E3A]/60 rounded-lg p-2">
@@ -1742,5 +1579,12 @@ const Logistic = () => {
     </div>
   );
 };
+
+// ==================== COMPONENTES AUXILIARES ====================
+const DollarSign = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
 
 export default Logistic;
