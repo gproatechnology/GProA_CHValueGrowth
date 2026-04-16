@@ -109,21 +109,23 @@ GProA_CHValueGrowth/
 │   ├── config.py             # Configuración SQLite
 │   ├── models.py            # Modelos SQLAlchemy
 │   └── repository.py       # Repositorio CRUD
-├── frontend/
+├── frontend/               # <-- TODO el frontend aquí
 │   ├── package.json        # Dependencias Node
 │   ├── vite.config.js      # Config Vite
 │   ├── src/
 │   │   ├── App.jsx        # React app
-│   │   └── services/
-│   └── dist/              # Build pre-compilado
-├── static/
-│   ├── index.html         # Dashboard (SPA)
-│   └── assets/            # JS/CSS compilados
+│   │   ├── components/   # Componentes React
+│   │   ├── pages/       # Páginas React
+│   │   └── services/   # Servicios API
+│   ├── public/           # Assets públicos
+│   ├── dist/            # Build compilado (npm run build)
+│   └── node_modules/    # Deps Node
 ├── configs/
 ├── tests/
 ├── .env.example           # Template de variables
 ├── README.md
-└── AUDITORIA_RENDER.md   # Este documento
+├── AUDITORIA_RENDER.md   # Este documento
+└── LICENSE
 ```
 
 **Archivos removidos tras limpieza:**
@@ -385,11 +387,34 @@ El scraper está en `services/scrapers/mercadolibre/`:
 
 ---
 
-## 15. Conclusión
+## 15. Recent Changes
+
+### 2026-04-16 - Cleanup for Render
+
+**Cambios realizados en rama `SubMain`:**
+
+1. ✅ Eliminada carpeta `/static/` raíz (ya no se usa)
+2. ✅ API actualizada para servir desde `frontend/dist/`
+3. ✅ Agregada auditoría técnica
+
+**Nueva estructura de archivos:**
+- FastAPI sirve desde `frontend/dist/` (no `/static/`)
+- Antes: `static/index.html`
+- Ahora: `frontend/dist/index.html`
+
+**Para hacer build:**
+```bash
+cd frontend
+npm run build   # Output: frontend/dist/
+```
+
+---
+
+## 16. Conclusión
 
 El proyecto está **listo para deployment** con las siguientes consideraciones:
 
-1. **Frontend**: ✅ Compilado y served por FastAPI
+1. **Frontend**: ✅ Compilado y served por FastAPI desde `frontend/dist/`
 2. **Backend**: ✅ API funcional con autenticación
 3. **Base de datos**: ⚠️ SQLite se resetea en Free tier
 4. **Scraper**: ⚠️ Modo mock por defecto
