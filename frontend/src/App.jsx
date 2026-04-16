@@ -291,22 +291,3 @@ function App() {
 }
 
 export default App;
-
-{/* Estilos globales para scrollbar personalizado */}
-<style jsx global>{`
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(30, 144, 255, 0.1);
-    border-radius: 10px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(30, 144, 255, 0.4);
-    border-radius: 10px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(30, 144, 255, 0.6);
-  }
-`}</style>
