@@ -41,7 +41,7 @@ def health():
 def serve_assets(path: str):
     file_path_full = STATIC_DIR / "assets" / path
     if file_path_full.exists() and file_path_full.is_file():
-        return FileResponse(str(file_path_full))
+        return FileResponse(str(file_path_full), media_type="application/javascript")
     return Response(status_code=404)
 
 
@@ -53,16 +53,16 @@ def serve_static(path: str):
     return Response(status_code=404)
 
 
-@app.get("/{path:path}")
-def serve_frontend(path: str):
+@app.get("/")
+def serve_root():
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return {"status": "ok", "project": "NeumatiQ"}
 
 
-@app.get("/")
-def serve_root():
+@app.get("/{path:path}")
+def serve_frontend(path: str):
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
