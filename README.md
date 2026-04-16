@@ -15,6 +15,7 @@
 ## 📋 Descripción Ejecutiva
 
 **NeumatiQ** es un sistema de gestión integral diseñado específicamente para la gestión y compra del comercio de neumáticos (llantas). Cubre todos los procesos del negocio: compras a proveedores, inventario, ventas, facturación, control de bodega, gestión de clientes, reportes financieros, análisis de margen, rotación de productos, alertas de stock, CRM, etc.
+Subido por W 160426
 
 ### Problema que Resuelve
 
