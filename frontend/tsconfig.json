@@ -19,8 +19,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "allowJs": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src/**/*"]
 }
