@@ -23,7 +23,8 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIR = BASE_DIR / "frontend"
+DIST_DIR = FRONTEND_DIR / "dist"
 
 
 @app.get("/health")
@@ -39,7 +40,7 @@ def health():
 
 @app.get("/assets/{path:path}")
 def serve_assets(path: str):
-    file_path_full = STATIC_DIR / "assets" / path
+    file_path_full = DIST_DIR / "assets" / path
     if file_path_full.exists() and file_path_full.is_file():
         return FileResponse(str(file_path_full), media_type="application/javascript")
     return Response(status_code=404)
@@ -47,7 +48,7 @@ def serve_assets(path: str):
 
 @app.get("/static/{path:path}")
 def serve_static(path: str):
-    file_path_full = STATIC_DIR / path
+    file_path_full = DIST_DIR / path
     if file_path_full.exists() and file_path_full.is_file():
         return FileResponse(str(file_path_full))
     return Response(status_code=404)
@@ -55,7 +56,7 @@ def serve_static(path: str):
 
 @app.get("/")
 def serve_root():
-    index_path = STATIC_DIR / "index.html"
+    index_path = DIST_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return {"status": "ok", "project": "NeumatiQ"}
@@ -63,7 +64,7 @@ def serve_root():
 
 @app.get("/{path:path}")
 def serve_frontend(path: str):
-    index_path = STATIC_DIR / "index.html"
+    index_path = DIST_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return {"status": "ok", "project": "NeumatiQ"}
