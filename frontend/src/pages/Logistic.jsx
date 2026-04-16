@@ -1072,7 +1072,7 @@ const Logistic = () => {
               </div>
               
               <div className="h-[500px] relative">
-                <LazyMap center={mapCenter} zoom={6} mapContent={({ createVehicleIcon }) => (
+                <LazyMap center={mapCenter} zoom={6} mapContent={({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
                   <>
                     {shipments.filter(s => s.status === 'En tránsito' && s.route).map(ship => (
                       showRoutesPanel && (
@@ -1580,7 +1580,7 @@ const Logistic = () => {
                   </button>
                 </div>
                 <div className="h-96 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl relative overflow-hidden">
-                  <LazyMap center={selectedShipment.currentLocation} zoom={10} mapContent={({ createVehicleIcon }) => (
+                  <LazyMap center={selectedShipment.currentLocation} zoom={10} mapContent={({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
                     <>
                       {selectedShipment.route && (
                         <Polyline
