@@ -79,7 +79,7 @@ services:
       
       # CORS Configuration
       - key: CORS_ORIGINS
-        value: "https://chvaluegrowth.com,https://www.chvaluegrowth.com,http://localhost:3000,http://localhost:5173"
+        value: "https://chvaluegrowth.com,https://www.chvaluegrowth.com,https://chvaluegrowth-frontend.onrender.com,http://localhost:3000,http://localhost:5173"
       - key: CORS_METHODS
         value: "GET,POST,PUT,DELETE,OPTIONS"
       - key: CORS_HEADERS
@@ -147,7 +147,29 @@ services:
     domains:
       - domain: api.chvaluegrowth.com
         type: custom
-      # - domain: chvaluegrowth.onrender.com  # Default Render domain
+      - domain: chvaluegrowth-api.onrender.com  # Default Render domain
+
+  # Frontend Static Site
+  - type: web
+    name: chvaluegrowth-frontend
+    env: static
+    region: oregon
+    plan: free
+    branch: main
+
+    # Build frontend
+    buildCommand: cd frontend && npm ci && npm run build
+
+    # Serve built files
+    publishPath: frontend/dist
+
+    # Env vars for Vite
+    envVars:
+      - key: VITE_API_URL
+        value: "https://chvaluegrowth-api.onrender.com/api/v1"
+
+    # Health check (index.html)
+    healthCheckPath: /
 
   # Background Worker (for scraping tasks)
   - type: worker
