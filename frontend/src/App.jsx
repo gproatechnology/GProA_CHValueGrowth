@@ -123,11 +123,11 @@ const Layout = () => {
   }
   
   return (
-    <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-[#050c1a] to-[#0B1E3A] flex flex-col">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#050c1a] to-[#0B1E3A] flex flex-col">
       <NewHeader onLogout={handleLogout} />
       
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex">
         {/* Sidebar */}
         <aside className={`flex-shrink-0 ${sidebarWidth} bg-gradient-to-b from-[#0B1E3A] to-[#050c1a] border-r border-[#1E90FF]/10 transition-all duration-300 ease-in-out shadow-2xl overflow-y-auto custom-scrollbar ${
           mobileMenuOpen ? 'fixed inset-y-0 left-0 z-30 translate-x-0' : 'hidden lg:block'
