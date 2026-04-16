@@ -234,16 +234,20 @@ const Login = () => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[#AFC8E6] mb-1">Usuario</label>
+            <label htmlFor="username" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Usuario</label>
             <input
+              id="username"
+              name="username"
               type="text"
               defaultValue="admin"
               className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-[#AFC8E6] mb-1">Contraseña</label>
+            <label htmlFor="password" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Contraseña</label>
             <input
+              id="password"
+              name="password"
               type="password"
               defaultValue="admin123"
               className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
