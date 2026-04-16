@@ -99,7 +99,9 @@ const LazyMap = ({ center, zoom, mapContent, ...props }) => {
     return null;
   };
 
-  const content = typeof mapContent === 'function' ? mapContent({ createVehicleIcon }) : mapContent;
+  const content = typeof mapContent === 'function' 
+    ? mapContent({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) 
+    : mapContent;
 
   return (
     <MapContainer
