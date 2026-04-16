@@ -12,9 +12,33 @@ import {
 } from 'lucide-react';
 
 // ==================== COMPONENTE DE MAPA CON CARGA DINÁMICA ====================
-const LazyMap = ({ center, zoom, children, ...props }) => {
+const LazyMap = ({ center, zoom, mapContent, ...props }) => {
   const [LeafletComponents, setLeafletComponents] = useState(null);
   const [L, setL] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const createVehicleIcon = React.useCallback((status, isSelected = false) => {
+    if (!L) return null;
+    const colors = {
+      'En tránsito': '#1E90FF',
+      'Pendiente': '#F59E0B',
+      'Entregado': '#10B981',
+      'Retrasado': '#EF4444'
+    };
+    const color = colors[status] || '#6B7280';
+    const size = isSelected ? 36 : 32;
+    return L.divIcon({
+      html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        <svg width="${size-12}" height="${size-12}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="12" cy="12" r="3" fill="white"/>
+        </svg>
+      </div>`,
+      className: 'custom-vehicle-marker',
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+      popupAnchor: [0, -size/2]
+    });
+  }, [L]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -26,20 +50,29 @@ const LazyMap = ({ center, zoom, children, ...props }) => {
       import('leaflet/dist/leaflet.css')
     ]).then(([leafletModule, reactLeafletModule]) => {
       if (!isMounted) return;
-      const L = leafletModule.default;
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-      });
-      setL(L);
-      setLeafletComponents(reactLeafletModule);
-    }).catch(err => console.error('Error cargando Leaflet:', err));
+      try {
+        const L = leafletModule.default;
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        });
+        setL(L);
+        setLeafletComponents(reactLeafletModule);
+        setIsLoading(false);
+      } catch (e) {
+        console.error('Error configuring Leaflet:', e);
+        setIsLoading(false);
+      }
+    }).catch(err => {
+      console.error('Error cargando Leaflet:', err);
+      setIsLoading(false);
+    });
     return () => { isMounted = false; };
   }, []);
 
-  if (!LeafletComponents || !L) {
+  if (isLoading || !LeafletComponents || !L) {
     return (
       <div className="h-full w-full bg-[#0B1E3A] rounded-xl flex items-center justify-center text-[#AFC8E6]">
         <div className="text-center">
@@ -52,58 +85,36 @@ const LazyMap = ({ center, zoom, children, ...props }) => {
 
   const { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap } = LeafletComponents;
 
-  const MapUpdater = ({ center }) => {
+  const MapUpdater = () => {
     const map = useMap();
     useEffect(() => {
-      if (center && map) map.setView([center.lat, center.lng], 12);
-    }, [center, map]);
+      if (center && map) {
+        try {
+          map.setView([center.lat, center.lng], zoom || 6);
+        } catch (e) {
+          console.error('Error setting view:', e);
+        }
+      }
+    }, [center, map, zoom]);
     return null;
   };
 
-  const createVehicleIcon = (status, isSelected = false) => {
-    const colors = {
-      'En tránsito': '#1E90FF',
-      'Pendiente': '#F59E0B',
-      'Entregado': '#10B981',
-      'Retrasado': '#EF4444'
-    };
-    const color = colors[status] || '#6B7280';
-    const size = isSelected ? 36 : 32;
-    return L.divIcon({
-      html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); transition: all 0.3s ease;">
-        <svg width="${size-12}" height="${size-12}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M12 2L12 6M12 18L12 22M4 12L2 12M22 12L20 12M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07" stroke="white" stroke-width="1.5"/>
-          <circle cx="12" cy="12" r="3" fill="white" stroke="white"/>
-          <path d="M12 9V12L14 14" stroke="white" stroke-width="1.5"/>
-        </svg>
-      </div>`,
-      className: 'custom-vehicle-marker',
-      iconSize: [size, size],
-      iconAnchor: [size/2, size/2],
-      popupAnchor: [0, -size/2]
-    });
-  };
-
-  const renderChildren = () => {
-    if (typeof children === 'function') {
-      return children({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon });
-    }
-    return children;
-  };
+  const content = typeof mapContent === 'function' ? mapContent({ createVehicleIcon }) : mapContent;
 
   return (
     <MapContainer
       center={[center.lat, center.lng]}
       zoom={zoom}
       style={{ height: '100%', width: '100%', background: '#0B1E3A' }}
+      zoomControl={false}
       {...props}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
-      <MapUpdater center={center} />
-      {renderChildren()}
+      <MapUpdater />
+      {content}
     </MapContainer>
   );
 };
@@ -489,9 +500,9 @@ const Logistic = () => {
   };
 
   // ==================== EXPORTAR A EXCEL/CSV ====================
-  const exportToCSV = useCallback(() => {
+  const exportToCSV = useCallback((shipmentsToExport) => {
     const headers = ['ID', 'Cliente', 'Producto', 'Cantidad', 'Fecha', 'Estado', 'Destino', 'Conductor', 'Retraso (min)'];
-    const rows = filteredShipments.map(s => [
+    const rows = shipmentsToExport.map(s => [
       s.id,
       s.customer,
       s.product,
@@ -514,7 +525,7 @@ const Logistic = () => {
     link.download = `envios_neumatiq_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     showNotification('✅ Envíos exportados a CSV', 'success');
-  }, [filteredShipments]);
+  }, []);
 
   const exportHistoryToCSV = useCallback(() => {
     const headers = ['Fecha', 'Tipo', 'Producto', 'Cantidad', 'Destino/Origen', 'Usuario', 'Estado'];
@@ -814,7 +825,7 @@ const Logistic = () => {
                   </button>
                 ))}
                 <button
-                  onClick={exportToCSV}
+                  onClick={() => exportToCSV(filteredShipments)}
                   className="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all flex items-center gap-1"
                 >
                   <FileSpreadsheet className="w-3 h-3" />
@@ -1059,11 +1070,10 @@ const Logistic = () => {
               </div>
               
               <div className="h-[500px] relative">
-                <LazyMap center={mapCenter} zoom={6} zoomControl={false}>
-                  {({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
-                    <>
-                      {/* Mostrar rutas */}
-                      {showRoutesPanel && shipments.filter(s => s.status === 'En tránsito' && s.route).map(ship => (
+                <LazyMap center={mapCenter} zoom={6} mapContent={({ createVehicleIcon }) => (
+                  <>
+                    {shipments.filter(s => s.status === 'En tránsito' && s.route).map(ship => (
+                      showRoutesPanel && (
                         <Polyline
                           key={`route-${ship.id}`}
                           positions={ship.route.map(p => [p.lat, p.lng])}
@@ -1072,56 +1082,52 @@ const Logistic = () => {
                           opacity={0.6}
                           dashArray="5, 10"
                         />
-                      ))}
-                      
-                      {/* Mostrar vehículos en movimiento */}
-                      {shipments.filter(s => s.status === 'En tránsito').map(ship => (
-                        <Marker
-                          key={ship.id}
-                          position={[ship.currentLocation.lat, ship.currentLocation.lng]}
-                          icon={createVehicleIcon(ship.status, selectedVehicle === ship.id)}
-                          eventHandlers={{
-                            click: () => setSelectedVehicle(selectedVehicle === ship.id ? null : ship.id)
-                          }}
+                      )
+                    ))}
+                    {shipments.filter(s => s.status === 'En tránsito').map(ship => (
+                      <Marker
+                        key={ship.id}
+                        position={[ship.currentLocation.lat, ship.currentLocation.lng]}
+                        icon={createVehicleIcon(ship.status, selectedVehicle === ship.id)}
+                        eventHandlers={{
+                          click: () => setSelectedVehicle(selectedVehicle === ship.id ? null : ship.id)
+                        }}
+                      >
+                        <Popup>
+                          <div className="text-sm">
+                            <p className="font-bold text-[#1E90FF]">{ship.id}</p>
+                            <p>{ship.driver}</p>
+                            <p>{ship.destination}</p>
+                            <p>{ship.product} x{ship.quantity}</p>
+                            <p>Progreso: {Math.round(ship.currentLocation.progress * 100)}%</p>
+                            <p>{ship.speed} km/h</p>
+<p>Combustible: {ship.fuel}%</p>
+                          {ship.delay > 0 && <p className="text-red-400">Retraso: {ship.delay} min</p>}
+                        </div>
+                        </Popup>
+                      </Marker>
+                    ))}
+                    {showRoutesPanel && [...new Set(shipments.map(s => s.destination))].map(dest => {
+                      const loc = locations[dest];
+                      if (!loc) return null;
+                      return (
+                        <CircleMarker
+                          key={`dest-${dest}`}
+                          center={[loc.lat, loc.lng]}
+                          radius={8}
+                          fillColor="#10B981"
+                          color="#fff"
+                          weight={2}
+                          opacity={1}
+                          fillOpacity={0.8}
                         >
-                          <Popup>
-                            <div className="text-sm">
-                              <p className="font-bold text-[#1E90FF]">{ship.id}</p>
-                              <p>🚛 {ship.driver}</p>
-                              <p>📍 {ship.destination}</p>
-                              <p>📦 {ship.product} x{ship.quantity}</p>
-                              <p>📊 Progreso: {Math.round(ship.currentLocation.progress * 100)}%</p>
-                              <p>⚡ Velocidad: {ship.speed} km/h</p>
-                              <p>⛽ Combustible: {ship.fuel}%</p>
-                              {ship.delay > 0 && <p className="text-red-400">⚠️ Retraso: {ship.delay} min</p>}
-                            </div>
-                          </Popup>
-                        </Marker>
-                      ))}
-                      
-                      {/* Mostrar destinos */}
-                      {showRoutesPanel && [...new Set(shipments.map(s => s.destination))].map(dest => {
-                        const loc = locations[dest];
-                        if (!loc) return null;
-                        return (
-                          <CircleMarker
-                            key={`dest-${dest}`}
-                            center={[loc.lat, loc.lng]}
-                            radius={8}
-                            fillColor="#10B981"
-                            color="#fff"
-                            weight={2}
-                            opacity={1}
-                            fillOpacity={0.8}
-                          >
-                            <Popup>{loc.name}</Popup>
-                          </CircleMarker>
-                        );
-                      })}
-                    </>
-                  )}
-                </LazyMap>
-              </div>
+                          <Popup>{loc.name}</Popup>
+                        </CircleMarker>
+                      );
+                    })}
+                  </>
+                )} />
+            </div>
               
               {/* Leyenda */}
               <div className="p-3 border-t border-[#1E90FF]/20 flex flex-wrap gap-4 text-xs">
@@ -1572,14 +1578,13 @@ const Logistic = () => {
                   </button>
                 </div>
                 <div className="h-96 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl relative overflow-hidden">
-                  <LazyMap center={selectedShipment.currentLocation} zoom={10} zoomControl={true}>
-                    {({ Marker, Popup, Polyline, CircleMarker, createVehicleIcon }) => (
-                      <>
-                        {selectedShipment.route && (
-                          <Polyline
-                            positions={selectedShipment.route.map(p => [p.lat, p.lng])}
-                            color="#1E90FF"
-                            weight={4}
+                  <LazyMap center={selectedShipment.currentLocation} zoom={10} mapContent={({ createVehicleIcon }) => (
+                    <>
+                      {selectedShipment.route && (
+                        <Polyline
+                          positions={selectedShipment.route.map(p => [p.lat, p.lng])}
+                          color="#1E90FF"
+                          weight={4}
                             opacity={0.8}
                           />
                         )}
@@ -1597,18 +1602,17 @@ const Logistic = () => {
                         </Marker>
                         {selectedShipment.route && selectedShipment.route[1] && (
                           <CircleMarker
-                            center={[selectedShipment.route[1].lat, selectedShipment.route[1].lng]}
-                            radius={8}
-                            fillColor="#10B981"
-                            color="#fff"
-                            weight={2}
-                          >
-                            <Popup>Destino: {selectedShipment.destination}</Popup>
-                          </CircleMarker>
-                        )}
-                      </>
-                    )}
-                  </LazyMap>
+                          center={[selectedShipment.route[1].lat, selectedShipment.route[1].lng]}
+                          radius={8}
+                          fillColor="#10B981"
+                          color="#fff"
+                          weight={2}
+                        >
+                          <Popup>Destino: {selectedShipment.destination}</Popup>
+                        </CircleMarker>
+                      )}
+                    </>
+                  )} />
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                   <div className="bg-[#0B1E3A]/60 rounded-lg p-2">
