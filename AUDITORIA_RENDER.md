@@ -12,11 +12,14 @@
 | Aspecto | Estado | Notas |
 |---------|--------|-------|
 | Stack tecnológico | ✅ Listo | FastAPI + React + SQLite |
-| Frontend estático | ✅ Listo | Build pre-compilado en /static |
+| Frontend build | ✅ Listo | Build en `frontend/dist/` (2026-04-16) |
+| Frontend static | ✅ Listo | Sirve desde `/static` → `frontend/dist/` |
 | API REST | ✅ Listo | Endpoints funcionando |
-| Base de datos | ⚠️ SQLite |rw SQLite, problema en Render (se reinicia) |
+| Base de datos | ⚠️ SQLite | SQLite, problema en Render (se reinicia) |
 | Autenticación | ✅ Listo | JWT + bcrypt |
 | Scraping | ⚠️ Mock | Modo mock por defecto |
+| Docker | ✅ Listo | Dockerfile presente |
+| Deploy auto | ✅ Configurado | render.yaml con SubMain |
 
 ---
 
@@ -128,11 +131,11 @@ GProA_CHValueGrowth/
 └── LICENSE
 ```
 
-**Archivos removidos tras limpieza:**
-- ❌ Dockerfile (no necesario para Render)
-- ❌ Dockerfile.worker
-- ❌ node_modules/ (no incluir en repo)
-- ❌ venv/ (no incluir en repo)
+**Archivos presentes:**
+- ✅ Dockerfile (usa Python + sirve frontend/dist/)
+- ✅ Dockerfile.worker
+- ✅ node_modules/ (local solo, no en repo)
+- ✅ venv/ (local solo, no en repo)
 
 ---
 
@@ -352,13 +355,14 @@ El scraper está en `services/scrapers/mercadolibre/`:
 
 ## 12. Próximos Pasos
 
-| # | Tarea | Prioridad |
-|---|------|----------|
-| 1 | Crear render.yaml | Alta |
-| 2 | Configurar PostgreSQL | Media |
-| 3 | Configurar Variables de Entorno | Alta |
-| 4 |测试 Deployment | Alta |
-| 5 | Implementar scheduler real | Baja |
+| # | Tarea | Prioridad | Estado |
+|---|------|----------|--------|
+| 1 | Crear render.yaml | Alta | ✅ Hecho |
+| 2 | Frontend build | Alta | ✅ Hecho |
+| 3 | Deploy a Render | Alta | ⏳ Pendiente |
+| 4 |测试 Deployment | Alta | ⏳ Pendiente |
+| 5 | Configurar PostgreSQL | Media | ⏳ Pendiente |
+| 6 | Implementar scheduler real | Baja | ⏳ Pendiente |
 
 ---
 
@@ -408,15 +412,84 @@ cd frontend
 npm run build   # Output: frontend/dist/
 ```
 
+### 2026-04-16 - Frontend Build Actualizado
+
+**Cambios realizados:**
+1. ✅ Frontend build completado (`npm run build`)
+2. ✅ `frontend/dist/` generado con todos los assets
+3. ✅ Pantalla blanca resuelto - ahora muestra la UI completa
+
+**Estado actual del dist/:**
+```
+frontend/dist/
+├── index.html
+├── assets/
+│   ├── index-*.css          (74.90 kB)
+│   ├── index-*.js          (324.54 kB)
+│   ├── Dashboard-*.js       (51.62 kB)
+│   ├── Products-*.js       (28.88 kB)
+│   ├── Analytics-*.js     (441.30 kB)
+│   └── [más archivos]
+├── manifest.json
+└── favicon.svg
+```
+
+**Archivos importantes en raíz:**
+- ✅ `Dockerfile` EXISTE (sirve para build en Docker)
+- ✅ `render.yaml` 配置 config Render
+- ✅ `requirements.txt` dependencias Python
+
 ---
 
-## 16. Conclusión
+## 16. Estado Actual del Proyecto
 
-El proyecto está **listo para deployment** con las siguientes consideraciones:
+| Componente | Estado | Notas |
+|------------|--------|-------|
+| Frontend build | ✅ Listo | `frontend/dist/` existe y completo |
+| backend API | ✅ Listo | FastAPI con auth JWT |
+| Base de datos | ⚠️ SQLite | Se resetea en Free tier |
+| Scraper | ⚠️ Modo mock | Por defecto |
+| Docker | ✅ Listo | Dockerfile配置 completa |
+| Deploy auto | ✅ Configurado | render.yaml con SubMain branch |
 
-1. **Frontend**: ✅ Compilado y served por FastAPI desde `frontend/dist/`
-2. **Backend**: ✅ API funcional con autenticación
-3. **Base de datos**: ⚠️ SQLite se resetea en Free tier
+### Checklist de Deployment (Actualizado 2026-04-16)
+
+- [x] Python 3.13+ verificado
+- [x] Dependencias en requirements.txt
+- [x] Frontend compilado en `frontend/dist/`
+- [x] FastAPI sirve static files desde `frontend/dist/`
+- [x] Docker compose/configurado
+- [x] Health check responde
+- [ ] Variables de entorno configuradas en Render
+- [ ] PostgreSQL configurado (opcional)
+
+### Deployment Workflow
+
+```
+1. Desarrollo local:
+   cd frontend && npm run build
+   
+2. Commit + Push:
+   git add .
+   git commit -m "frontend build updated"
+   git push origin SubMain
+
+3. Render (auto-deploy):
+   - Detecta push a SubMain
+   - Ejecuta buildCommand
+   - Reinicia servicio
+```
+
+---
+
+## 17. Conclusión
+
+El proyecto está **listo para deployment**:
+
+1. **Frontend**: ✅ Compilado (justo hoy) y sirve desde `frontend/dist/`
+2. **Backend**: ✅ API funcional con autenticación JWT
+3. **Base de datos**: ⚠️ SQLite se resetea en Free tier de Render
 4. **Scraper**: ⚠️ Modo mock por defecto
+5. **Docker**: ✅ Configuración presente
 
-**Recomendación principal:** Usar PostgreSQL para persistencia en producción y actualizar credenciales JWT antes del deployment.
+**Nota importante**: El build del frontend debe hacerse localmente antes de cada push, o agregar el build al Dockerfile de Render.

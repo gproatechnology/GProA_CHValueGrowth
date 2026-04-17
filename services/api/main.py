@@ -44,7 +44,8 @@ def health():
 def serve_assets(path: str):
     file_path_full = DIST_DIR / "assets" / path
     if file_path_full.exists() and file_path_full.is_file():
-        return FileResponse(str(file_path_full), media_type="application/javascript")
+        media_type = "application/javascript" if path.endswith(".js") else "text/css" if path.endswith(".css") else "application/octet-stream"
+        return FileResponse(str(file_path_full), media_type=media_type)
     return Response(f"Asset not found: {path} (looking in {file_path_full})", status_code=404)
 
 
@@ -52,7 +53,16 @@ def serve_assets(path: str):
 def serve_static(path: str):
     file_path_full = DIST_DIR / path
     if file_path_full.exists() and file_path_full.is_file():
-        return FileResponse(str(file_path_full))
+        media_type = "application/javascript" if path.endswith(".js") else "text/css" if path.endswith(".css") else "image/svg+xml" if path.endswith(".svg") else "application/octet-stream"
+        return FileResponse(str(file_path_full), media_type=media_type)
+    return Response(status_code=404)
+
+
+@app.get("/favicon.svg")
+def serve_favicon():
+    favicon_path = DIST_DIR / "favicon.svg"
+    if favicon_path.exists():
+        return FileResponse(str(favicon_path), media_type="image/svg+xml")
     return Response(status_code=404)
 
 
