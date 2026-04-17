@@ -33,7 +33,7 @@ const NewHeader = ({ onLogout }) => {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/20 overflow-hidden">
-            <img src="/assets/Heredia_logo_circular.png" alt="Usuario" className="w-full h-full object-contain rounded-full" />
+            <img src="/assets/Logo_de_NeumatiQ-.png" alt="Usuario" className="w-full h-full object-contain rounded-full" />
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-2">
