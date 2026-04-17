@@ -12,7 +12,7 @@ import {
   TrendingUp, AlertCircle, Globe, Save, Bookmark, Download, Grid3x3, List, 
   ArrowUpDown, Clock as ClockIcon, Award, Calendar, Sun, Truck, CloudRain,
   Info, ShoppingCart, Plus, Minus, PanelLeftClose, PanelLeftOpen, Eye, Activity,
-  TrendingDown, ChevronRight
+  TrendingDown, ChevronRight, Database, RefreshCw
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -28,6 +28,8 @@ import {
     ArcElement
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import { useMetrics, useProductStats } from '../hooks/useApi';
+import { LoadingSpinner, ErrorDisplay } from '../components/LoadingSpinner';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
@@ -943,6 +945,58 @@ const Dashboard = () => {
                 <AnimatePresence>{selectedTire && (<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setSelectedTire(null)}><div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl max-w-md w-full p-5" onClick={(e) => e.stopPropagation()}><div className="flex justify-between"><div className="flex gap-3"><img src={selectedTire.logo} className="w-12 h-12 object-contain" /><div><h3 className="font-bold text-[#EAF3FF]">{selectedTire.brand}</h3><p className="text-sm text-[#1E90FF]">{selectedTire.model} {selectedTire.size}</p></div></div><button onClick={() => setSelectedTire(null)}><X /></button></div><div className="grid grid-cols-2 gap-2 mt-4"><div>Precio: <span className="font-bold text-[#1E90FF]">{selectedTire.currency}{selectedTire.price}</span></div><div>Stock: {selectedTire.stock}</div><div>Demanda: {selectedTire.demand}%</div><div>Margen: {selectedTire.margin}%</div></div><div className="flex gap-2 mt-4"><button className="flex-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-lg">Agregar al carrito</button><button className="px-3 py-2 bg-[#0B1E3A]/80 rounded-lg border border-[#1E90FF]/30" onClick={() => addToComparison(selectedTire)}>Comparar</button></div></div></div>)}</AnimatePresence>
                 <AnimatePresence>{showAllBrandsModal && <AllBrandsModal brands={brandStats} onClose={() => setShowAllBrandsModal(false)} onSelectBrand={handleSelectBrand} />}</AnimatePresence>
                 <ComparisonPanel items={comparisonList} onRemove={removeFromComparison} onClear={clearComparison} />
+
+            {/* API Metrics Section */}
+            <APIMetricsSection />
+            </div>
+        </div>
+    );
+};
+
+const APIMetricsSection = () => {
+    const { data: metrics, isLoading, error, refetch } = useMetrics();
+    const { data: stats } = useProductStats();
+    
+    if (isLoading) return <LoadingSpinner text="Cargando métricas..." />;
+    if (error) return <ErrorDisplay error={error} onRetry={refetch} />;
+    
+    return (
+        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <Database className="w-5 h-5 text-[#1E90FF]" />
+                    <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
+                </div>
+                <button onClick={() => refetch()} className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
+                    <RefreshCw className="w-4 h-4" />
+                </button>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                    <p className="text-xs text-[#AFC8E6]">Productos DB</p>
+                    <p className="text-2xl font-bold text-[#1E90FF]">
+                        {metrics?.database?.total_products || 0}
+                    </p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                    <p className="text-xs text-[#AFC8E6]">Precio Mín</p>
+                    <p className="text-2xl font-bold text-emerald-400">
+                        ${stats?.stats?.min_price || 0}
+                    </p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                    <p className="text-xs text-[#AFC8E6]">Precio Máx</p>
+                    <p className="text-2xl font-bold text-amber-400">
+                        ${stats?.stats?.max_price || 0}
+                    </p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                    <p className="text-xs text-[#AFC8E6]">Precio Prom</p>
+                    <p className="text-2xl font-bold text-[#AFC8E6]">
+                        ${stats?.stats?.avg_price || 0}
+                    </p>
+                </div>
             </div>
         </div>
     );

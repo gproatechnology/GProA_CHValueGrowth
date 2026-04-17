@@ -81,7 +81,7 @@
 
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
-| Conectar Dashboard con API | 🔴 Pendiente | Alta | 2h |
+| Conectar Dashboard con API | ✅ Completado | Alta | 2h |
 | Conectar Products con API | ✅ Completado | Alta | 2h |
 | Conectar Orders con API | ✅ Completado | Alta | 2h |
 | Conectar Customers con API | ✅ Completado | Alta | 2h |
@@ -90,17 +90,17 @@
 **Objetivo:** Frontend consume API real.
 
 **Criteria de Done:**
-- ✅ Datos se cargan desde backend (Products, Orders, Customers)
-- ✅ Crear/Editar/Eliminar funciona (tablas conectadas)
-- ✅ Refresco automático después de mutaciones
+- ✅ Datos se cargan desde backend (todas las páginas)
+- ✅ Crear/Editar/Eliminar funciona
+- ✅ Refresco automático
 
 **Archivos modificados:**
+- `Dashboard.jsx` - + APIMetricsSection
 - `Products.jsx` - + ProductsTable
-- `Orders.jsx` + OrdersTable
-- `Customers.jsx` + CustomersTable
-- `Dashboard.jsx` - Pendiente
+- `Orders.jsx` - + OrdersTable
+- `Customers.jsx` - + CustomersTable
 
-**Nota:** Sprint 4 ~80% completo. Faltan Dashboard y Settings.
+**Nota:** Sprint 4 ~95% completo (solo falta Settings)
 
 ---
 
