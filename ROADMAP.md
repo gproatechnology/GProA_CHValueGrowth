@@ -115,7 +115,7 @@
 | Implementar scraper MercadoLibre | ✅ Completado | Alta | 8h |
 | Normalización de datos | ✅ Completado | Alta | 4h |
 | Scheduler (cron) | ✅ Completado | Alta | 4h |
-| Alertas de precio | 🔴 Pendiente | Media | 2h |
+| Alertas de precio | ✅ Completado | Media | 2h |
 
 **Objetivo:** Scraping automático.
 
@@ -124,11 +124,14 @@
 - ✅ Scraper implementado y funcional
 - ✅ Normalización de datos incluida
 - ✅ Scheduler creado (services/scraper_scheduler.py)
-- ⏳ Alertas de precio pendientes
+- ✅ Alertas de precio (services/price_alerts.py)
 
 **Archivos modificados/creados:**
 - `services/scrapers/mercadolibre/scraper.py` - MOCK_MODE default false
 - `services/scraper_scheduler.py` - Scheduler automático
+- `services/price_alerts.py` - Sistema de alertas
+
+**Nota:** Sprint 5 100% completo ✅
 
 ---
 
