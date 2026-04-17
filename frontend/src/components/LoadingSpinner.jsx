@@ -8,6 +8,12 @@ export const LoadingSpinner = ({ size = 'md', text = 'Cargando...', className = 
     lg: 'w-16 h-16',
   };
 
+  const iconSizes = {
+    sm: 24,
+    md: 40,
+    lg: 64,
+  };
+
   const textSizes = {
     sm: 'text-xs',
     md: 'text-sm',
@@ -18,7 +24,7 @@ export const LoadingSpinner = ({ size = 'md', text = 'Cargando...', className = 
     <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
       <div className="relative">
         <div className={`${sizes[size]} border-4 border-[#1E90FF]/30 border-t-[#1E90FF] rounded-full animate-spin`}>
-          <Loader2 className="w-full h-full text-[#1E90FF] animate-spin" size={sizes[size]} />
+          <Loader2 className="w-full h-full text-[#1E90FF] animate-spin" size={iconSizes[size]} />
         </div>
       </div>
       {text && <p className={`text-[#AFC8E6] ${textSizes[size]} font-medium`}>{text}</p>}
