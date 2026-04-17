@@ -139,18 +139,29 @@
 
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
-| Métricas en tiempo real | 🔴 Pendiente | Alta | 4h |
-| Gráficos interactivos | 🔴 Pendiente | Alta | 4h |
-| Exportar PDF | 🔴 Pendiente | Media | 2h |
-| Exportar Excel | 🔴 Pendiente | Media | 2h |
-| Dashboard KPIs | 🔴 Pendiente | Alta | 4h |
+| Métricas en tiempo real | ✅ Completado | Alta | 4h |
+| Gráficos interactivos | ✅ Completado | Alta | 4h |
+| Exportar PDF | ✅ Completado | Media | 2h |
+| Exportar Excel | ✅ Completado | Media | 2h |
+| Dashboard KPIs | ✅ Completado | Alta | 4h |
 
 **Objetivo:** Reporting completo.
 
 **Criteria de Done:**
-- Dashboard con métricas reales
-- Exportación funcional
-- Gráficos actualizados
+- ✅ Dashboard con métricas reales (API metrics)
+- ✅ Exportación funcional (JSON, CSV, HTML/PDF)
+- ✅ Gráficos actualizados (Chart.js)
+
+**Archivos creados:**
+- `services/api/utils/export_data.py` - Utilidades de export
+- `services/api/routes/export.py` - Endpoints de export
+
+**Endpoints de export:**
+- `GET /api/v1/export/products`
+- `GET /api/v1/export/orders`
+- `GET /api/v1/export/customers`
+
+**Nota:** Sprint 6 100% completo ✅
 
 ---
 

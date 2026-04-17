@@ -12,6 +12,7 @@ load_dotenv()
 from services.api.routes.products import router as products_router
 from services.api.routes.auth import router as auth_router
 from services.api.routes.orders import router as orders_router
+from services.api.routes.export import router as export_router
 
 app = FastAPI(title="NeumatiQ API")
 
@@ -86,6 +87,7 @@ def serve_frontend(path: str):
 app.include_router(products_router)
 app.include_router(auth_router)
 app.include_router(orders_router)
+app.include_router(export_router)
 
 if DIST_DIR.exists():
     app.mount("/", StaticFiles(directory=str(DIST_DIR), html=True), name="static")
