@@ -10,3 +10,5 @@ gunicorn
 passlib[bcrypt]>=1.7.4
 redis>=4.5.0
 python-jose[cryptography]>=3.3.0
+pydantic[email]>=2.0.0
+email-validator>=2.0.0
