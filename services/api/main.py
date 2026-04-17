@@ -84,3 +84,6 @@ def serve_frontend(path: str):
 
 app.include_router(products_router)
 app.include_router(auth_router)
+
+if DIST_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(DIST_DIR), html=True), name="static")
