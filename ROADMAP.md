@@ -100,7 +100,7 @@
 - `Orders.jsx` - + OrdersTable
 - `Customers.jsx` - + CustomersTable
 
-**Nota:** Sprint 4 ~95% completo (solo falta Settings)
+**Nota:** Sprint 4 95% completo. Faltan Settings yForms CRUD.
 
 ---
 
