@@ -23,8 +23,9 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
-DIST_DIR = FRONTEND_DIR / "dist"
+_local_dist = BASE_DIR / "frontend" / "dist"
+_docker_dist = Path("/app/frontend/dist")
+DIST_DIR = _docker_dist if _docker_dist.exists() else _local_dist
 
 
 @app.get("/health")
@@ -34,6 +35,8 @@ def health():
         "service": "api",
         "project": "NeumatiQ",
         "version": "1.0.0",
+        "dist_path": str(DIST_DIR),
+        "dist_exists": DIST_DIR.exists(),
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
 
@@ -43,7 +46,7 @@ def serve_assets(path: str):
     file_path_full = DIST_DIR / "assets" / path
     if file_path_full.exists() and file_path_full.is_file():
         return FileResponse(str(file_path_full), media_type="application/javascript")
-    return Response(status_code=404)
+    return Response(f"Asset not found: {path} (looking in {file_path_full})", status_code=404)
 
 
 @app.get("/static/{path:path}")
