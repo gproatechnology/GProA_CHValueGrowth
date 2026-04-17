@@ -8,6 +8,8 @@ import {
     LogOut, History, Clock, FileText, Printer, ExternalLink,
     Plus, Minus, Copy, Eye, EyeOff, X, AlertTriangle
 } from 'lucide-react';
+import { useCurrentUser } from '../hooks/useApi';
+import { LoadingSpinner, ErrorDisplay } from '../components/LoadingSpinner';
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState('profile');
@@ -1090,6 +1092,8 @@ const Settings = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <SettingsAPISection />
         </div>
     );
 };
@@ -1126,5 +1130,51 @@ const Package = ({ className }) => (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
     </svg>
 );
+
+const SettingsAPISection = () => {
+    const { data: user, isLoading, error, refetch } = useCurrentUser();
+    
+    if (isLoading) return <LoadingSpinner text="Cargando usuario..." />;
+    if (error) return <ErrorDisplay error={error} onRetry={refetch} />;
+    
+    return (
+        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <Database className="w-5 h-5 text-[#1E90FF]" />
+                    <h3 className="text-lg font-semibold text-[#EAF3FF]">Datos de Usuario (API)</h3>
+                </div>
+                <button onClick={() => refetch()} className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
+                    <RefreshCw className="w-4 h-4" />
+                </button>
+            </div>
+            
+            {user?.data ? (
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-xs text-[#AFC8E6]">Usuario</p>
+                            <p className="font-medium text-[#EAF3FF]">{user.data.username || user.data.name}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-[#AFC8E6]">Email</p>
+                            <p className="font-medium text-[#EAF3FF]">{user.data.email || '-'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-[#AFC8E6]">Rol</p>
+                            <p className="font-medium text-[#1E90FF]">{user.data.role || 'user'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-[#AFC8E6]">Estado</p>
+                            <p className="font-medium text-emerald-400">{user.data.is_active ? 'Activo' : 'Inactivo'}</p>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <p className="text-[#AFC8E6]">No hay datos de usuario. Inicia sesión.</p>
+            )}
+        </div>
+    );
+};
 
 export default Settings;

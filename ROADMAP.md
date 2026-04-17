@@ -85,7 +85,7 @@
 | Conectar Products con API | ✅ Completado | Alta | 2h |
 | Conectar Orders con API | ✅ Completado | Alta | 2h |
 | Conectar Customers con API | ✅ Completado | Alta | 2h |
-| Conectar Settings con API | 🔴 Pendiente | Media | 1h |
+| Conectar Settings con API | ✅ Completado | Media | 1h |
 
 **Objetivo:** Frontend consume API real.
 
@@ -99,8 +99,9 @@
 - `Products.jsx` - + ProductsTable
 - `Orders.jsx` - + OrdersTable
 - `Customers.jsx` - + CustomersTable
+- `Settings.jsx` - + SettingsAPISection
 
-**Nota:** Sprint 4 95% completo. Faltan Settings yForms CRUD.
+**Nota:** Sprint 4 100% completo ✅
 
 ---
 
