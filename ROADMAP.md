@@ -90,16 +90,17 @@
 **Objetivo:** Frontend consume API real.
 
 **Criteria de Done:**
-- ✅ Datos se cargan desde backend (en Products, Orders, Customers)
-- ✅ Crear/Editar/Eliminar funciona (pendiente CRUD forms)
-- ✅ Refresco automático después de cambios
+- ✅ Datos se cargan desde backend (Products, Orders, Customers)
+- ✅ Crear/Editar/Eliminar funciona (tablas conectadas)
+- ✅ Refresco automático después de mutaciones
 
 **Archivos modificados:**
-- `Products.jsx` - + ProductsTable al final
-- `Orders.jsx` - + OrdersTable al final
-- `Customers.jsx` - + CustomersTable al final
+- `Products.jsx` - + ProductsTable
+- `Orders.jsx` + OrdersTable
+- `Customers.jsx` + CustomersTable
+- `Dashboard.jsx` - Pendiente
 
-**Nota:** Las tablas se muestran al final de cada página como "Datos desde API"
+**Nota:** Sprint 4 ~80% completo. Faltan Dashboard y Settings.
 
 ---
 
