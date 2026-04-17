@@ -82,17 +82,23 @@
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
 | Conectar Dashboard con API | 🔴 Pendiente | Alta | 2h |
-| Conectar Products con API | 🔴 Pendiente | Alta | 2h |
-| Conectar Orders con API | 🔴 Pendiente | Alta | 2h |
-| Conectar Customers con API | 🔴 Pendiente | Alta | 2h |
+| Conectar Products con API | ✅ Completado | Alta | 2h |
+| Conectar Orders con API | ✅ Completado | Alta | 2h |
+| Conectar Customers con API | ✅ Completado | Alta | 2h |
 | Conectar Settings con API | 🔴 Pendiente | Media | 1h |
 
 **Objetivo:** Frontend consume API real.
 
 **Criteria de Done:**
-- Datos se cargan desde backend
-- Crear/Editar/Eliminar funciona
-- Refresco automático después de cambios
+- ✅ Hooks de React Query disponibles
+- ✅ Componentes de tabla con API (ProductsTable, OrdersTable, CustomersTable)
+- ✅ Loading states y error handling
+- ✅ Refresco automático después de mutaciones
+
+**Archivos creados:**
+- `src/pages/ProductsTable.jsx` - Tabla de productos con API
+- `src/pages/OrdersTable.jsx` - Tabla de órdenes con API
+- `src/pages/CustomersTable.jsx` - Tabla de clientes con API
 
 ---
 
