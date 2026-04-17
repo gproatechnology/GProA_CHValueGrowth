@@ -7,7 +7,7 @@ import {
     ChevronRight, X, Download, RefreshCw, MoreVertical,
     CheckCircle, AlertCircle, Building, User, BarChart3,
     Activity, Target, Zap, Heart, Shield, Sparkles, Eye,
-    Edit, Trash2, Send, Printer, PieChart, LineChart, Save
+    Edit, Trash2, Send, Printer, PieChart, LineChart, Save, Database
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -23,6 +23,7 @@ import {
     ArcElement
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import CustomersTable from './CustomersTable';
 
 ChartJS.register(
     CategoryScale,
@@ -1111,6 +1112,15 @@ const Customers = () => {
             <AnimatePresence>
                 {showNewCustomerModal && <NewCustomerModal isOpen={showNewCustomerModal} onClose={() => setShowNewCustomerModal(false)} onAddCustomer={addCustomer} />}
             </AnimatePresence>
+
+        {/* API Data Table Section */}
+        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
+            <div className="flex items-center gap-2 mb-4">
+                <Database className="w-5 h-5 text-[#1E90FF]" />
+                <h3 className="text-lg font-semibold text-[#EAF3FF]">Datos desde API</h3>
+            </div>
+            <CustomersTable />
+        </div>
         </div>
     );
 };

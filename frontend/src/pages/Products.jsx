@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     TrendingUp, DollarSign, Package, Filter, Search, Eye, 
     ChevronUp, ChevronDown, Zap, Shield, Star, AlertCircle,
-    X, BarChart3, Info, Award, Flame, Clock, Server
+    X, BarChart3, Info, Award, Flame, Clock, Server, Database
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -19,6 +19,7 @@ import {
     ArcElement
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import ProductsTable from './ProductsTable';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
@@ -487,8 +488,17 @@ const Products = () => {
                 </motion.footer>
             </div>
 
-            <AnimatePresence>{selectedKPI && <KPIModal isOpen={!!selectedKPI} onClose={() => setSelectedKPI(null)} title={{ products: 'Productos Analizados', savings: 'Ahorro Total', avgSavings: 'Ahorro Promedio', avgPrice: 'Mejor Precio Promedio' }[selectedKPI]} data={kpiTrendData[selectedKPI]} />}</AnimatePresence>
-            <AnimatePresence>{selectedProduct && <ProductAnalysisModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}</AnimatePresence>
+<AnimatePresence>{selectedKPI && <KPIModal isOpen={!!selectedKPI} onClose={() => setSelectedKPI(null)} title={{ products: 'Productos Analizados', savings: 'Ahorro Total', avgSavings: 'Ahorro Promedio', avgPrice: 'Mejor Precio Promedio' }[selectedKPI]} data={kpiTrendData[selectedKPI]} />}</AnimatePresence>
+        <AnimatePresence>{selectedProduct && <ProductAnalysisModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}</AnimatePresence>
+
+        {/* API Data Table Section */}
+        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
+            <div className="flex items-center gap-2 mb-4">
+                <Database className="w-5 h-5 text-[#1E90FF]" />
+                <h3 className="text-lg font-semibold text-[#EAF3FF]">Datos desde API</h3>
+            </div>
+            <ProductsTable />
+        </div>
         </div>
     );
 };
