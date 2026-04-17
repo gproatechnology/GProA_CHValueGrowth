@@ -197,6 +197,8 @@ GProA_CHValueGrowth/
 
 ## 🚀 Roadmap (Sprints)
 
+> **Ver también:** [`ROADMAP.md`](ROADMAP.md) - Plan detallado de desarrollo por sprints
+
 | Sprint | Nombre              | Objetivo                            | Estado       |
 | ------ | ------------------- | ----------------------------------- | ------------ |
 | 1      | Base sólida         | API funcional con /health           | ✅ Completado |
@@ -206,6 +208,8 @@ GProA_CHValueGrowth/
 | 5      | Base de datos       | SQLite, CRUD                        | ✅ Completado |
 | 6      | Dashboard UI        | Dashboard HTML con Chart.js         | ✅ Completado |
 | 7      | Docker + Deployment | Contenedor para Render              | ✅ Completado |
+
+**Nuevo (2026-04-16):** Sprint 1 - Dependencias ✅ (leaflet agregado, build verificado)
 
 ---
 
