@@ -16,3 +16,5 @@ services:
         value: chvalue2026_secret_key_change_in_production
       - key: MOCK_MODE
         value: "true"
+      - key: RENDER
+        value: "true"

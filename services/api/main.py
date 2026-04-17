@@ -23,9 +23,8 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-_local_dist = BASE_DIR / "frontend" / "dist"
-_docker_dist = Path("/app/frontend/dist")
-DIST_DIR = _docker_dist if _docker_dist.exists() else _local_dist
+is_render = os.environ.get("RENDER") == "true"
+DIST_DIR = Path("/app/frontend/dist") if is_render else BASE_DIR / "frontend" / "dist"
 
 
 @app.get("/health")

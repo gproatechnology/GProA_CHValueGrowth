@@ -22,6 +22,7 @@ ENV PYTHON_VERSION=3.13
 ENV DATABASE_URL=sqlite:///chvaluegrowth.db
 ENV JWT_SECRET=chvalue2026_secret_key_change_in_production
 ENV MOCK_MODE=true
+ENV RENDER=true
 
 EXPOSE 10000
 
