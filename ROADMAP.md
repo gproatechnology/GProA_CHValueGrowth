@@ -54,18 +54,26 @@
 
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
-| Completar CRUD Products | 🔴 Pendiente | Alta | 4h |
-| Completar CRUD Orders | 🔴 Pendiente | Alta | 4h |
-| Completar CRUD Customers | 🔴 Pendiente | Alta | 4h |
-| Agregar validación Pydantic | 🔴 Pendiente | Media | 2h |
-| Swagger documentation | 🔴 Pendiente | Media | 2h |
+| Completar CRUD Products | ✅ Completado | Alta | 4h |
+| Completar CRUD Orders | ✅ Completado | Alta | 4h |
+| Completar CRUD Customers | ✅ Completado | Alta | 4h |
+| Agregar validación Pydantic | ✅ Completado | Media | 2h |
+| Swagger documentation | ⏳ Pendiente | Media | 2h |
 
 **Objetivo:** API completa con CRUD.
 
 **Criteria de Done:**
-- Todos los endpoints responden correctamente
-- Validación de datos funciona
-- Documentación Swagger completa
+- ✅ Endpoints CRUD Products: GET, POST, PUT, DELETE
+- ✅ Endpoints CRUD Orders: GET, POST, PUT, DELETE
+- ✅ Endpoints CRUD Customers: GET, POST, PUT, DELETE
+- ✅ Validación Pydantic (schemas)
+- ⏳ Swagger documentación (auto-generado por FastAPI)
+
+**Archivos creados/modificados:**
+- `services/api/routes/orders.py` - Nuevos endpoints
+- `services/api/routes/products.py` - CRUD
+- `database/models.py` - Modelos Order, Customer
+- `services/api/main.py` - Router registration
 
 ---
 

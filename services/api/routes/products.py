@@ -10,7 +10,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, List
-from database.config import init_db
+from pydantic import BaseModel, Field
+from database.config import init_db, get_session
+from database.models import Product
 from database.repository import ProductRepository
 from services.processor.metrics import get_pipeline_metrics, reset_metrics, _pipeline_metrics
 
@@ -293,3 +295,108 @@ def reset_metrics_endpoint() -> dict:
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+# --- Pydantic Schemas for Products ---
+class ProductCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=500)
+    brand: Optional[str] = Field(None, max_length=100)
+    size: Optional[str] = Field(None, max_length=50)
+    price: float = Field(..., ge=0)
+    currency: str = Field(default="MXN", max_length=10)
+    source: str = Field(default="mercadolibre", max_length=50)
+    url: Optional[str] = Field(None, max_length=1000)
+
+
+class ProductUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
+    brand: Optional[str] = Field(None, max_length=100)
+    size: Optional[str] = Field(None, max_length=50)
+    price: Optional[float] = Field(None, ge=0)
+    currency: Optional[str] = Field(None, max_length=10)
+    url: Optional[str] = Field(None, max_length=1000)
+
+
+# --- CRUD Endpoints for Products ---
+@router.post("/products", status_code=201)
+def create_product(product: ProductCreate) -> dict:
+    """Crea un nuevo producto."""
+    try:
+        session = get_session()
+        new_product = Product(
+            title=product.title,
+            brand=product.brand,
+            size=product.size,
+            price=product.price,
+            currency=product.currency,
+            source=product.source,
+            url=product.url
+        )
+        session.add(new_product)
+        session.commit()
+        session.refresh(new_product)
+        session.close()
+        
+        return {"success": True, "data": new_product.to_dict()}
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/products/{product_id}")
+def update_product(product_id: int, product: ProductUpdate) -> dict:
+    """Actualiza un producto."""
+    try:
+        session = get_session()
+        db_product = session.query(Product).filter(Product.id == product_id).first()
+        
+        if not db_product:
+            session.close()
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        if product.title is not None:
+            db_product.title = product.title
+        if product.brand is not None:
+            db_product.brand = product.brand
+        if product.size is not None:
+            db_product.size = product.size
+        if product.price is not None:
+            db_product.price = product.price
+        if product.currency is not None:
+            db_product.currency = product.currency
+        if product.url is not None:
+            db_product.url = product.url
+        
+        session.commit()
+        session.refresh(db_product)
+        session.close()
+        
+        return {"success": True, "data": db_product.to_dict()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/products/{product_id}")
+def delete_product(product_id: int) -> dict:
+    """Elimina un producto."""
+    try:
+        session = get_session()
+        product = session.query(Product).filter(Product.id == product_id).first()
+        
+        if not product:
+            session.close()
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        session.delete(product)
+        session.commit()
+        session.close()
+        
+        return {"success": True, "message": "Producto eliminado"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

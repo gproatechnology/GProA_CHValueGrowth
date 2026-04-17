@@ -68,3 +68,59 @@ class Product(Base):
             url=data.get('url'),
             scraped_at=datetime.fromisoformat(data['scraped_at'].rstrip('Z')) if data.get('scraped_at') else datetime.utcnow(),
         )
+
+
+class Order(Base):
+    """Modelo de orden para pedidos."""
+    
+    __tablename__ = 'orders'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    order_number = Column(String(50), unique=True, nullable=False)
+    customer_id = Column(Integer, nullable=False)
+    status = Column(String(20), nullable=False, default='pending')
+    total = Column(Float, nullable=False, default=0)
+    notes = Column(String(500), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'order_number': self.order_number,
+            'customer_id': self.customer_id,
+            'status': self.status,
+            'total': self.total,
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() + 'Z' if self.updated_at else None,
+        }
+
+
+class Customer(Base):
+    """Modelo de cliente."""
+    
+    __tablename__ = 'customers'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(200), nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    phone = Column(String(20), nullable=True)
+    address = Column(String(500), nullable=True)
+    rfc = Column(String(20), nullable=True)
+    status = Column(String(20), nullable=False, default='active')
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'phone': self.phone,
+            'address': self.address,
+            'rfc': self.rfc,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() + 'Z' if self.updated_at else None,
+        }
