@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,6 +80,15 @@ app.include_router(products_router)
 app.include_router(auth_router)
 app.include_router(orders_router)
 app.include_router(export_router)
+
+@app.get("/{path:path}")
+def serve_frontend(path: str):
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    index_path = DIST_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
+    return {"status": "ok", "project": "NeumatiQ"}
 
 if DIST_DIR.exists():
     app.mount("/", StaticFiles(directory=str(DIST_DIR), html=True), name="static")
