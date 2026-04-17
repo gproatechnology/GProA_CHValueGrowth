@@ -7,13 +7,44 @@
 
 ---
 
-## 🚀 Modo Completo (Backend + Frontend)
-
-### 1. Backend (Terminal 1)
+## 🎬 1. Crear Virtual Environment (una vez)
 
 ```powershell
 cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollos\GProA_CHValueGrowth"
-# O si estás en la carpeta correcta:
+
+# Crear venv
+python -m venv .venv
+
+# Activar venv
+.\.venv\Scripts\Activate.ps1
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Verificar instalación
+python --version
+pip list
+```
+
+**Para activar en futuras sesiones:**
+```powershell
+cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollos\GProA_CHValueGrowth"
+.\.venv\Scripts\Activate.ps1
+```
+
+---
+
+## 🚀 Modo Completo (Backend + Frontend)
+
+### 1. Backend (Terminal 1) - Con venv
+
+```powershell
+cd "C:\Users\Mao\OneDrive\Documentos\GProA Desarrollos\GProA_CHValueGrowth"
+
+# Activar venv (si no está activo)
+.\.venv\Scripts\Activate.ps1
+
+# Ejecutar backend
 python -m uvicorn services.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -93,6 +124,14 @@ curl http://localhost:8000/api/v1/products -H "Authorization: Bearer TU_TOKEN"
 ---
 
 ## 🔧 Troubleshooting
+
+### Activar venv en PowerShell
+```powershell
+.\.venv\Scripts\Activate.ps1
+# Si da error de ejecución:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
 
 ### Error: No module named 'services'
 ```powershell
