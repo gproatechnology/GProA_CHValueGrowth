@@ -14,7 +14,7 @@
 | Agregar `leaflet` a package.json | ✅ Completado | Alta | 1h |
 | Agregar `@tanstack/react-query` | ✅ Completado | Alta | 1h |
 | Verificar build local | ✅ Completado | Alta | 30min |
-| Push a repo | ⏳ Pendiente | Alta | 15min |
+| Push a repo | ✅ Completado | Alta | 15min |
 
 **Objetivo:** Build sin errores.
 
