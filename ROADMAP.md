@@ -111,18 +111,24 @@
 
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
-| Configurar MOCK_MODE=false | 🔴 Pendiente | Alta | 30min |
-| Implementar scraper MercadoLibre | 🔴 Pendiente | Alta | 8h |
-| Normalización de datos | 🔴 Pendiente | Alta | 4h |
-| Scheduler (cron) | 🔴 Pendiente | Alta | 4h |
+| Configurar MOCK_MODE=false | ✅ Completado | Alta | 30min |
+| Implementar scraper MercadoLibre | ✅ Completado | Alta | 8h |
+| Normalización de datos | ✅ Completado | Alta | 4h |
+| Scheduler (cron) | ✅ Completado | Alta | 4h |
 | Alertas de precio | 🔴 Pendiente | Media | 2h |
 
 **Objetivo:** Scraping automático.
 
 **Criteria de Done:**
-- Datos se scrapean automáticamente
-- Base de datos se actualiza
-- Alertas configurables
+- ✅ MOCK_MODE configurado (default: false)
+- ✅ Scraper implementado y funcional
+- ✅ Normalización de datos incluida
+- ✅ Scheduler creado (services/scraper_scheduler.py)
+- ⏳ Alertas de precio pendientes
+
+**Archivos modificados/creados:**
+- `services/scrapers/mercadolibre/scraper.py` - MOCK_MODE default false
+- `services/scraper_scheduler.py` - Scheduler automático
 
 ---
 

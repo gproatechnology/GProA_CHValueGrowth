@@ -26,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 # Configuración global desde variables de entorno
-MOCK_MODE = os.environ.get('MOCK_MODE', 'true').lower() in ('true', '1', 'yes')
+# IMPORTANTE: Cambiar a 'false' para habilitar scraping real en producción
+MOCK_MODE = os.environ.get('MOCK_MODE', 'false').lower() in ('true', '1', 'yes')
 SCRAPER_DELAY_MIN = float(os.environ.get('SCRAPER_DELAY_MIN', '1.0'))
 SCRAPER_DELAY_MAX = float(os.environ.get('SCRAPER_DELAY_MAX', '3.0'))
 
