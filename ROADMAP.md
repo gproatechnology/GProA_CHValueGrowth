@@ -82,23 +82,30 @@
 | Tarea | Estado | Prioridad | Estimación |
 |-------|--------|----------|-------------|
 | Conectar Dashboard con API | 🔴 Pendiente | Alta | 2h |
-| Conectar Products con API | ✅ Completado | Alta | 2h |
-| Conectar Orders con API | ✅ Completado | Alta | 2h |
-| Conectar Customers con API | ✅ Completado | Alta | 2h |
+| Conectar Products con API | 🔴 Pendiente | Alta | 2h |
+| Conectar Orders con API | 🔴 Pendiente | Alta | 2h |
+| Conectar Customers con API | 🔴 Pendiente | Alta | 2h |
 | Conectar Settings con API | 🔴 Pendiente | Media | 1h |
 
 **Objetivo:** Frontend consume API real.
 
 **Criteria de Done:**
-- ✅ Hooks de React Query disponibles
-- ✅ Componentes de tabla con API (ProductsTable, OrdersTable, CustomersTable)
-- ✅ Loading states y error handling
-- ✅ Refresco automático después de mutaciones
+- ⏳ Datos se cargan desde backend (pendiente conectar componentes)
+- ⏳ Crear/Editar/Eliminar funciona (pendiente integrar)
+- ⏳ Refresco automático después de cambios (pendiente integrar)
+
+**Avance logrado:**
+- Hooks de React Query disponibles
+- Componentes de tabla creados (ProductsTable, OrdersTable, CustomersTable)
+- Loading states y error handling
+- **Falta: integrar componentes en páginas principales**
 
 **Archivos creados:**
 - `src/pages/ProductsTable.jsx` - Tabla de productos con API
 - `src/pages/OrdersTable.jsx` - Tabla de órdenes con API
 - `src/pages/CustomersTable.jsx` - Tabla de clientes con API
+
+**Nota:** Sprint 4 está en progreso (~60%). Los componentes están listos pero falta importarlos en las páginas principales.
 
 ---
 
