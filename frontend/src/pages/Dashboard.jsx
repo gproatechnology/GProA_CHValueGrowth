@@ -360,26 +360,26 @@ const TireCard = ({ tire, onCompare, isComparing, onAddToCart, onClick }) => {
     return (
         <motion.div layout whileHover={{ y: -4, scale: 1.02 }} onClick={onClick}
             className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-[#1E90FF]/20 cursor-pointer">
-            <div className="relative h-32 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center">
+            <div className="relative h-36 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center">
                 <img src={tire.logo} alt={tire.brand} className="h-16 w-16 object-contain" onError={(e) => e.target.style.display = 'none'} />
                 <div className="absolute top-2 right-2"><span className={`text-[10px] px-2 py-0.5 rounded-full border ${stockColor}`}>Stock {stockLevel}</span></div>
                 <div className="absolute top-2 left-2"><img src={tire.countryFlag} alt={tire.country} className="w-5 h-5 rounded-full object-cover" /></div>
             </div>
-            <div className="p-3">
+            <div className="p-4">
                 <h3 className="font-bold text-[#EAF3FF] text-sm truncate">{tire.brand}</h3>
                 <p className="text-xs text-[#AFC8E6]">{tire.model} · {tire.size}</p>
                 <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-xl font-bold text-[#1E90FF]">{tire.currency}{tire.price.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-[#1E90FF]">{tire.currency}{tire.price.toLocaleString()}</span>
                     <span className="text-xs text-[#AFC8E6]">{tire.currencyName}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 text-[10px] text-[#AFC8E6]">
+                <div className="flex items-center gap-2 mt-2 text-xs text-[#AFC8E6]">
                     <span>📊 Demanda {tire.demand}%</span>
                     <span>💰 Margen {tire.margin}%</span>
                 </div>
                 <div className="flex gap-2 mt-3">
-                    <button onClick={(e) => { e.stopPropagation(); onAddToCart(tire); }} className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white rounded-lg text-xs font-medium">🛒 Agregar</button>
-                    <button onClick={(e) => { e.stopPropagation(); onCompare(tire); }} disabled={isComparing} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${isComparing ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0B1E3A]/80 text-[#AFC8E6] border border-[#1E90FF]/30'}`}>
-                        <GitCompare size={12} />
+                    <button onClick={(e) => { e.stopPropagation(); onAddToCart(tire); }} className="flex-1 flex items-center justify-center gap-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white rounded-lg text-sm font-medium">🛒 Agregar</button>
+                    <button onClick={(e) => { e.stopPropagation(); onCompare(tire); }} disabled={isComparing} className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${isComparing ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0B1E3A]/80 text-[#AFC8E6] border border-[#1E90FF]/30'}`}>
+                        <GitCompare size={14} />
                     </button>
                 </div>
             </div>
@@ -876,9 +876,9 @@ const Dashboard = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-3">
+                        <div className="flex-1 overflow-y-auto p-2">
                             <AnimatePresence mode="popLayout">
-                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
+                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
                                 {activeTab === 'analytics' && (<motion.div key="analytics" className="space-y-3"><div className="grid grid-cols-1 lg:grid-cols-2 gap-3"><SalesByBrandChart data={filteredData} /><TypeDistributionChart data={filteredData} /></div><DemandHeatmap data={filteredData} /></motion.div>)}
                                 {activeTab === 'markets' && (<motion.div key="markets" className="space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
