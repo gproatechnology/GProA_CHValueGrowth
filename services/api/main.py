@@ -76,14 +76,6 @@ def serve_root():
     return {"status": "ok", "project": "NeumatiQ"}
 
 
-@app.get("/{path:path}")
-def serve_frontend(path: str):
-    index_path = DIST_DIR / "index.html"
-    if index_path.exists():
-        return FileResponse(str(index_path))
-    return {"status": "ok", "project": "NeumatiQ"}
-
-
 app.include_router(products_router)
 app.include_router(auth_router)
 app.include_router(orders_router)
