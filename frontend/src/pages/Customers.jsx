@@ -23,7 +23,6 @@ import {
     ArcElement
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
-import CustomersTable from './CustomersTable';
 
 ChartJS.register(
     CategoryScale,
@@ -1119,7 +1118,7 @@ const Customers = () => {
                 <Database className="w-5 h-5 text-[#1E90FF]" />
                 <h3 className="text-lg font-semibold text-[#EAF3FF]">Datos desde API</h3>
             </div>
-            <CustomersTable />
+            <div className="text-gray-400">Cargando clientes...</div>
         </div>
         </div>
     );

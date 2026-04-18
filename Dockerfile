@@ -1,14 +1,5 @@
-# CHValueGrowth Dockerfile - Multi-stage build
+# CHValueGrowth Dockerfile - Uses pre-built frontend from render.yaml
 
-# Stage 1: Build frontend
-FROM node:20-alpine AS builder
-WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm install
-COPY frontend/ ./
-RUN chmod +x node_modules/.bin/vite && node node_modules/vite/bin/vite.js build
-
-# Stage 2: Python backend
 FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -21,10 +12,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY services/ ./services
 COPY database/ ./database
 COPY configs/ ./configs
+COPY frontend/dist/ ./frontend/dist
 
 RUN mkdir -p /app/data
 
