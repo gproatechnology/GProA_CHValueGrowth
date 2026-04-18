@@ -26,7 +26,10 @@ app.add_middleware(
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 is_render = os.environ.get("RENDER") == "true"
-DIST_DIR = Path("/app/frontend/dist") if is_render else BASE_DIR / "frontend" / "dist"
+if is_render:
+    DIST_DIR = BASE_DIR / "frontend" / "dist"
+else:
+    DIST_DIR = Path("/app/frontend/dist")
 
 
 @app.get("/health")
