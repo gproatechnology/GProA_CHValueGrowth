@@ -1,7 +1,15 @@
-# CHValueGrowth Dockerfile - Backend + Frontend
-# Uses pre-built static files from repo
+# CHValueGrowth Dockerfile - Multi-stage build
 
-FROM python:3.14
+# Stage 1: Build frontend
+FROM node:20-alpine AS builder
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Python backend
+FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -13,7 +21,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY static/ ./static
+COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY services/ ./services
 COPY database/ ./database
 COPY configs/ ./configs
