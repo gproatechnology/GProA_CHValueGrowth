@@ -774,7 +774,7 @@ const Dashboard = () => {
     
     return (
         <div className="h-screen w-full overflow-hidden bg-[#0B1E3A]">
-            <div className="h-full w-full flex flex-col p-3 md:p-4">
+            <div className="h-full w-full flex flex-col p-3 md:p-4 min-h-0">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -798,16 +798,16 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Brand Hub con botón "Ver todas" */}
-                <div className="mb-6">
+                <div className="flex-1 min-h-0 mb-4">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
                         <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
                     </div>
-                    <div className="overflow-x-auto pb-4"><div className="flex gap-4">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
+                    <div className="overflow-x-auto pb-2 flex-1 flex items-center"><div className="flex gap-4">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
                 </div>
                 
                 {/* KPIs */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2 flex-shrink-0">
                     {[
                         { label: 'Total Stock', value: kpis.totalStock.toLocaleString(), icon: Package, tooltip: 'Total de neumáticos en inventario' },
                         { label: 'Valor Inventario', value: `$${kpis.totalValue.toLocaleString()}`, icon: DollarSign, tooltip: 'Valor total del inventario' },
@@ -879,7 +879,19 @@ const Dashboard = () => {
                         <div className="flex-1 overflow-y-auto p-2">
                             <AnimatePresence mode="popLayout">
                                 {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 items-stretch">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
-                                {activeTab === 'analytics' && (<motion.div key="analytics" className="space-y-3"><div className="grid grid-cols-1 lg:grid-cols-2 gap-3"><SalesByBrandChart data={filteredData} /><TypeDistributionChart data={filteredData} /></div><DemandHeatmap data={filteredData} /></motion.div>)}
+                                {activeTab === 'analytics' && (
+                                    <motion.div key="analytics" className="flex-1 flex flex-col min-h-0 space-y-3">
+                                        <div className="flex-1 flex flex-col min-h-0">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-shrink-0">
+                                                <SalesByBrandChart data={filteredData} />
+                                                <TypeDistributionChart data={filteredData} />
+                                            </div>
+                                            <div className="flex-1 min-h-0 mt-3">
+                                                <DemandHeatmap data={filteredData} />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
                                 {activeTab === 'markets' && (<motion.div key="markets" className="space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                         {COUNTRIES.map(c => {
