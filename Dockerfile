@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 COPY frontend/ ./
-RUN npx vite build
+RUN chmod +x node_modules/.bin/vite && node node_modules/vite/bin/vite.js build
 
 # Stage 2: Python backend
 FROM python:3.14-slim
