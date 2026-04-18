@@ -132,3 +132,44 @@ class ProductRepository:
         if self.session:
             self.session.close()
             self.session = None
+
+
+class OrderRepository:
+    """Repositorio para operaciones de pedidos."""
+    
+    def __init__(self):
+        self.session = None
+    
+    def _get_session(self):
+        if self.session is None:
+            self.session = get_session()
+        return self.session
+    
+    def get_all(self, limit=100, offset=0):
+        from database.models import Order
+        session = self._get_session()
+        return session.query(Order).offset(offset).limit(limit).all()
+    
+    def get_by_id(self, order_id):
+        from database.models import Order
+        session = self._get_session()
+        return session.query(Order).filter(Order.id == order_id).first()
+    
+    def create(self, order_data: dict):
+        from database.models import Order
+        session = self._get_session()
+        order = Order(**order_data)
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+        return order
+    
+    def count(self):
+        from database.models import Order
+        session = self._get_session()
+        return session.query(Order).count()
+    
+    def close(self):
+        if self.session:
+            self.session.close()
+            self.session = None
