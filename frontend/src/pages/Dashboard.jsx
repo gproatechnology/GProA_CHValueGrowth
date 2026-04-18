@@ -287,28 +287,28 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
         <motion.div
             whileHover={{ y: -4, scale: 1.02 }}
             onClick={() => onSelectBrand(brand)}
-            className="flex-shrink-0 w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all"
+            className="flex-shrink-0 w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all h-full flex flex-col"
         >
-            <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl flex items-center justify-center p-2 mb-2 border border-[#1E90FF]/30">
-                    <img src={BRAND_LOGOS[brand]} alt={brand} className="w-12 h-12 object-contain" />
+            <div className="flex flex-col items-center text-center flex-1">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl flex items-center justify-center p-2.5 mb-3 border border-[#1E90FF]/30">
+                    <img src={BRAND_LOGOS[brand]} alt={brand} className="w-14 h-14 object-contain" />
                 </div>
                 <h4 className="font-bold text-[#EAF3FF] text-sm truncate w-full">{brand}</h4>
-                <div className="flex items-center gap-1 mt-1">
+                <div className="flex items-center gap-1.5 mt-1.5">
                     <span className="text-xs text-[#AFC8E6]">Market Share:</span>
                     <span className="text-xs font-bold text-[#1E90FF]">{marketShare}%</span>
                 </div>
-                <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-opacity-20 border ${health.bg} ${health.text} border-${health.text.includes('emerald') ? 'emerald-500/30' : health.text.includes('amber') ? 'amber-500/30' : 'red-500/30'}">
+                <div className="mt-2.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-opacity-20 border flex items-center justify-center ${health.bg} ${health.text} border-${health.text.includes('emerald') ? 'emerald-500/30' : health.text.includes('amber') ? 'amber-500/30' : 'red-500/30'}">
                     {health.label}
                 </div>
-                <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#1E90FF]/20">
-                    <div className="flex items-center gap-1">
-                        {seasonal.forecast.startsWith('+') ? <TrendingUp size={10} className="text-emerald-400" /> : <TrendingUp size={10} className="text-red-400 rotate-180" />}
+                <div className="flex items-center justify-between w-full mt-3 pt-2.5 border-t border-[#1E90FF]/20">
+                    <div className="flex items-center gap-1.5">
+                        {seasonal.forecast.startsWith('+') ? <TrendingUp size={11} className="text-emerald-400" /> : <TrendingUp size={11} className="text-red-400 rotate-180" />}
                         <span className={`text-[10px] font-semibold ${seasonal.forecast.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
                             {seasonal.forecast}
                         </span>
                     </div>
-                    <div className="text-[9px] text-[#AFC8E6]">{seasonal.season}</div>
+                    <div className="text-[10px] text-[#AFC8E6]">{seasonal.season}</div>
                 </div>
             </div>
         </motion.div>
@@ -359,26 +359,26 @@ const TireCard = ({ tire, onCompare, isComparing, onAddToCart, onClick }) => {
     const stockColor = stockLevel === 'Alto' ? 'bg-emerald-500/20 text-emerald-400' : stockLevel === 'Medio' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400';
     return (
         <motion.div layout whileHover={{ y: -4, scale: 1.02 }} onClick={onClick}
-            className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-[#1E90FF]/20 cursor-pointer">
-            <div className="relative h-36 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center">
+            className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-[#1E90FF]/20 cursor-pointer h-full min-h-[420px] flex flex-col">
+            <div className="relative h-40 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center flex-shrink-0">
                 <img src={tire.logo} alt={tire.brand} className="h-16 w-16 object-contain" onError={(e) => e.target.style.display = 'none'} />
-                <div className="absolute top-2 right-2"><span className={`text-[10px] px-2 py-0.5 rounded-full border ${stockColor}`}>Stock {stockLevel}</span></div>
-                <div className="absolute top-2 left-2"><img src={tire.countryFlag} alt={tire.country} className="w-5 h-5 rounded-full object-cover" /></div>
+                <div className="absolute top-2.5 right-2.5"><span className={`text-[10px] px-2.5 py-1 rounded-full border ${stockColor}`}>Stock {stockLevel}</span></div>
+                <div className="absolute top-2.5 left-2.5"><img src={tire.countryFlag} alt={tire.country} className="w-5 h-5 rounded-full object-cover" /></div>
             </div>
-            <div className="p-4">
+            <div className="p-5 flex-1 flex flex-col">
                 <h3 className="font-bold text-[#EAF3FF] text-sm truncate">{tire.brand}</h3>
-                <p className="text-xs text-[#AFC8E6]">{tire.model} · {tire.size}</p>
-                <div className="flex items-baseline gap-1 mt-2">
+                <p className="text-xs text-[#AFC8E6] mt-0.5">{tire.model} · {tire.size}</p>
+                <div className="flex items-baseline gap-1.5 mt-3">
                     <span className="text-2xl font-bold text-[#1E90FF]">{tire.currency}{tire.price.toLocaleString()}</span>
                     <span className="text-xs text-[#AFC8E6]">{tire.currencyName}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 text-xs text-[#AFC8E6]">
+                <div className="flex items-center gap-2.5 mt-2.5 text-xs text-[#AFC8E6]">
                     <span>📊 Demanda {tire.demand}%</span>
                     <span>💰 Margen {tire.margin}%</span>
                 </div>
-                <div className="flex gap-2 mt-3">
-                    <button onClick={(e) => { e.stopPropagation(); onAddToCart(tire); }} className="flex-1 flex items-center justify-center gap-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white rounded-lg text-sm font-medium">🛒 Agregar</button>
-                    <button onClick={(e) => { e.stopPropagation(); onCompare(tire); }} disabled={isComparing} className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${isComparing ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0B1E3A]/80 text-[#AFC8E6] border border-[#1E90FF]/30'}`}>
+                <div className="flex gap-2.5 mt-4 flex-1 items-end">
+                    <button onClick={(e) => { e.stopPropagation(); onAddToCart(tire); }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white rounded-lg text-sm font-medium">🛒 Agregar</button>
+                    <button onClick={(e) => { e.stopPropagation(); onCompare(tire); }} disabled={isComparing} className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isComparing ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0B1E3A]/80 text-[#AFC8E6] border border-[#1E90FF]/30'}`}>
                         <GitCompare size={14} />
                     </button>
                 </div>
@@ -797,8 +797,17 @@ const Dashboard = () => {
                     </div>
                 </div>
                 
+                {/* Brand Hub con botón "Ver todas" */}
+                <div className="mb-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
+                        <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
+                    </div>
+                    <div className="overflow-x-auto pb-4"><div className="flex gap-4">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
+                </div>
+                
                 {/* KPIs */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
                     {[
                         { label: 'Total Stock', value: kpis.totalStock.toLocaleString(), icon: Package, tooltip: 'Total de neumáticos en inventario' },
                         { label: 'Valor Inventario', value: `$${kpis.totalValue.toLocaleString()}`, icon: DollarSign, tooltip: 'Valor total del inventario' },
@@ -806,21 +815,12 @@ const Dashboard = () => {
                         { label: 'Rotación (días)', value: `${kpis.avgRotation.toFixed(0)} días`, icon: ClockIcon, tooltip: 'Días promedio de rotación' },
                         { label: 'Stock Crítico', value: kpis.lowStockCount, icon: AlertCircle, tooltip: 'Productos con stock <10 unidades' }
                     ].map((kpi, idx) => (
-                        <div key={idx} className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-lg p-2 shadow-lg border border-[#1E90FF]/20 group relative">
-                            <div className="flex items-center justify-between"><div className="p-1 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg"><kpi.icon size={12} className="text-white" /></div><Info size={10} className="text-[#AFC8E6] cursor-help" /><div className="absolute bottom-full right-0 mb-1 hidden group-hover:block bg-[#0B1E3A] text-[10px] text-[#AFC8E6] px-2 py-1 rounded whitespace-nowrap z-10 border border-[#1E90FF]/30">{kpi.tooltip}</div></div>
-                            <p className="text-lg font-bold text-[#EAF3FF] mt-1">{kpi.value}</p>
-                            <p className="text-[9px] text-[#AFC8E6]">{kpi.label}</p>
+                        <div key={idx} className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-lg p-4 shadow-lg border border-[#1E90FF]/20 group relative">
+                            <div className="flex items-center justify-between"><div className="p-1.5 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg"><kpi.icon size={14} className="text-white" /></div><Info size={12} className="text-[#AFC8E6] cursor-help" /><div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-[#0B1E3A] text-[10px] text-[#AFC8E6] px-2 py-1 rounded whitespace-nowrap z-10 border border-[#1E90FF]/30">{kpi.tooltip}</div></div>
+                            <p className="text-xl font-bold text-[#EAF3FF] mt-1.5">{kpi.value}</p>
+                            <p className="text-[10px] text-[#AFC8E6]">{kpi.label}</p>
                         </div>
                     ))}
-                </div>
-                
-                {/* Brand Hub con botón "Ver todas" */}
-                <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
-                        <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
-                    </div>
-                    <div className="overflow-x-auto pb-2"><div className="flex gap-3">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
                 </div>
                 
                 {/* Predictor Estacional */}
@@ -828,18 +828,18 @@ const Dashboard = () => {
                 
                 {/* Contenido principal */}
                 <div className="flex-1 flex gap-3 overflow-hidden min-h-0">
-                    <AnimatePresence>{showFilters && (<motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="lg:w-96 flex-shrink-0 overflow-hidden"><div className="h-full overflow-y-auto space-y-3 pr-1">
+                    <AnimatePresence>{showFilters && (<motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="lg:w-96 flex-shrink-0 overflow-hidden"><div className="h-full overflow-y-auto space-y-4 pr-1">
                         <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
-                            <div className="flex items-center justify-between mb-2"><h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1"><Filter className="w-4 h-4 text-[#1E90FF]" /> Filtros Avanzados</h3><button onClick={clearFilters} className="text-xs text-[#1E90FF]">Limpiar</button></div>
-<div className="space-y-3">
-                                <div><label htmlFor="filter-brand" className="text-xs text-[#AFC8E6]">Marca</label><select id="filter-brand" name="filter-brand" onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{BRANDS.map(b => <option key={b} value={b}>{b}</option>)}</select></div>
-                                <div><label htmlFor="filter-rim" className="text-xs text-[#AFC8E6]">Rin</label><select id="filter-rim" name="filter-rim" value={selectedRim} onChange={(e) => setSelectedRim(e.target.value)} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Seleccionar rin</option>{Object.keys(TIRE_SIZES_BY_RIM).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                                {selectedRim && (<div><label htmlFor="filter-size" className="text-xs text-[#AFC8E6]">Medida</label><select id="filter-size" name="filter-size" onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{TIRE_SIZES_BY_RIM[selectedRim].map(s => <option key={s} value={s}>{s}</option>)}</select></div>)}
-                                <div><label htmlFor="filter-type" className="text-xs text-[#AFC8E6]">Tipo</label><select id="filter-type" name="filter-type" onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todos</option><option>Verano</option><option>Invierno</option><option>Todo tiempo</option></select></div>
-                                <div className="grid grid-cols-2 gap-3"><input id="price-min" name="price-min" type="number" placeholder="Precio min" value={filters.priceMin} onChange={(e) => updateFilter('priceMin', e.target.value)} className="px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="price-max" name="price-max" type="number" placeholder="Precio max" value={filters.priceMax} onChange={(e) => updateFilter('priceMax', e.target.value)} className="px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
-                                <div className="grid grid-cols-2 gap-3"><input id="stock-min" name="stock-min" type="number" placeholder="Stock min" value={filters.stockMin} onChange={(e) => updateFilter('stockMin', e.target.value)} className="px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="stock-max" name="stock-max" type="number" placeholder="Stock max" value={filters.stockMax} onChange={(e) => updateFilter('stockMax', e.target.value)} className="px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
+                            <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1"><Filter className="w-4 h-4 text-[#1E90FF]" /> Filtros Avanzados</h3><button onClick={clearFilters} className="text-xs text-[#1E90FF]">Limpiar</button></div>
+ <div className="space-y-4">
+                                <div><label htmlFor="filter-brand" className="text-xs text-[#AFC8E6]">Marca</label><select id="filter-brand" name="filter-brand" onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{BRANDS.map(b => <option key={b} value={b}>{b}</option>)}</select></div>
+                                <div><label htmlFor="filter-rim" className="text-xs text-[#AFC8E6]">Rin</label><select id="filter-rim" name="filter-rim" value={selectedRim} onChange={(e) => setSelectedRim(e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Seleccionar rin</option>{Object.keys(TIRE_SIZES_BY_RIM).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                                {selectedRim && (<div><label htmlFor="filter-size" className="text-xs text-[#AFC8E6]">Medida</label><select id="filter-size" name="filter-size" onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{TIRE_SIZES_BY_RIM[selectedRim].map(s => <option key={s} value={s}>{s}</option>)}</select></div>)}
+                                <div><label htmlFor="filter-type" className="text-xs text-[#AFC8E6]">Tipo</label><select id="filter-type" name="filter-type" onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todos</option><option>Verano</option><option>Invierno</option><option>Todo tiempo</option></select></div>
+                                <div className="grid grid-cols-2 gap-3"><input id="price-min" name="price-min" type="number" placeholder="Precio min" value={filters.priceMin} onChange={(e) => updateFilter('priceMin', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="price-max" name="price-max" type="number" placeholder="Precio max" value={filters.priceMax} onChange={(e) => updateFilter('priceMax', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
+                                <div className="grid grid-cols-2 gap-3"><input id="stock-min" name="stock-min" type="number" placeholder="Stock min" value={filters.stockMin} onChange={(e) => updateFilter('stockMin', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="stock-max" name="stock-max" type="number" placeholder="Stock max" value={filters.stockMax} onChange={(e) => updateFilter('stockMax', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
                                 <label htmlFor="only-official" className="flex items-center gap-2"><input id="only-official" name="only-official" type="checkbox" checked={filters.onlyOfficial} onChange={(e) => updateFilter('onlyOfficial', e.target.checked)} className="w-3 h-3" /><span className="text-xs text-[#AFC8E6]">Solo tiendas oficiales</span></label>
-                                <div className="flex gap-3 mt-3"><button onClick={handleStockCritical} className="flex-1 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30">⚠️ Stock Crítico</button><button onClick={exportToCSV} className="flex-1 py-1.5 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1"><Download size={12} /> Exportar</button></div>
+                                <div className="flex gap-3 mt-4"><button onClick={handleStockCritical} className="flex-1 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30">⚠️ Stock Crítico</button><button onClick={exportToCSV} className="flex-1 py-2 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1"><Download size={12} /> Exportar</button></div>
                             </div>
                         </div>
                         <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4"><button onClick={() => setShowSaveSearchModal(true)} className="w-full py-2 bg-[#0B1E3A]/80 rounded-lg text-sm text-[#1E90FF] border border-[#1E90FF]/30 flex items-center justify-center gap-1"><Save size={14} /> Guardar búsqueda</button></div>
@@ -878,7 +878,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto p-2">
                             <AnimatePresence mode="popLayout">
-                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
+                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 items-stretch">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
                                 {activeTab === 'analytics' && (<motion.div key="analytics" className="space-y-3"><div className="grid grid-cols-1 lg:grid-cols-2 gap-3"><SalesByBrandChart data={filteredData} /><TypeDistributionChart data={filteredData} /></div><DemandHeatmap data={filteredData} /></motion.div>)}
                                 {activeTab === 'markets' && (<motion.div key="markets" className="space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
