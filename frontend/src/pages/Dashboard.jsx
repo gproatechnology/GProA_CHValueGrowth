@@ -287,7 +287,7 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
         <motion.div
             whileHover={{ y: -4, scale: 1.02 }}
             onClick={() => onSelectBrand(brand)}
-            className="flex-shrink-0 w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all h-full flex flex-col"
+            className="w-36 sm:w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all h-full flex flex-col"
         >
             <div className="flex flex-col items-center text-center flex-1">
                 <div className="w-20 h-20 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl flex items-center justify-center p-2.5 mb-3 border border-[#1E90FF]/30">
@@ -489,58 +489,10 @@ const SalesByBrandChart = ({ data }) => {
         elements: { bar: { backgroundColor: '#1E90FF', hoverBackgroundColor: '#3B82F6' } }
     };
     
-    return (
+return (
         <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-xl border border-[#1E90FF]/20 transform transition-all hover:shadow-2xl">
             <h3 className="text-sm font-semibold text-[#EAF3FF] mb-3 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-[#1E90FF]" /> Ventas por Marca</h3>
             <div className="h-64"><Bar data={chartData} options={options} /></div>
-        </div>
-    );
-};
-
-const TypeDistributionChart = ({ data }) => {
-    const typeMap = useMemo(() => {
-        const map = new Map();
-        data.forEach(item => map.set(item.type, (map.get(item.type) || 0) + 1));
-        return Array.from(map.entries()).map(([type, count]) => ({ type, count }));
-    }, [data]);
-    
-    const chartData = {
-        labels: typeMap.map(t => t.type),
-        datasets: [{
-            data: typeMap.map(t => t.count),
-            backgroundColor: ['#1E90FF', '#3B82F6', '#06B6D4'],
-            borderWidth: 0,
-            hoverOffset: 10,
-            shadowOffsetX: 2,
-            shadowOffsetY: 4,
-            shadowBlur: 8
-        }],
-    };
-    
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 1000, easing: 'easeOutQuart' },
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#AFC8E6', font: { size: 10 }, usePointStyle: true } },
-            tooltip: { 
-                backgroundColor: '#0B1E3A', 
-                titleColor: '#EAF3FF', 
-                bodyColor: '#AFC8E6',
-                borderColor: '#1E90FF',
-                borderWidth: 1,
-                cornerRadius: 8,
-                callbacks: {
-                    label: (ctx) => `${ctx.label}: ${ctx.raw} productos (${((ctx.raw / typeMap.reduce((a,b)=>a+b.count,0))*100).toFixed(1)}%)`
-                }
-            }
-        },
-    };
-    
-    return (
-        <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-xl border border-[#1E90FF]/20 transform transition-all hover:shadow-2xl">
-            <h3 className="text-sm font-semibold text-[#EAF3FF] mb-3">Distribución por Tipo</h3>
-            <div className="h-64"><Doughnut data={chartData} options={options} /></div>
         </div>
     );
 };
@@ -775,7 +727,7 @@ const Dashboard = () => {
     
     return (
         <div className="h-screen w-full overflow-hidden bg-[#0B1E3A]">
-            <div className="h-full w-full flex flex-col p-3 md:p-4 min-h-0">
+            <div className="h-full w-full max-w-screen-xl mx-auto flex flex-col p-2 sm:p-3 md:p-4 min-h-0">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -804,7 +756,7 @@ const Dashboard = () => {
                         <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
                         <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
                     </div>
-                    <div className="overflow-x-auto pb-2 flex-1 flex items-center"><div className="flex gap-4">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
+                    <div className="overflow-x-auto pb-2 flex-1 flex items-center"><div className="flex flex-wrap gap-3 sm:gap-4 justify-center">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
                 </div>
                 
                 {/* KPIs */}
