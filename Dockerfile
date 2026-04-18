@@ -1,29 +1,25 @@
-FROM python:3.13-slim
+# CHValueGrowth Dockerfile - Backend + Frontend
+# Uses pre-built static files from repo
 
-LABEL maintainer="GProA Technology"
-LABEL description="NeumatiQ - CHValueGrowth API"
+FROM python:3.14
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY services/ ./services/
-COPY database/ ./database/
-COPY frontend/dist/ ./frontend/dist/
+COPY static/ ./static
+COPY services/ ./services
+COPY database/ ./database
+COPY configs/ ./configs
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHON_VERSION=3.13
-ENV DATABASE_URL=sqlite:///chvaluegrowth.db
-ENV JWT_SECRET=chvalue2026_secret_key_change_in_production
-ENV MOCK_MODE=true
-ENV RENDER=true
+RUN mkdir -p /app/data
 
-EXPOSE 10000
+EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "services.api.main:app", "--host", "0.0.0.0", "--port", "10000"]
+CMD ["uvicorn", "services.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

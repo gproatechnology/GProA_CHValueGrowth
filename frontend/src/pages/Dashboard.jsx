@@ -298,9 +298,10 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
                     <span className="text-xs text-[#AFC8E6]">Market Share:</span>
                     <span className="text-xs font-bold text-[#1E90FF]">{marketShare}%</span>
                 </div>
-                <div className="mt-2.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-opacity-20 border flex items-center justify-center ${health.bg} ${health.text} border-${health.text.includes('emerald') ? 'emerald-500/30' : health.text.includes('amber') ? 'amber-500/30' : 'red-500/30'}">
+                <div className={`mt-2.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${health.bg} ${health.text} border flex items-center justify-center bg-opacity-20 border-${health.text.includes('text-emerald-400') ? 'emerald-500/30' : health.text.includes('text-amber-400') ? 'amber-500/30' : 'red-500/30'}`}>
                     {health.label}
                 </div>
+
                 <div className="flex items-center justify-between w-full mt-3 pt-2.5 border-t border-[#1E90FF]/20">
                     <div className="flex items-center gap-1.5">
                         {seasonal.forecast.startsWith('+') ? <TrendingUp size={11} className="text-emerald-400" /> : <TrendingUp size={11} className="text-red-400 rotate-180" />}
@@ -828,25 +829,173 @@ const Dashboard = () => {
                 
                 {/* Contenido principal */}
                 <div className="flex-1 flex gap-3 overflow-hidden min-h-0">
-                    <AnimatePresence>{showFilters && (<motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="lg:w-96 flex-shrink-0 overflow-hidden"><div className="h-full overflow-y-auto space-y-4 pr-1">
-                        <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
-                            <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1"><Filter className="w-4 h-4 text-[#1E90FF]" /> Filtros Avanzados</h3><button onClick={clearFilters} className="text-xs text-[#1E90FF]">Limpiar</button></div>
- <div className="space-y-4">
-                                <div><label htmlFor="filter-brand" className="text-xs text-[#AFC8E6]">Marca</label><select id="filter-brand" name="filter-brand" onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{BRANDS.map(b => <option key={b} value={b}>{b}</option>)}</select></div>
-                                <div><label htmlFor="filter-rim" className="text-xs text-[#AFC8E6]">Rin</label><select id="filter-rim" name="filter-rim" value={selectedRim} onChange={(e) => setSelectedRim(e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Seleccionar rin</option>{Object.keys(TIRE_SIZES_BY_RIM).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                                {selectedRim && (<div><label htmlFor="filter-size" className="text-xs text-[#AFC8E6]">Medida</label><select id="filter-size" name="filter-size" onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todas</option>{TIRE_SIZES_BY_RIM[selectedRim].map(s => <option key={s} value={s}>{s}</option>)}</select></div>)}
-                                <div><label htmlFor="filter-type" className="text-xs text-[#AFC8E6]">Tipo</label><select id="filter-type" name="filter-type" onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"><option value="">Todos</option><option>Verano</option><option>Invierno</option><option>Todo tiempo</option></select></div>
-                                <div className="grid grid-cols-2 gap-3"><input id="price-min" name="price-min" type="number" placeholder="Precio min" value={filters.priceMin} onChange={(e) => updateFilter('priceMin', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="price-max" name="price-max" type="number" placeholder="Precio max" value={filters.priceMax} onChange={(e) => updateFilter('priceMax', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
-                                <div className="grid grid-cols-2 gap-3"><input id="stock-min" name="stock-min" type="number" placeholder="Stock min" value={filters.stockMin} onChange={(e) => updateFilter('stockMin', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /><input id="stock-max" name="stock-max" type="number" placeholder="Stock max" value={filters.stockMax} onChange={(e) => updateFilter('stockMax', e.target.value)} className="px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" /></div>
-                                <label htmlFor="only-official" className="flex items-center gap-2"><input id="only-official" name="only-official" type="checkbox" checked={filters.onlyOfficial} onChange={(e) => updateFilter('onlyOfficial', e.target.checked)} className="w-3 h-3" /><span className="text-xs text-[#AFC8E6]">Solo tiendas oficiales</span></label>
-                                <div className="flex gap-3 mt-4"><button onClick={handleStockCritical} className="flex-1 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30">⚠️ Stock Crítico</button><button onClick={exportToCSV} className="flex-1 py-2 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1"><Download size={12} /> Exportar</button></div>
-                            </div>
-                        </div>
-                        <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4"><button onClick={() => setShowSaveSearchModal(true)} className="w-full py-2 bg-[#0B1E3A]/80 rounded-lg text-sm text-[#1E90FF] border border-[#1E90FF]/30 flex items-center justify-center gap-1"><Save size={14} /> Guardar búsqueda</button></div>
-                        {savedSearches.length > 0 && (<div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4"><h3 className="text-xs font-semibold text-[#EAF3FF] mb-2 flex items-center gap-1"><Bookmark className="w-4 h-4 text-[#1E90FF]" /> Búsquedas Guardadas</h3><div className="space-y-2">{savedSearches.map(s => (<button key={s.id} onClick={() => loadSavedSearch(s)} className="w-full text-left px-3 py-1.5 rounded-lg text-sm text-[#AFC8E6] hover:bg-[#1E4D7A] truncate">{s.name}</button>))}</div></div>)}
-                    </div></motion.div>)}</AnimatePresence>
-                    
-                    {/* Área central con tabs mejorados y hora */}
+{showFilters && (
+  <motion.div
+    initial={{ opacity: 0, width: 0 }}
+    animate={{ opacity: 1, width: 'auto' }}
+    exit={{ opacity: 0, width: 0 }}
+    className="lg:w-96 flex-shrink-0 overflow-y-auto min-h-0"
+  >
+    <div className="space-y-4 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1">
+          <Filter className="w-4 h-4 text-[#1E90FF]" />
+          Filtros Avanzados
+        </h3>
+        <button onClick={clearFilters} className="text-xs text-[#1E90FF]">
+          Limpiar
+        </button>
+      </div>
+      <div>
+        <label htmlFor="filter-brand" className="text-xs text-[#AFC8E6] block mb-1">
+          Marca
+        </label>
+        <select
+          id="filter-brand"
+          name="filter-brand"
+          onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])}
+          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+        >
+          <option value="">Todas</option>
+          {BRANDS.map(b => (
+            <option key={b} value={b}>{b}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="filter-rim" className="text-xs text-[#AFC8E6] block mb-1">
+          Rin
+        </label>
+        <select
+          id="filter-rim"
+          name="filter-rim"
+          value={selectedRim}
+          onChange={(e) => setSelectedRim(e.target.value)}
+          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+        >
+          <option value="">Seleccionar rin</option>
+          {Object.keys(TIRE_SIZES_BY_RIM).map(r => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
+      </div>
+      {selectedRim && (
+        <div>
+          <label htmlFor="filter-size" className="text-xs text-[#AFC8E6] block mb-1">
+            Medida
+          </label>
+          <select
+            id="filter-size"
+            name="filter-size"
+            onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])}
+            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+          >
+            <option value="">Todas</option>
+            {TIRE_SIZES_BY_RIM[selectedRim].map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div>
+        <label htmlFor="filter-type" className="text-xs text-[#AFC8E6] block mb-1">
+          Tipo
+        </label>
+        <select
+          id="filter-type"
+          name="filter-type"
+          onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])}
+          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+        >
+          <option value="">Todos</option>
+          <option>Verano</option>
+          <option>Invierno</option>
+          <option>Todo tiempo</option>
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs text-[#AFC8E6] block mb-1">Precio min</label>
+          <input
+            id="price-min"
+            name="price-min"
+            type="number"
+            placeholder="Precio min"
+            value={filters.priceMin}
+            onChange={(e) => updateFilter('priceMin', e.target.value)}
+            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-[#AFC8E6] block mb-1">Precio max</label>
+          <input
+            id="price-max"
+            name="price-max"
+            type="number"
+            placeholder="Precio max"
+            value={filters.priceMax}
+            onChange={(e) => updateFilter('priceMax', e.target.value)}
+            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs text-[#AFC8E6] block mb-1">Stock min</label>
+          <input
+            id="stock-min"
+            name="stock-min"
+            type="number"
+            placeholder="Stock min"
+            value={filters.stockMin}
+            onChange={(e) => updateFilter('stockMin', e.target.value)}
+            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-[#AFC8E6] block mb-1">Stock max</label>
+          <input
+            id="stock-max"
+            name="stock-max"
+            type="number"
+            placeholder="Stock max"
+            value={filters.stockMax}
+            onChange={(e) => updateFilter('stockMax', e.target.value)}
+            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
+          />
+        </div>
+      </div>
+      <label htmlFor="only-official" className="flex items-center gap-2">
+        <input
+          id="only-official"
+          name="only-official"
+          type="checkbox"
+          checked={filters.onlyOfficial}
+          onChange={(e) => updateFilter('onlyOfficial', e.target.checked)}
+          className="w-3 h-3"
+        />
+        <span className="text-xs text-[#AFC8E6]">Solo tiendas oficiales</span>
+      </label>
+      <div className="flex gap-3 mt-4">
+        <button
+          onClick={handleStockCritical}
+          className="flex-1 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30 hover:bg-red-500/30 transition-colors"
+        >
+          ⚠️ Stock Crítico
+        </button>
+        <button
+          onClick={exportToCSV}
+          className="flex-1 py-2 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1 hover:bg-[#1E4D7A] transition-colors"
+        >
+          <Download size={12} />
+          Exportar
+        </button>
+      </div>
+    </div>
+  </motion.div>
+)}
+
+
                     <div className="flex-1 min-w-0 flex flex-col bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl shadow-lg border border-[#1E90FF]/20 overflow-hidden">
                         <div className="flex items-center justify-between border-b border-[#1E90FF]/20 px-3 pt-2 pb-1 flex-shrink-0">
                             <div className="flex gap-1">
@@ -959,7 +1108,52 @@ const Dashboard = () => {
                 <ComparisonPanel items={comparisonList} onRemove={removeFromComparison} onClear={clearComparison} />
 
             {/* API Metrics Section */}
-            <APIMetricsSection />
+            <div className="mt-8 border-t border-[#1E90FF]/20 pt-6" style={{
+              paddingTop: '0px',
+              height: '0px',
+              width: '6px'
+            }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2" style={{
+                  width: '70px',
+                  height: '150px'
+                }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#1E90FF]">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M3 5V19a9 3 0 0 0 18 0V5"></path>
+                    <path d="M3 12a9 3 0 0 1 18 0"></path>
+                  </svg>
+                  <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
+                </div>
+                <button className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M3 12a9 9 0 0 1 9 -9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
+                    <path d="M21 12a9 9 0 0 1 -9 9 9.75 9.75 0 0 1 -6.74 -2.74L3 16"></path>
+                    <path d="M8 16H3v5"></path>
+                  </svg>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                  <p className="text-xs text-[#AFC8E6]">Productos DB</p>
+                  <p className="text-2xl font-bold text-[#1E90FF]">0</p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                  <p className="text-xs text-[#AFC8E6]">Precio Mín</p>
+                  <p className="text-2xl font-bold text-emerald-400">$0</p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                  <p className="text-xs text-[#AFC8E6]">Precio Máx</p>
+                  <p className="text-2xl font-bold text-amber-400">$0</p>
+                </div>
+                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
+                  <p className="text-xs text-[#AFC8E6]">Precio Prom</p>
+                  <p className="text-2xl font-bold text-[#AFC8E6]">$0</p>
+                </div>
+              </div>
+            </div>
+
             </div>
         </div>
     );
@@ -973,18 +1167,41 @@ const APIMetricsSection = () => {
     if (error) return <ErrorDisplay error={error} onRetry={refetch} />;
     
     return (
-        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <Database className="w-5 h-5 text-[#1E90FF]" />
-                    <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
-                </div>
-                <button onClick={() => refetch()} className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
-                    <RefreshCw className="w-4 h-4" />
-                </button>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div className="mt-8 border-t border-[#1E90FF]/20 pt-6" style={{
+    paddingTop: '0px',
+    marginTop: '0px',
+    height: '0px',
+    width: '720px'
+  }}>
+  <div className="flex items-center justify-between mb-4" style={{
+    marginBottom: '0px'
+  }}>
+    <div className="flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-database w-5 h-5 text-[#1E90FF]" aria-hidden="true">
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M3 5V19a9 3 0 0 0 18 0V5"></path>
+        <path d="M3 12a9 3 0 0 1 18 0"></path>
+      </svg>
+      <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
+    </div>
+    <button className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-refresh-cw w-4 h-4" aria-hidden="true">
+        <path d="M3 12a9 9 0 0 1 9 -9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+        <path d="M21 12a9 9 0 0 1 -9 9 9.75 9.75 0 0 1 -6.74 -2.74L3 16"></path>
+        <path d="M8 16H3v5"></path>
+      </svg>
+    </button>
+  </div>
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4" style={{
+    width: '540px',
+    marginBottom: '0px',
+    paddingTop: '0px',
+    paddingBottom: '0px',
+    borderBottomWidth: '10px'
+  }}>
+
+
                 <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
                     <p className="text-xs text-[#AFC8E6]">Productos DB</p>
                     <p className="text-2xl font-bold text-[#1E90FF]">
