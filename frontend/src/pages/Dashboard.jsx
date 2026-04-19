@@ -298,7 +298,7 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
                     <span className="text-xs text-[#AFC8E6]">Market Share:</span>
                     <span className="text-xs font-bold text-[#1E90FF]">{marketShare}%</span>
                 </div>
-                <div className={`mt-2.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${health.bg} ${health.text} border flex items-center justify-center bg-opacity-20 border-${health.text.includes('text-emerald-400') ? 'emerald-500/30' : health.text.includes('text-amber-400') ? 'amber-500/30' : 'red-500/30'}`}>
+                <div className={`mt-2.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${health.bg} ${health.text} border flex items-center justify-center bg-opacity-20 ${stockHealth === 'healthy' ? 'border-emerald-500/30' : stockHealth === 'warning' ? 'border-amber-500/30' : 'border-red-500/30'}`}>
                     {health.label}
                 </div>
 
@@ -489,10 +489,58 @@ const SalesByBrandChart = ({ data }) => {
         elements: { bar: { backgroundColor: '#1E90FF', hoverBackgroundColor: '#3B82F6' } }
     };
     
-return (
+    return (
         <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-xl border border-[#1E90FF]/20 transform transition-all hover:shadow-2xl">
             <h3 className="text-sm font-semibold text-[#EAF3FF] mb-3 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-[#1E90FF]" /> Ventas por Marca</h3>
-            <div className="h-64"><Bar data={chartData} options={options} /></div>
+            <div className="h-64 md:h-80 xl:h-96"><Bar data={chartData} options={options} /></div>
+        </div>
+    );
+};
+
+const TypeDistributionChart = ({ data }) => {
+    const typeMap = useMemo(() => {
+        const map = new Map();
+        data.forEach(item => map.set(item.type, (map.get(item.type) || 0) + 1));
+        return Array.from(map.entries()).map(([type, count]) => ({ type, count }));
+    }, [data]);
+    
+    const chartData = {
+        labels: typeMap.map(t => t.type),
+        datasets: [{
+            data: typeMap.map(t => t.count),
+            backgroundColor: ['#1E90FF', '#3B82F6', '#06B6D4'],
+            borderWidth: 0,
+            hoverOffset: 10,
+            shadowOffsetX: 2,
+            shadowOffsetY: 4,
+            shadowBlur: 8
+        }],
+    };
+    
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1000, easing: 'easeOutQuart' },
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#AFC8E6', font: { size: 10 }, usePointStyle: true } },
+            tooltip: { 
+                backgroundColor: '#0B1E3A', 
+                titleColor: '#EAF3FF', 
+                bodyColor: '#AFC8E6',
+                borderColor: '#1E90FF',
+                borderWidth: 1,
+                cornerRadius: 8,
+                callbacks: {
+                    label: (ctx) => `${ctx.label}: ${ctx.raw} productos (${((ctx.raw / typeMap.reduce((a,b)=>a+b.count,0))*100).toFixed(1)}%)`
+                }
+            }
+        },
+    };
+    
+    return (
+        <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-xl border border-[#1E90FF]/20 transform transition-all hover:shadow-2xl">
+            <h3 className="text-sm font-semibold text-[#EAF3FF] mb-3">Distribución por Tipo</h3>
+            <div className="h-64 md:h-80 xl:h-96"><Doughnut data={chartData} options={options} /></div>
         </div>
     );
 };
@@ -756,7 +804,7 @@ const Dashboard = () => {
                         <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
                         <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
                     </div>
-                    <div className="overflow-x-auto pb-2 flex-1 flex items-center"><div className="flex flex-wrap gap-3 sm:gap-4 justify-center">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
+                    <div className="overflow-x-auto pb-2"><div className="flex flex-wrap gap-3 sm:gap-4 justify-center">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
                 </div>
                 
                 {/* KPIs */}
@@ -781,173 +829,87 @@ const Dashboard = () => {
                 
                 {/* Contenido principal */}
                 <div className="flex-1 flex gap-3 overflow-hidden min-h-0">
-{showFilters && (
-  <motion.div
-    initial={{ opacity: 0, width: 0 }}
-    animate={{ opacity: 1, width: 'auto' }}
-    exit={{ opacity: 0, width: 0 }}
-    className="lg:w-96 flex-shrink-0 overflow-y-auto min-h-0"
-  >
-    <div className="space-y-4 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1">
-          <Filter className="w-4 h-4 text-[#1E90FF]" />
-          Filtros Avanzados
-        </h3>
-        <button onClick={clearFilters} className="text-xs text-[#1E90FF]">
-          Limpiar
-        </button>
-      </div>
-      <div>
-        <label htmlFor="filter-brand" className="text-xs text-[#AFC8E6] block mb-1">
-          Marca
-        </label>
-        <select
-          id="filter-brand"
-          name="filter-brand"
-          onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])}
-          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-        >
-          <option value="">Todas</option>
-          {BRANDS.map(b => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="filter-rim" className="text-xs text-[#AFC8E6] block mb-1">
-          Rin
-        </label>
-        <select
-          id="filter-rim"
-          name="filter-rim"
-          value={selectedRim}
-          onChange={(e) => setSelectedRim(e.target.value)}
-          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-        >
-          <option value="">Seleccionar rin</option>
-          {Object.keys(TIRE_SIZES_BY_RIM).map(r => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      </div>
-      {selectedRim && (
-        <div>
-          <label htmlFor="filter-size" className="text-xs text-[#AFC8E6] block mb-1">
-            Medida
-          </label>
-          <select
-            id="filter-size"
-            name="filter-size"
-            onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])}
-            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-          >
-            <option value="">Todas</option>
-            {TIRE_SIZES_BY_RIM[selectedRim].map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-      )}
-      <div>
-        <label htmlFor="filter-type" className="text-xs text-[#AFC8E6] block mb-1">
-          Tipo
-        </label>
-        <select
-          id="filter-type"
-          name="filter-type"
-          onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])}
-          className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-        >
-          <option value="">Todos</option>
-          <option>Verano</option>
-          <option>Invierno</option>
-          <option>Todo tiempo</option>
-        </select>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-[#AFC8E6] block mb-1">Precio min</label>
-          <input
-            id="price-min"
-            name="price-min"
-            type="number"
-            placeholder="Precio min"
-            value={filters.priceMin}
-            onChange={(e) => updateFilter('priceMin', e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-[#AFC8E6] block mb-1">Precio max</label>
-          <input
-            id="price-max"
-            name="price-max"
-            type="number"
-            placeholder="Precio max"
-            value={filters.priceMax}
-            onChange={(e) => updateFilter('priceMax', e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-[#AFC8E6] block mb-1">Stock min</label>
-          <input
-            id="stock-min"
-            name="stock-min"
-            type="number"
-            placeholder="Stock min"
-            value={filters.stockMin}
-            onChange={(e) => updateFilter('stockMin', e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-[#AFC8E6] block mb-1">Stock max</label>
-          <input
-            id="stock-max"
-            name="stock-max"
-            type="number"
-            placeholder="Stock max"
-            value={filters.stockMax}
-            onChange={(e) => updateFilter('stockMax', e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm"
-          />
-        </div>
-      </div>
-      <label htmlFor="only-official" className="flex items-center gap-2">
-        <input
-          id="only-official"
-          name="only-official"
-          type="checkbox"
-          checked={filters.onlyOfficial}
-          onChange={(e) => updateFilter('onlyOfficial', e.target.checked)}
-          className="w-3 h-3"
-        />
-        <span className="text-xs text-[#AFC8E6]">Solo tiendas oficiales</span>
-      </label>
-      <div className="flex gap-3 mt-4">
-        <button
-          onClick={handleStockCritical}
-          className="flex-1 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30 hover:bg-red-500/30 transition-colors"
-        >
-          ⚠️ Stock Crítico
-        </button>
-        <button
-          onClick={exportToCSV}
-          className="flex-1 py-2 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1 hover:bg-[#1E4D7A] transition-colors"
-        >
-          <Download size={12} />
-          Exportar
-        </button>
-      </div>
-    </div>
-  </motion.div>
-)}
-
-
+                    {showFilters && (
+                        <motion.div
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: 'auto' }}
+                            exit={{ opacity: 0, width: 0 }}
+                            className="lg:w-96 flex-shrink-0 overflow-y-auto min-h-0"
+                        >
+                            <div className="space-y-4 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-1">
+                                        <Filter className="w-4 h-4 text-[#1E90FF]" />
+                                        Filtros Avanzados
+                                    </h3>
+                                    <button onClick={clearFilters} className="text-xs text-[#1E90FF]">
+                                        Limpiar
+                                    </button>
+                                </div>
+                                <div>
+                                    <label htmlFor="filter-brand" className="text-xs text-[#AFC8E6] block mb-1">Marca</label>
+                                    <select id="filter-brand" name="filter-brand" onChange={(e) => updateFilter('brands', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm">
+                                        <option value="">Todas</option>
+                                        {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="filter-rim" className="text-xs text-[#AFC8E6] block mb-1">Rin</label>
+                                    <select id="filter-rim" name="filter-rim" value={selectedRim} onChange={(e) => setSelectedRim(e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm">
+                                        <option value="">Seleccionar rin</option>
+                                        {Object.keys(TIRE_SIZES_BY_RIM).map(r => <option key={r} value={r}>{r}</option>)}
+                                    </select>
+                                </div>
+                                {selectedRim && (
+                                    <div>
+                                        <label htmlFor="filter-size" className="text-xs text-[#AFC8E6] block mb-1">Medida</label>
+                                        <select id="filter-size" name="filter-size" onChange={(e) => updateFilter('sizes', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm">
+                                            <option value="">Todas</option>
+                                            {TIRE_SIZES_BY_RIM[selectedRim].map(s => <option key={s} value={s}>{s}</option>)}
+                                        </select>
+                                    </div>
+                                )}
+                                <div>
+                                    <label htmlFor="filter-type" className="text-xs text-[#AFC8E6] block mb-1">Tipo</label>
+                                    <select id="filter-type" name="filter-type" onChange={(e) => updateFilter('types', e.target.value ? [e.target.value] : [])} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm">
+                                        <option value="">Todos</option>
+                                        <option>Verano</option>
+                                        <option>Invierno</option>
+                                        <option>Todo tiempo</option>
+                                    </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs text-[#AFC8E6] block mb-1">Precio min</label>
+                                        <input type="number" placeholder="Precio min" value={filters.priceMin} onChange={(e) => updateFilter('priceMin', e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-[#AFC8E6] block mb-1">Precio max</label>
+                                        <input type="number" placeholder="Precio max" value={filters.priceMax} onChange={(e) => updateFilter('priceMax', e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs text-[#AFC8E6] block mb-1">Stock min</label>
+                                        <input type="number" placeholder="Stock min" value={filters.stockMin} onChange={(e) => updateFilter('stockMin', e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-[#AFC8E6] block mb-1">Stock max</label>
+                                        <input type="number" placeholder="Stock max" value={filters.stockMax} onChange={(e) => updateFilter('stockMax', e.target.value)} className="w-full px-3 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm" />
+                                    </div>
+                                </div>
+                                <label htmlFor="only-official" className="flex items-center gap-2">
+                                    <input id="only-official" name="only-official" type="checkbox" checked={filters.onlyOfficial} onChange={(e) => updateFilter('onlyOfficial', e.target.checked)} className="w-3 h-3" />
+                                    <span className="text-xs text-[#AFC8E6]">Solo tiendas oficiales</span>
+                                </label>
+                                <div className="flex gap-3 mt-4">
+                                    <button onClick={handleStockCritical} className="flex-1 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm border border-red-500/30 hover:bg-red-500/30 transition-colors">⚠️ Stock Crítico</button>
+                                    <button onClick={exportToCSV} className="flex-1 py-2 bg-[#0B1E3A]/80 text-[#1E90FF] rounded-lg text-sm border border-[#1E90FF]/30 flex items-center justify-center gap-1 hover:bg-[#1E4D7A] transition-colors"><Download size={12} /> Exportar</button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                    
                     <div className="flex-1 min-w-0 flex flex-col bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl shadow-lg border border-[#1E90FF]/20 overflow-hidden">
                         <div className="flex items-center justify-between border-b border-[#1E90FF]/20 px-3 pt-2 pb-1 flex-shrink-0">
                             <div className="flex gap-1">
@@ -1000,7 +962,7 @@ const Dashboard = () => {
                                             const totalValue = countryData.reduce((s,i)=>s+i.price*i.stock,0);
                                             const avgMargin = countryData.reduce((s,i)=>s+i.margin,0)/(countryData.length||1);
                                             const critical = countryData.filter(d=>d.stock<10).length;
-                                            const growth = Math.floor(Math.random() * 20) - 5; // simulación de crecimiento
+                                            const growth = Math.floor(Math.random() * 20) - 5;
                                             return (
                                                 <div key={c} className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 hover:shadow-xl transition-all">
                                                     <div className="flex items-center gap-2 mb-2"><img src={COUNTRY_INFO[c].flagImage} className="w-8 h-8 rounded-full object-cover" /><h3 className="font-bold text-[#EAF3FF]">{COUNTRY_INFO[c].name}</h3></div>
@@ -1017,11 +979,10 @@ const Dashboard = () => {
                                             );
                                         })}
                                     </div>
-                                    {/* Gráfico comparativo de precios */}
                                     <div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20">
                                         <h3 className="text-sm font-semibold text-[#EAF3FF] mb-3 flex items-center gap-2"><GitCompare size={14} className="text-[#1E90FF]" /> Comparativa de Precios por País</h3>
                                         <div className="overflow-x-auto">
-                                            <table className="w-full text-xs">
+                                            <table className="min-w-[600px] w-full text-xs">
                                                 <thead className="text-[#AFC8E6] border-b border-[#1E90FF]/20">
                                                     <tr><th className="text-left py-2">Marca / Medida</th><th className="text-right py-2">México (MXN)</th><th className="text-right py-2">Colombia (COP)</th><th className="text-right py-2">Panamá (USD)</th><th className="text-right py-2">Diferencia</th></tr>
                                                 </thead>
@@ -1054,58 +1015,13 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Modales */}
-                <AnimatePresence>{showSaveSearchModal && (<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"><div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 w-80 border border-[#1E90FF]/20"><h3 className="font-bold text-[#EAF3FF] mb-3">Guardar búsqueda</h3><label htmlFor="search-name" className="sr-only">Nombre de búsqueda</label><input id="search-name" name="search-name" type="text" placeholder="Nombre" value={searchName} onChange={(e) => setSearchName(e.target.value)} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm mb-3" /><div className="flex gap-2"><button onClick={saveSearch} className="flex-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-lg text-white">Guardar</button><button onClick={() => setShowSaveSearchModal(false)} className="flex-1 py-2 bg-[#0B1E3A]/80 rounded-lg text-[#AFC8E6]">Cancelar</button></div></div></div>)}</AnimatePresence>
+                <AnimatePresence>{showSaveSearchModal && (<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"><div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 w-80 border border-[#1E90FF]/20"><h3 className="font-bold text-[#EAF3FF] mb-3">Guardar búsqueda</h3><input type="text" placeholder="Nombre" value={searchName} onChange={(e) => setSearchName(e.target.value)} className="w-full px-3 py-2 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-sm mb-3" /><div className="flex gap-2"><button onClick={saveSearch} className="flex-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-lg text-white">Guardar</button><button onClick={() => setShowSaveSearchModal(false)} className="flex-1 py-2 bg-[#0B1E3A]/80 rounded-lg text-[#AFC8E6]">Cancelar</button></div></div></div>)}</AnimatePresence>
                 <AnimatePresence>{selectedTire && (<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setSelectedTire(null)}><div className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl max-w-md w-full p-5" onClick={(e) => e.stopPropagation()}><div className="flex justify-between"><div className="flex gap-3"><img src={selectedTire.logo} className="w-12 h-12 object-contain" /><div><h3 className="font-bold text-[#EAF3FF]">{selectedTire.brand}</h3><p className="text-sm text-[#1E90FF]">{selectedTire.model} {selectedTire.size}</p></div></div><button onClick={() => setSelectedTire(null)}><X /></button></div><div className="grid grid-cols-2 gap-3 mt-4"><div>Precio: <span className="font-bold text-[#1E90FF]">{selectedTire.currency}{selectedTire.price}</span></div><div>Stock: {selectedTire.stock}</div><div>Demanda: {selectedTire.demand}%</div><div>Margen: {selectedTire.margin}%</div></div><div className="flex gap-2 mt-4"><button className="flex-1 py-2 bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] rounded-lg">Agregar al carrito</button><button className="px-3 py-2 bg-[#0B1E3A]/80 rounded-lg border border-[#1E90FF]/30" onClick={() => addToComparison(selectedTire)}>Comparar</button></div></div></div>)}</AnimatePresence>
                 <AnimatePresence>{showAllBrandsModal && <AllBrandsModal brands={brandStats} onClose={() => setShowAllBrandsModal(false)} onSelectBrand={handleSelectBrand} />}</AnimatePresence>
                 <ComparisonPanel items={comparisonList} onRemove={removeFromComparison} onClear={clearComparison} />
 
-            {/* API Metrics Section */}
-            <div className="mt-8 border-t border-[#1E90FF]/20 pt-6" style={{
-              paddingTop: '0px',
-              height: '0px',
-              width: '6px'
-            }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2" style={{
-                  width: '70px',
-                  height: '150px'
-                }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#1E90FF]">
-                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                    <path d="M3 5V19a9 3 0 0 0 18 0V5"></path>
-                    <path d="M3 12a9 3 0 0 1 18 0"></path>
-                  </svg>
-                  <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
-                </div>
-                <button className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                    <path d="M3 12a9 9 0 0 1 9 -9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                    <path d="M21 3v5h-5"></path>
-                    <path d="M21 12a9 9 0 0 1 -9 9 9.75 9.75 0 0 1 -6.74 -2.74L3 16"></path>
-                    <path d="M8 16H3v5"></path>
-                  </svg>
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
-                  <p className="text-xs text-[#AFC8E6]">Productos DB</p>
-                  <p className="text-2xl font-bold text-[#1E90FF]">0</p>
-                </div>
-                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
-                  <p className="text-xs text-[#AFC8E6]">Precio Mín</p>
-                  <p className="text-2xl font-bold text-emerald-400">$0</p>
-                </div>
-                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
-                  <p className="text-xs text-[#AFC8E6]">Precio Máx</p>
-                  <p className="text-2xl font-bold text-amber-400">$0</p>
-                </div>
-                <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
-                  <p className="text-xs text-[#AFC8E6]">Precio Prom</p>
-                  <p className="text-2xl font-bold text-[#AFC8E6]">$0</p>
-                </div>
-              </div>
-            </div>
-
+                {/* API Metrics Section */}
+                <APIMetricsSection />
             </div>
         </div>
     );
@@ -1119,41 +1035,17 @@ const APIMetricsSection = () => {
     if (error) return <ErrorDisplay error={error} onRetry={refetch} />;
     
     return (
-<div className="mt-8 border-t border-[#1E90FF]/20 pt-6" style={{
-    paddingTop: '0px',
-    marginTop: '0px',
-    height: '0px',
-    width: '720px'
-  }}>
-  <div className="flex items-center justify-between mb-4" style={{
-    marginBottom: '0px'
-  }}>
-    <div className="flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-database w-5 h-5 text-[#1E90FF]" aria-hidden="true">
-        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-        <path d="M3 5V19a9 3 0 0 0 18 0V5"></path>
-        <path d="M3 12a9 3 0 0 1 18 0"></path>
-      </svg>
-      <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
-    </div>
-    <button className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-refresh-cw w-4 h-4" aria-hidden="true">
-        <path d="M3 12a9 9 0 0 1 9 -9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-        <path d="M21 3v5h-5"></path>
-        <path d="M21 12a9 9 0 0 1 -9 9 9.75 9.75 0 0 1 -6.74 -2.74L3 16"></path>
-        <path d="M8 16H3v5"></path>
-      </svg>
-    </button>
-  </div>
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4" style={{
-    width: '540px',
-    marginBottom: '0px',
-    paddingTop: '0px',
-    paddingBottom: '0px',
-    borderBottomWidth: '10px'
-  }}>
-
-
+        <div className="mt-8 border-t border-[#1E90FF]/20 pt-6">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <Database className="w-5 h-5 text-[#1E90FF]" />
+                    <h3 className="text-lg font-semibold text-[#EAF3FF]">Métricas desde API</h3>
+                </div>
+                <button onClick={() => refetch()} className="p-2 text-[#AFC8E6] hover:text-[#1E90FF]">
+                    <RefreshCw className="w-4 h-4" />
+                </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-[#0B1E3A]/60 rounded-lg p-4 text-center">
                     <p className="text-xs text-[#AFC8E6]">Productos DB</p>
                     <p className="text-2xl font-bold text-[#1E90FF]">
