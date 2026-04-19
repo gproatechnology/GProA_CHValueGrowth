@@ -285,7 +285,7 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
         <motion.div
             whileHover={{ y: -4, scale: 1.02 }}
             onClick={() => onSelectBrand(brand)}
-            className="flex-shrink-0 w-40 bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all"
+            className="flex-shrink-0 w-36 sm:w-40 min-h-[180px] bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-4 shadow-lg border border-[#1E90FF]/20 cursor-pointer group transition-all h-full flex flex-col justify-between"
         >
             <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 rounded-xl flex items-center justify-center p-2 mb-2 border border-[#1E90FF]/30">
@@ -772,7 +772,7 @@ const Dashboard = () => {
     
     return (
         <div className="h-screen w-full overflow-hidden bg-[#0B1E3A]">
-            <div className="h-full w-full flex flex-col p-3 md:p-4">
+            <div className="h-full w-full flex flex-col p-2 sm:p-3 md:p-4 min-h-0">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -813,12 +813,12 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Brand Hub con botón "Ver todas" */}
-                <div className="mb-4">
+                <div className="mb-4 min-h-[140px]">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-[10px] text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
                         <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
                     </div>
-                    <div className="overflow-x-auto pb-2"><div className="flex gap-3">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
+                    <div className="overflow-x-auto pb-2 h-full"><div className="flex gap-3">{brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}</div></div>
                 </div>
                 
                 {/* Predictor Estacional */}
@@ -876,7 +876,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto p-3">
                             <AnimatePresence mode="popLayout">
-                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
+                                {activeTab === 'explorer' && (<motion.div key="explorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-stretch">{filteredData.slice(0, 48).map(tire => <TireCard key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>) : (<div className="space-y-2">{filteredData.slice(0, 48).map(tire => <TireListItem key={tire.id} tire={tire} onCompare={addToComparison} isComparing={comparisonList.some(t => t.id === tire.id)} onAddToCart={addToCart} onClick={() => setSelectedTire(tire)} />)}</div>)}</motion.div>)}
                                 {activeTab === 'analytics' && (<motion.div key="analytics" className="space-y-3"><div className="grid grid-cols-1 lg:grid-cols-2 gap-3"><SalesByBrandChart data={filteredData} /><TypeDistributionChart data={filteredData} /></div><DemandHeatmap data={filteredData} /></motion.div>)}
                                 {activeTab === 'markets' && (<motion.div key="markets" className="space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
