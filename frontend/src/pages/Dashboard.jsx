@@ -296,7 +296,7 @@ const BrandIntelligenceCard = ({ brand, stats, onSelectBrand }) => {
                     <span className="text-[10px] text-[#AFC8E6]">Market Share:</span>
                     <span className="text-xs font-bold text-[#1E90FF]">{marketShare}%</span>
                 </div>
-                <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-opacity-20 border ${health.bg} ${health.text} border-${health.text.includes('emerald') ? 'emerald-500/30' : health.text.includes('amber') ? 'amber-500/30' : 'red-500/30'}">
+                <div className={`mt-2 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-opacity-20 border ${health.bg} ${health.text} ${stockHealth === 'healthy' ? 'border-emerald-500/30' : stockHealth === 'warning' ? 'border-amber-500/30' : 'border-red-500/30'}`}>
                     {health.label}
                 </div>
                 <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#1E90FF]/20">
@@ -354,13 +354,13 @@ const SeasonalPredictor = ({ selectedBrand, onClose }) => {
 // Tarjeta de neumático (vista grid)
 const TireCard = ({ tire, onCompare, isComparing, onAddToCart, onClick }) => {
     const stockLevel = tire.stock > 80 ? 'Alto' : tire.stock > 20 ? 'Medio' : 'Crítico';
-    const stockColor = stockLevel === 'Alto' ? 'bg-emerald-500/20 text-emerald-400' : stockLevel === 'Medio' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400';
+    const stockColorClass = stockLevel === 'Alto' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : stockLevel === 'Medio' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30';
     return (
         <motion.div layout whileHover={{ y: -4, scale: 1.02 }} onClick={onClick}
             className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-[#1E90FF]/20 cursor-pointer">
             <div className="relative h-32 bg-gradient-to-br from-[#1E90FF]/20 to-[#3B82F6]/20 flex items-center justify-center">
                 <img src={tire.logo} alt={tire.brand} className="h-16 w-16 object-contain" onError={(e) => e.target.style.display = 'none'} />
-                <div className="absolute top-2 right-2"><span className={`text-[10px] px-2 py-0.5 rounded-full border ${stockColor}`}>Stock {stockLevel}</span></div>
+                <div className="absolute top-2 right-2"><span className={`text-[10px] px-2 py-0.5 rounded-full border ${stockColorClass}`}>Stock {stockLevel}</span></div>
                 <div className="absolute top-2 left-2"><img src={tire.countryFlag} alt={tire.country} className="w-5 h-5 rounded-full object-cover" /></div>
             </div>
             <div className="p-3">
