@@ -779,7 +779,8 @@ const Dashboard = () => {
     
     return (
         <div className="min-h-screen w-full bg-[#0B1E3A] overflow-y-auto">
-            <div className="h-full w-full flex flex-col p-2 sm:p-3 md:p-4 min-h-0">
+            {/* MODIFICADO: eliminado 'h-full' del div interior para permitir scroll vertical natural */}
+            <div className="w-full flex flex-col p-2 sm:p-3 md:p-4 min-h-0">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -802,15 +803,16 @@ const Dashboard = () => {
                     </div>
                 </div>
                 
-                {/* Brand Hub */}
+                {/* Brand Hub - MODIFICADO: horizontal scroll y todas las marcas */}
                 <div className="flex-1 min-h-0 mb-4">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-sm font-semibold text-[#EAF3FF] flex items-center gap-2"><Award className="w-4 h-4 text-[#1E90FF]" /> Marcas Detectadas en Sistema <span className="text-xs text-[#AFC8E6]">({brandStats.length} marcas activas)</span></h2>
                         <button onClick={() => setShowAllBrandsModal(true)} className="text-[10px] text-[#1E90FF] hover:text-[#3B82F6] transition-colors flex items-center gap-1">Ver todas <ChevronRight size={10} /></button>
                     </div>
                     <div className="overflow-x-auto pb-2">
-                        <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 justify-start">
-                            {brandStats.slice(0, 12).map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}
+                        {/* MODIFICADO: flex-nowrap para que no se envuelvan, y se muestran todas las marcas sin slice */}
+                        <div className="flex flex-nowrap gap-2 sm:gap-3 md:gap-4">
+                            {brandStats.map(brand => <BrandIntelligenceCard key={brand.brand} brand={brand.brand} stats={brand} onSelectBrand={handleSelectBrand} />)}
                         </div>
                     </div>
                 </div>
