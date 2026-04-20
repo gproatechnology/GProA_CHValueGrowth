@@ -624,25 +624,29 @@ const Dashboard = () => {
     const [showAllBrandsModal, setShowAllBrandsModal] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     
-    // Forzar estilos globales para altura completa
+    // Forzar estilos globales para altura completa con scroll
     useEffect(() => {
         document.body.style.margin = '0';
         document.body.style.padding = '0';
-        document.body.style.height = '100vh';
-        document.body.style.overflow = 'hidden';
+        document.body.style.minHeight = '100vh';
+        document.body.style.overflowY = 'auto'; // Se habilita el scroll lateral
+        document.body.style.overflowX = 'hidden';
         const root = document.getElementById('root');
         if (root) {
-            root.style.height = '100vh';
-            root.style.overflow = 'hidden';
+            root.style.minHeight = '100vh';
+            root.style.overflowY = 'auto';
+            root.style.overflowX = 'hidden';
         }
         return () => {
             document.body.style.margin = '';
             document.body.style.padding = '';
-            document.body.style.height = '';
-            document.body.style.overflow = '';
+            document.body.style.minHeight = '';
+            document.body.style.overflowY = '';
+            document.body.style.overflowX = '';
             if (root) {
-                root.style.height = '';
-                root.style.overflow = '';
+                root.style.minHeight = '';
+                root.style.overflowY = '';
+                root.style.overflowX = '';
             }
         };
     }, []);
