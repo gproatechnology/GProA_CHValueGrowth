@@ -778,7 +778,7 @@ const Dashboard = () => {
     if (loading) return <div className="h-screen bg-[#0B1E3A] flex items-center justify-center"><div className="w-12 h-12 border-4 border-[#1E90FF]/30 border-t-[#1E90FF] rounded-full animate-spin"></div><p className="text-[#AFC8E6] ml-3">Cargando NeumatiQ...</p></div>;
     
     return (
-        <div className="min-h-screen w-full bg-[#0B1E3A]">
+        <div className="min-h-screen w-full bg-[#0B1E3A] overflow-y-auto">
             <div className="h-full w-full flex flex-col p-2 sm:p-3 md:p-4 min-h-0">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#0B1E3A]/90 to-[#102A4C]/90 backdrop-blur-xl rounded-xl p-3 shadow-lg border border-[#1E90FF]/20 mb-3 flex-shrink-0">
