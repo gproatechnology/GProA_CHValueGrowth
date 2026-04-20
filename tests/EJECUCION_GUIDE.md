@@ -184,3 +184,19 @@ El proyecto ya está configurado para Render con la rama `SubMain`.
 - Ctrl+C para detener
 
 *Updated: 17/04/2026 by Kilo - NeumatiQ v3.1*
+
+# 1. Preparar únicamente el archivo modificado
+git add "frontend/src/pages/Dashboard.jsx"
+
+# 2. Hacer el commit con un mensaje descriptivo
+git commit -m "fix(UI): Habilitar scroll lateral (vertical) dinámico en el Dashboard"
+
+# 3. Subir los cambios a la rama activa
+git push origin SubMain
+
+
+# 1. Renombrar tu rama local actual de "main" a "SubMain"
+git branch -m main SubMain
+
+# 2. Subir tus cambios y conectar tu rama local con la de GitHub
+git push -u origin SubMain
