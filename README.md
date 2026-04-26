@@ -124,31 +124,60 @@ sequenceDiagram
 
 ```
 GProA_CHValueGrowth/
-├── configs/
-├── database/
-├── scripts/
-│   └── run_scraper.py
+├── configs/                          # Configuraciones globales
+├── database/                         # Capa de datos
+│   ├── models.py                    # Modelos SQLAlchemy
+│   ├── repository.py                # Patrón Repository
+│   └── config.py                    # Config DB
 ├── services/
-│   ├── api/
-│   │   ├── main.py
-│   │   └── routes/
-│   ├── processor/
-│   │   ├── normalizer/
-│   │   └── matcher/
-│   ├── scheduler/
-│   └── scrapers/
-│       ├── common/
-│       └── mercadolibre/
-├── frontend/
+│   ├── api/                         # API FastAPI
+│   │   ├── main.py                 # App principal
+│   │   └── routes/                 # Endpoints
+│   │       ├── products.py         # Productos
+│   │       └── auth.py             # Auth
+│   ├── processor/                  # Procesamiento de datos
+│   │   ├── normalizer/             # Normalización
+│   │   ├── matcher/                # Matching
+│   │   └── metrics.py              # Métricas pipeline
+│   ├── scrapers/                   # Scrapers
+│   │   ├── common/                 # Utilidades
+│   │   └── mercadolibre/           # MercadoLibre
+│   └── scheduler/                  # Tareas programadas
+├── frontend/                       # React + Vite
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── App.jsx
+│   │   ├── components/             # Componentes UI
+│   │   ├── pages/                  # Vistas
+│   │   ├── App.jsx                 # App principal
+│   │   └── api.js                  # Cliente API
 │   ├── package.json
 │   └── vite.config.js
-├── tests/
-├── .env.example
-├── requirements.txt
+├── scripts/                        # Scripts utilitarios
+│   ├── run_scraper.py
+│   ├── create_admin_user.py
+│   └── backup_database.py
+├── tools/                          # Herramientas de desarrollo
+│   ├── start-backend.ps1
+│   ├── start-frontend.ps1
+│   └── sync-to-github.bat
+├── docs/                           # Documentación
+│   ├── AUDITORIA_COMPLETA.md
+│   ├── FAQ.md
+│   ├── TODO.md
+│   ├── TODO_FIX_RENDER.md
+│   ├── TODO_SYNC_BACKEND.md
+│   └── sprints.yaml
+├── data/                           # Datos generados (gitignore)
+│   ├── chvaluegrowth.db           # Base de datos SQLite
+│   └── scraper_output.json        # Output del scraper
+├── logs/                           # Logs de ejecución (gitignore)
+│   └── scraper.log
+├── static/                        # Frontend build (auto-generado)
+├── .env                           # Variables entorno (NO commit)
+├── .env.example                   # Ejemplo de variables
+├── requirements.txt               # Dependencias Python
+├── render.yaml                    # Configuración deployment
+├── Dockerfile                     # Imagen API
+├── Dockerfile.worker              # Imagen scraper
 └── README.md
 ```
 

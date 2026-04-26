@@ -15,15 +15,40 @@ htmlcov/
 .tox/
 .mypy_cache/
 .hypothesis/
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Virtual environments
 .venv/
 venv/
 ENV/
 env/
+
+# Logs
 logs/
 *.log
+
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Database files
 *.db
 chvaluegrowth.db
+data/
+
+# Frontend build
+frontend/dist/
+frontend/.vite/
+frontend/node_modules/.cache
+
+# Scraper outputs
+scraper_output.json
+scraper_*.json
+
+# Generated files
+static/
 

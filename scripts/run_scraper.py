@@ -25,6 +25,10 @@ from typing import List, Dict, Any, Optional
 # Agregar el directorio raíz al path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Asegurar que existan directorios necesarios
+Path('logs').mkdir(exist_ok=True)
+Path('data').mkdir(exist_ok=True)
+
 from services.scrapers.mercadolibre.scraper import MercadoLibreScraper
 from services.processor.normalizer.normalize import ProductNormalizer
 from services.processor.metrics import _pipeline_metrics
@@ -37,7 +41,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('scraper.log', encoding='utf-8')
+        logging.FileHandler('logs/scraper.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -87,8 +91,8 @@ Ejemplos:
     parser.add_argument(
         '--output', '-o',
         type=str,
-        default='scraper_output.json',
-        help='Archivo de salida JSON (default: scraper_output.json)'
+        default='data/scraper_output.json',
+        help='Archivo de salida JSON (default: data/scraper_output.json)'
     )
     
     parser.add_argument(
@@ -270,7 +274,7 @@ def main() -> Optional[List[Dict[str, Any]]]:
     
     # Determinar modo
     mock_mode, mode_info = get_mode_from_args(args)
-    db_url = os.environ.get('DATABASE_URL', 'sqlite:///chvaluegrowth.db')
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///data/chvaluegrowth.db')
     
     # Mostrar configuración
     display_configuration(mock_mode, mode_info, db_url, args)

@@ -60,7 +60,7 @@ services:
       
       # Database (SQLite for free tier, PostgreSQL recommended for production)
       - key: DATABASE_URL
-        value: "sqlite:///chvaluegrowth.db"
+        value: "sqlite:///data/chvaluegrowth.db"
       - key: DATABASE_POOL_SIZE
         value: "10"
       - key: DATABASE_MAX_OVERFLOW

@@ -4,6 +4,7 @@ Manejo de conexión y sesión de SQLAlchemy.
 """
 
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import StaticPool
@@ -13,7 +14,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Obtener DATABASE_URL de entorno
-DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///chvaluegrowth.db')
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///data/chvaluegrowth.db')
+
+# Asegurar que el directorio de la BD existe (SQLite)
+if DATABASE_URL.startswith('sqlite'):
+    db_path = DATABASE_URL.replace('sqlite:///', '')
+    # Eliminar barra inicial si existe
+    db_path = db_path.lstrip('/')
+    db_dir = os.path.dirname(db_path)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
+        print(f"[DB] Directorio creado: {db_dir}")
 
 # Crear engine
 if DATABASE_URL.startswith('sqlite'):
