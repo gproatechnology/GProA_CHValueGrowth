@@ -12,7 +12,7 @@ import {
   TrendingUp, AlertCircle, Globe, Save, Bookmark, Download, Grid3x3, List, 
   ArrowUpDown, Clock as ClockIcon, Award, Calendar, Sun, Truck, CloudRain,
   Info, ShoppingCart, Plus, Minus, PanelLeftClose, PanelLeftOpen, Eye, Activity,
-  TrendingDown, ChevronRight
+  TrendingDown, ChevronRight, RefreshCw
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -27,7 +27,8 @@ import {
     Filler,
     ArcElement
 } from 'chart.js';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { getProductStats, getGroupedProducts, getProducts } from '../services/api';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
@@ -35,117 +36,272 @@ ChartJS.register(
 );
 
 // --------------------------------------------------------------
-// 1. CONSTANTES Y DATOS MEJORADOS
-// --------------------------------------------------------------
+// 1. ESTADO Y CARGA DE DATOS REALES
+// =============================================
+// DASHBOARD.JSX – NEUMATIQ (INTEGRADO CON API)
+// Sistema de Gestión Integral de Neumáticos
+// Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
+// =============================================
 
-// Todas las marcas (20)
-const BRANDS = [
-    'Michelin', 'Pirelli', 'Bridgestone', 'Continental', 'Goodyear',
-    'Dunlop', 'Yokohama', 'Hankook', 'Firestone', 'BF Goodrich',
-    'Cooper', 'General Tire', 'Kumho', 'Nexen', 'Toyo',
-    'Maxxis', 'Nokian', 'Uniroyal', 'Falken', 'GT Radial'
-];
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Package, DollarSign, TrendingUp, BarChart3, RefreshCw, AlertCircle
+} from 'lucide-react';
+import { getProductStats, getGroupedProducts, getProducts } from '../services/api';
 
-// Medidas agrupadas por rin
-const TIRE_SIZES_BY_RIM = {
-    'R15': ['195/65 R15'],
-    'R16': ['205/55 R16', '215/60 R16'],
-    'R17': ['225/45 R17', '235/55 R17'],
-    'R18': ['225/55 R18', '245/40 R18'],
-    'R19': ['255/35 R19']
-};
-const ALL_SIZES = Object.values(TIRE_SIZES_BY_RIM).flat();
-
-// Modelos específicos por marca
-const BRAND_MODELS = {
-    'Michelin': ['Performance 50', 'All-Season 47', 'Premium 93', 'Energy Saver', 'Pilot Sport 4S'],
-    'Pirelli': ['Premium 49', 'Performance 67', 'Performance 97', 'P Zero', 'Cinturato'],
-    'Bridgestone': ['Sport 87', 'Turanza T005', 'Potenza', 'Ecopia'],
-    'Continental': ['All-Season 88', 'PremiumContact 6', 'SportContact', 'EcoContact'],
-    'Goodyear': ['Premium 26', 'Eagle F1', 'Assurance', 'EfficientGrip'],
-    'Dunlop': ['Premium 95', 'Performance 45', 'Sport Maxx', 'Grandtrek'],
-    'Yokohama': ['Sport 67', 'Eco 78', 'All-Season 22', 'Advansport', 'Geolandar'],
-    'Hankook': ['Eco 44', 'Ventus S1 evo3', 'Kinergy', 'Dynapro'],
-    'Firestone': ['Sport 29', 'Sport 59', 'All-Season 64', 'Destination', 'Firehawk'],
-    'BF Goodrich': ['All-Terrain T/A KO2', 'Advantage T/A', 'g-Force Comp-2', 'Trail-Terrain'],
-    'Cooper': ['Evolution MTT', 'Zeon RS3-G1', 'Discoverer', 'CS5 Grand Touring'],
-    'General Tire': ['Grabber AT3', 'Altimax RT43', 'G-Max RS', 'Grabber X3'],
-    'Kumho': ['Ecsta PS91', 'Solus TA31', 'Road Venture', 'Crugen'],
-    'Nexen': ['N Fera SU1', 'N Blue HD Plus', 'Roadian', 'CP671'],
-    'Toyo': ['Proxes Sport', 'Open Country', 'Extensa', 'Celsius'],
-    'Maxxis': ['Victra Sport', 'Premitra', 'Bravo', 'Mecotra'],
-    'Nokian': ['Hakkapeliitta', 'WR G4', 'Powerproof', 'Line SUV'],
-    'Uniroyal': ['RainSport 5', 'Tiger Paw', 'Power Touring', 'Laredo'],
-    'Falken': ['Azenis FK510', 'Ziex ZE950', 'Wildpeak', 'Pro G5'],
-    'GT Radial': ['Champiro', 'Adventure', 'Maxtour', 'Savero']
-};
-
-// Países y monedas
-const COUNTRIES = ['MX', 'CO', 'PA'];
-const COUNTRY_INFO = {
-    MX: { name: 'México', currency: 'MXN', symbol: '$', flagImage: '/assets/MEXICO.jpeg', exchangeRate: 1 },
-    CO: { name: 'Colombia', currency: 'COP', symbol: '$', flagImage: '/assets/COLOMBIA.jpeg', exchangeRate: 0.00025 },
-    PA: { name: 'Panamá', currency: 'USD', symbol: '$', flagImage: '/assets/PANAMA.jpeg', exchangeRate: 18.5 }
-};
-
-// Logos de marcas
-const BRAND_LOGOS = {
-    'Michelin': '/assets/Michelin.png',
-    'Pirelli': '/assets/Pirelli.png',
-    'Bridgestone': '/assets/Bridgestone.png',
-    'Continental': '/assets/Continental.png',
-    'Goodyear': '/assets/GoodYear.png',
-    'Dunlop': '/assets/Dunlop.png',
-    'Yokohama': '/assets/Yokohama.png',
-    'Hankook': '/assets/Hankook.png',
-    'Firestone': '/assets/Firestone.png',
-    'BF Goodrich': '/assets/BFGoodrich.jpg',
-    'Cooper': '/assets/Cooper.png',
-    'General Tire': '/assets/GeneralTire.jpg',
-    'Kumho': '/assets/Kumho.png',
-    'Nexen': '/assets/Nexen.jpg',
-    'Toyo': '/assets/ToyoTire.png',
-    'Maxxis': '/assets/Maxxis.png',
-    'Nokian': '/assets/Nokian.jpg',
-    'Uniroyal': '/assets/Uniroyal.png',
-    'Falken': '/assets/Falken.png',
-    'GT Radial': '/assets/GT_Radial.png'
-};
-
-// Datos estacionales para el Predictor PAE
-const seasonalData = {
-    'Michelin': { forecast: '+15%', season: 'Verano', recommendation: 'Aumentar stock 20%', color: 'emerald' },
-    'Pirelli': { forecast: '+22%', season: 'Racing', recommendation: 'Priorizar pedidos', color: 'emerald' },
-    'Bridgestone': { forecast: '-5%', season: 'Invierno', recommendation: 'Reducir inventario', color: 'red' },
-    'Continental': { forecast: '+18%', season: 'Todo tiempo', recommendation: 'Stock óptimo', color: 'emerald' },
-    'Goodyear': { forecast: '+8%', season: 'Verano', recommendation: 'Mantener nivel', color: 'amber' },
-    'Dunlop': { forecast: '+10%', season: 'Todo tiempo', recommendation: 'Monitorear demanda', color: 'amber' },
-    'Yokohama': { forecast: '+12%', season: 'Verano', recommendation: 'Stock adecuado', color: 'emerald' },
-    'Hankook': { forecast: '-3%', season: 'Invierno', recommendation: 'Reducir pedidos', color: 'red' },
-    'Firestone': { forecast: '+7%', season: 'Verano', recommendation: 'Aumentar ligeramente', color: 'emerald' },
-    'BF Goodrich': { forecast: '+30%', season: 'Lluvias', recommendation: 'Urgente aumentar stock', color: 'emerald' },
-    'Cooper': { forecast: '+5%', season: 'Todo tiempo', recommendation: 'Mantener', color: 'amber' },
-    'General Tire': { forecast: '+12%', season: 'Verano', recommendation: 'Stock adecuado', color: 'emerald' },
-    'Kumho': { forecast: '+3%', season: 'Todo tiempo', recommendation: 'Sin cambios', color: 'sky' },
-    'Nexen': { forecast: '+8%', season: 'Verano', recommendation: 'Monitorear', color: 'amber' },
-    'Toyo': { forecast: '+15%', season: 'Off-road', recommendation: 'Preparar stock', color: 'emerald' },
-    'Maxxis': { forecast: '+10%', season: 'Todo tiempo', recommendation: 'Stock óptimo', color: 'emerald' },
-    'Nokian': { forecast: '+20%', season: 'Invierno', recommendation: 'Aumentar urgentemente', color: 'emerald' },
-    'Uniroyal': { forecast: '+6%', season: 'Lluvias', recommendation: 'Stock adecuado', color: 'amber' },
-    'Falken': { forecast: '+11%', season: 'Todo tiempo', recommendation: 'Monitorear', color: 'amber' },
-    'GT Radial': { forecast: '+9%', season: 'Verano', recommendation: 'Mantener nivel', color: 'amber' }
-};
-
-// --------------------------------------------------------------
-// 2. FUNCIÓN PARA GENERAR MOCK DE DATOS ROBUSTO
-// --------------------------------------------------------------
-const generateTireData = () => {
-    const data = [];
-    let id = 1;
+const Dashboard = () => {
+    const [stats, setStats] = useState(null);
+    const [groupedByBrand, setGroupedByBrand] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [lastUpdate, setLastUpdate] = useState(new Date());
     
-    const basePriceMap = {
-        'Michelin': 2850, 'Pirelli': 2750, 'Bridgestone': 2650, 'Continental': 2700,
-        'Goodyear': 2450, 'Dunlop': 2350, 'Yokohama': 2250, 'Hankook': 2150,
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                
+                // Stats generales
+                const statsData = await getProductStats();
+                setStats(statsData);
+                
+                // Marcas agrupadas
+                const brands = await getGroupedProducts({ group_by: 'brand', limit: 10 });
+                setGroupedByBrand(brands.data || []);
+                
+                setLastUpdate(new Date());
+            } catch (err) {
+                setError(err.message || 'Error cargando datos');
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadData();
+        const interval = setInterval(() => setLastUpdate(new Date()), 30000);
+        return () => clearInterval(interval);
+    }, []);
+    
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <RefreshCw className="w-8 h-8 animate-spin text-[#1E90FF] mx-auto mb-2" />
+                    <p className="text-[#AFC8E6]">Cargando dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+    
+    if (error) {
+        return (
+            <div className="p-6 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400">
+                <AlertCircle className="w-6 h-6 inline mr-2" />
+                Error: {error}
+            </div>
+        );
+    }
+    
+    // Calcular totalValue (precio promedio * cantidad)
+    const totalValue = stats?.stats?.avg_price ? stats.stats.avg_price * stats.total_products : 0;
+    
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-[#EAF3FF]">Dashboard</h1>
+                    <p className="text-[#AFC8E6] text-sm">
+                        Actualizado: {lastUpdate.toLocaleTimeString()}
+                    </p>
+                </div>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="p-2 rounded-lg bg-[#0B1E3A]/80 hover:bg-[#1E4D7A] transition-colors"
+                >
+                    <RefreshCw className="w-5 h-5 text-[#1E90FF]" />
+                </button>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 border border-[#1E90FF]/20"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <Package className="w-8 h-8 text-[#1E90FF]" />
+                        <span className="text-xs text-emerald-400 font-semibold">+12.5%</span>
+                    </div>
+                    <p className="text-[#AFC8E6] text-sm">Total Productos</p>
+                    <p className="text-2xl font-bold text-[#EAF3FF]">{stats?.total_products || 0}</p>
+                </motion.div>
+
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 border border-[#1E90FF]/20"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <DollarSign className="w-8 h-8 text-emerald-400" />
+                        <span className="text-xs text-emerald-400 font-semibold">+5.2%</span>
+                    </div>
+                    <p className="text-[#AFC8E6] text-sm">Precio Promedio</p>
+                    <p className="text-2xl font-bold text-[#EAF3FF]">
+                        ${(stats?.stats?.avg_price || 0).toLocaleString()}
+                    </p>
+                </motion.div>
+
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 border border-[#1E90FF]/20"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <TrendingUp className="w-8 h-8 text-amber-400" />
+                        <span className="text-xs text-emerald-400 font-semibold">+8.1%</span>
+                    </div>
+                    <p className="text-[#AFC8E6] text-sm">Valor Total Inventario</p>
+                    <p className="text-2xl font-bold text-[#EAF3FF]">
+                        ${Math.round(totalValue).toLocaleString()}
+                    </p>
+                </motion.div>
+
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-5 border border-[#1E90FF]/20"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <BarChart3 className="w-8 h-8 text-purple-400" />
+                        <span className="text-xs text-amber-400 font-semibold">+3</span>
+                    </div>
+                    <p className="text-[#AFC8E6] text-sm">Marcas Registradas</p>
+                    <p className="text-2xl font-bold text-[#EAF3FF]">{groupedByBrand.length}</p>
+                </motion.div>
+            </div>
+
+            {/* Gráficos y tablas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top Marcas */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-6 border border-[#1E90FF]/20"
+                >
+                    <h3 className="text-lg font-bold text-[#EAF3FF] mb-4 flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-[#1E90FF]" />
+                        Productos por Marca
+                    </h3>
+                    {groupedByBrand.length > 0 ? (
+                        <div className="space-y-3">
+                            {groupedByBrand.slice(0, 10).map((brand, idx) => (
+                                <div key={brand.name || idx} className="flex items-center justify-between">
+                                    <span className="text-[#AFC8E6] text-sm">{brand.name}</span>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-32 h-2 bg-[#0B1E3A] rounded-full overflow-hidden">
+                                            <div 
+                                                className="h-full bg-gradient-to-r from-[#1E90FF] to-[#3B82F6]"
+                                                style={{ width: `${(brand.count / (stats?.total_products || 1)) * 100}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-[#EAF3FF] font-semibold w-12 text-right">
+                                            {brand.count}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-[#AFC8E6] text-sm">No hay datos de marcas</p>
+                    )}
+                </motion.div>
+
+                {/* Estadísticas */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-6 border border-[#1E90FF]/20"
+                >
+                    <h3 className="text-lg font-bold text-[#EAF3FF] mb-4 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-emerald-400" />
+                        Estadísticas de Precios
+                    </h3>
+                    {stats?.stats ? (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-3 bg-[#0B1E3A]/60 rounded-lg">
+                                <p className="text-[9px] text-[#AFC8E6] uppercase tracking-wide">Mínimo</p>
+                                <p className="text-xl font-bold text-emerald-400">
+                                    ${stats.stats.min_price.toLocaleString()}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-[#0B1E3A]/60 rounded-lg">
+                                <p className="text-[9px] text-[#AFC8E6] uppercase tracking-wide">Máximo</p>
+                                <p className="text-xl font-bold text-red-400">
+                                    ${stats.stats.max_price.toLocaleString()}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-[#0B1E3A]/60 rounded-lg col-span-2">
+                                <p className="text-[9px] text-[#AFC8E6] uppercase tracking-wide">Promedio</p>
+                                <p className="text-2xl font-bold text-[#1E90FF]">
+                                    ${stats.stats.avg_price.toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-[#AFC8E6]">Sin estadísticas disponibles</p>
+                    )}
+                </motion.div>
+            </div>
+
+            {/* Últimos productos (tabla simple) */}
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-[#163A6B] to-[#102A4C] rounded-xl p-6 border border-[#1E90FF]/20"
+            >
+                <h3 className="text-lg font-bold text-[#EAF3FF] mb-4">Últimos Productos</h3>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-[#1E90FF]/20">
+                                <th className="text-left py-2 px-3 text-[#AFC8E6]">Marca</th>
+                                <th className="text-left py-2 px-3 text-[#AFC8E6]">Tamaño</th>
+                                <th className="text-right py-2 px-3 text-[#AFC8E6]">Precio</th>
+                                <th className="text-left py-2 px-3 text-[#AFC8E6]">Fuente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {allProducts.slice(0, 10).map((product) => (
+                                <tr key={product.id} className="border-b border-[#1E90FF]/10 hover:bg-[#0B1E3A]/30">
+                                    <td className="py-2 px-3 text-[#EAF3FF]">{product.brand}</td>
+                                    <td className="py-2 px-3 text-[#AFC8E6]">{product.size}</td>
+                                    <td className="py-2 px-3 text-right text-emerald-400 font-semibold">
+                                        ${(product.price || 0).toLocaleString()}
+                                    </td>
+                                    <td className="py-2 px-3 text-[#AFC8E6]">{product.source}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {allProducts.length === 0 && (
+                        <p className="text-center py-4 text-[#AFC8E6]">No hay productos cargados</p>
+                    )}
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+export default Dashboard;
         'Firestone': 2050, 'BF Goodrich': 2100, 'Cooper': 2000, 'General Tire': 1950,
         'Kumho': 1900, 'Nexen': 1850, 'Toyo': 1950, 'Maxxis': 1800,
         'Nokian': 2200, 'Uniroyal': 1750, 'Falken': 1850, 'GT Radial': 1700

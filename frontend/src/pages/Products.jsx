@@ -19,6 +19,7 @@ import {
     ArcElement
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { getProducts, getProductStats } from '../services/api';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
@@ -90,6 +91,99 @@ const TYPES = ['Verano', 'Invierno', 'Todo tiempo', 'Racing', 'Off-Road'];
 const COUNTRIES = ['México', 'Japón', 'Alemania', 'Corea del Sur', 'China', 'USA', 'Francia'];
 const CERTIFICATIONS = ['DOT', 'NOM', 'E4', 'ISO 9001', 'ECE R30', 'INMETRO'];
 
+// =============================================
+// TRANSFORMACIÓN: API → Formato UI
+// =============================================
+/**
+ * Transforma un producto de la API al formato que espera la UI.
+ * La API devuelve: { id, source, title, brand, size, price, currency, url, scraped_at }
+ * La UI espera: { id, brand, model, size, rim, ourPrice, marketPrice, savings, savingsPercent, rating, demand, stock, certification, isLowStock, isBestSeller, logoUrl, competitors, type, countryOrigin, dotYear, reviews }
+ */
+const transformApiProduct = (apiProduct) => {
+    // Extraer modelo del título (ej: "Llanta Michelin Primacy 4 205/55R16" → "Primacy 4")
+    const title = apiProduct.title || '';
+    const brand = apiProduct.brand || 'Unknown';
+    const size = apiProduct.size || '';
+    
+    // Extraer modelo: eliminar marca y tamaño del título
+    let model = 'Standard';
+    if (title) {
+        // Remover marca
+        let remaining = title.replace(new RegExp(brand, 'i'), '').trim();
+        // Remover tamaño
+        const sizePattern = /\b\d{3}\/\d{2}[A-Z]?\d{2}\b/;
+        remaining = remaining.replace(sizePattern, '').trim();
+        // Limpiar palabras comunes
+        remaining = remaining.replace(/llanta|neumático|tire|con|de|del|el|la|y|para|en|el/i, '').trim();
+        if (remaining) model = remaining;
+    }
+    
+    // Extraer rin de la size (ej: "205/55R16" → "R16")
+    const rimMatch = size.match(/R\d+/);
+    const rim = rimMatch ? rimMatch[0] : '';
+    
+    // Precios
+    const ourPrice = apiProduct.price || 0;
+    const marketPrice = Math.round(ourPrice * 1.15); // 15% markup (simulado)
+    const savings = marketPrice - ourPrice;
+    const savingsPercent = marketPrice > 0 ? Math.round((savings / marketPrice) * 100) : 0;
+    
+    // Campos simulados (en producción vendrán de analytics o cálculos)
+    const rating = 4.5;
+    const demand = 75;
+    const stock = 100;
+    const certification = 'DOT';
+    const isLowStock = stock < 15;
+    const isBestSeller = demand > 75 && rating > 4.2;
+    
+    // Tipo, país, DOT (simulados)
+    const type = 'Verano';
+    const countryOrigin = 'México';
+    const dotYear = 2024;
+    const reviews = Math.floor(Math.random() * 500) + 50;
+    
+    // Competidores (precios simulados basados en nuestro precio)
+    const competitors = [
+        { name: 'MercadoLibre', price: Math.round(ourPrice * (0.9 + Math.random() * 0.2)) },
+        { name: 'Radial Llantas', price: Math.round(ourPrice * (0.95 + Math.random() * 0.1)) },
+        { name: 'Serna', price: Math.round(ourPrice * (0.98 + Math.random() * 0.05)) },
+        { name: 'ContiShop', price: Math.round(ourPrice * (0.97 + Math.random() * 0.08)) },
+    ];
+    
+    // Logo URL
+    const logoUrl = `/assets/${brand}.png`;
+    
+    return {
+        id: apiProduct.id,
+        brand,
+        model,
+        size,
+        rim,
+        ourPrice,
+        marketPrice,
+        savings,
+        savingsPercent,
+        rating,
+        demand,
+        stock,
+        certification,
+        isLowStock,
+        isBestSeller,
+        logoUrl,
+        type,
+        countryOrigin,
+        dotYear,
+        reviews,
+        competitors,
+        source: apiProduct.source,
+        url: apiProduct.url,
+        scraped_at: apiProduct.scraped_at
+    };
+};
+
+// =============================================
+// PRODUCTOS DE EJEMPLO (solo fallback si API falla)
+// =============================================
 const generateProductsData = () => {
     const products = [];
     let id = 1;
@@ -328,22 +422,55 @@ const Products = () => {
     const [selectedKPI, setSelectedKPI] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [lastUpdate, setLastUpdate] = useState(new Date());
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const itemsPerPage = 12;
 
     useEffect(() => {
-        const data = generateProductsData();
-        setProductsData(data);
-        setFilteredProducts(data);
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                // Obtener todos los productos (limit alto para "todos")
+                const response = await getProducts({ limit: 1000 });
+                const apiProducts = response.data || [];
+                // Transformar al formato UI (añade campos enriquecidos)
+                const products = apiProducts.map(transformApiProduct);
+                setProductsData(products);
+                setFilteredProducts(products);
+                setLastUpdate(new Date());
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                setError(err.message || 'Error cargando productos');
+                // Si falla, usar datos de ejemplo como fallback (solo desarrollo)
+                if (import.meta.env.DEV) {
+                    console.warn('Usando datos MOCK de fallback');
+                    const fallbackData = generateProductsData();
+                    setProductsData(fallbackData);
+                    setFilteredProducts(fallbackData);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchProducts();
+        
+        // Actualizar timestamp cada 30s
         const interval = setInterval(() => setLastUpdate(new Date()), 30000);
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        let filtered = [...productsData];
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(p => p.brand.toLowerCase().includes(term) || p.model.toLowerCase().includes(term) || p.size.toLowerCase().includes(term) || p.rim.includes(term));
-        }
+     useEffect(() => {
+         let filtered = [...productsData];
+         if (searchTerm) {
+             const term = searchTerm.toLowerCase();
+             filtered = filtered.filter(p => 
+                 p.brand.toLowerCase().includes(term) || 
+                 p.model.toLowerCase().includes(term) || 
+                 p.size.toLowerCase().includes(term)
+             );
+         }
         if (activeFilters.bestSellers) filtered = filtered.filter(p => p.isBestSeller);
         if (activeFilters.highDiscount) filtered = filtered.filter(p => p.savingsPercent > 18);
         if (activeFilters.lowStock) filtered = filtered.filter(p => p.isLowStock);

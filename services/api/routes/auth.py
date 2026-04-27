@@ -11,6 +11,7 @@ Features:
 - Input validation
 - Comprehensive error handling
 - Logging and audit trail
+- Base de datos de usuarios (no MOCK)
 """
 
 from fastapi import APIRouter, HTTPException, Depends, status, Request
@@ -22,9 +23,12 @@ import datetime
 from datetime import timedelta
 import os
 import logging
-import bcrypt as bcrypt_lib
+import bcrypt
 import redis
 from functools import wraps
+from database.repository import UserRepository
+
+from database.repository import UserRepository
 
 # Router
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
@@ -34,13 +38,6 @@ logger = logging.getLogger(__name__)
 
 # Security configuration
 security = HTTPBearer(auto_error=False)
-
-# Password hashing helpers (using bcrypt directly — passlib 1.7.4 is not compatible with bcrypt >= 4.0)
-def _verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt_lib.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
-
-def _hash_password(plain: str) -> str:
-    return bcrypt_lib.hashpw(plain.encode("utf-8"), bcrypt_lib.gensalt()).decode("utf-8")
 
 # JWT Configuration (from environment variables)
 JWT_SECRET = os.environ.get("JWT_SECRET", "chvalue2026_secret_key_change_in_production")
@@ -57,29 +54,6 @@ if REDIS_URL:
         logger.info("Redis client initialized for rate limiting")
     except Exception as e:
         logger.warning(f"Failed to initialize Redis: {e}")
-
-# Mock user database (in production, use real database with hashed passwords)
-# Passwords are hashed with bcrypt
-MOCK_USERS = {
-    "admin": {
-        "password_hash": "$2b$12$lP/6zOTsVb2me5uj4EqFk.ZcHbuHJS6JKwxHg/rTukZbLYOx5Nr1e",  # admin123
-        "name": "Administrador",
-        "role": "admin",
-        "email": "admin@chvaluegrowth.com",
-        "is_active": True,
-        "created_at": "2024-01-01T00:00:00Z",
-        "last_login": None
-    },
-    "user": {
-        "password_hash": "$2b$12$7tM3XPyZyF949oQmefPZgOT.bRsBAJbKqUVKVLdNhJxIXIS3h/GNC",  # user123
-        "name": "Usuario Regular",
-        "role": "user",
-        "email": "user@chvaluegrowth.com",
-        "is_active": True,
-        "created_at": "2024-01-01T00:00:00Z",
-        "last_login": None
-    }
-}
 
 # Models with validation
 class LoginRequest(BaseModel):
@@ -240,20 +214,21 @@ def rate_limit(limit: int = 5, window: int = 60):
 
 # Helper functions
 def authenticate_user(username: str, password: str) -> Optional[Dict]:
-    """Authenticate user with hashed password"""
-    user = MOCK_USERS.get(username)
-    if not user or not user.get("is_active", True):
+    """Authenticate user contra base de datos con hashed password."""
+    repo = UserRepository()
+    user = repo.get_by_username(username)
+    repo.close()
+    
+    if not user or not user.is_active:
         return None
     
-    if _verify_password(password, user["password_hash"]):
+    if user.verify_password(password):
         # Update last login
-        user["last_login"] = datetime.datetime.utcnow().isoformat()
-        return {
-            "username": username,
-            "name": user["name"],
-            "role": user["role"],
-            "email": user["email"]
-        }
+        repo = UserRepository()
+        repo.update_last_login(username)
+        repo.close()
+        return user.to_dict()
+    
     return None
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
@@ -280,8 +255,10 @@ def get_current_user_optional(credentials: HTTPAuthorizationCredentials = Depend
 def require_role(required_role: str):
     """Dependency to require specific user role"""
     def role_checker(username: str = Depends(get_current_user)):
-        user = MOCK_USERS.get(username)
-        if not user or user.get("role") != required_role:
+        repo = UserRepository()
+        user = repo.get_by_username(username)
+        repo.close()
+        if not user or not user.is_active or user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Role '{required_role}' required"
@@ -375,7 +352,10 @@ async def get_current_user_info(username: str = Depends(get_current_user)):
     Requires valid JWT token in Authorization header.
     """
     try:
-        user = MOCK_USERS.get(username)
+        repo = UserRepository()
+        user = repo.get_by_username(username)
+        repo.close()
+        
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -384,13 +364,7 @@ async def get_current_user_info(username: str = Depends(get_current_user)):
         
         return {
             "success": True,
-            "user": {
-                "username": username,
-                "name": user["name"],
-                "role": user["role"],
-                "email": user["email"],
-                "last_login": user.get("last_login")
-            }
+            "user": user.to_dict()
         }
         
     except HTTPException:
@@ -439,7 +413,9 @@ async def change_password(
     Requires current password verification.
     """
     try:
-        user = MOCK_USERS.get(username)
+        repo = UserRepository()
+        user = repo.get_by_username(username)
+        
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -447,14 +423,15 @@ async def change_password(
             )
         
         # Verify current password
-        if not _verify_password(password_data.current_password, user["password_hash"]):
+        if not user.verify_password(password_data.current_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Current password is incorrect"
             )
         
-        # Update password
-        user["password_hash"] = _hash_password(password_data.new_password)
+        # Update password via User model method
+        user.set_password(password_data.new_password)
+        repo.session.commit()
         
         # Revoke all tokens (force re-login)
         token_manager.revoke_all_user_tokens(username)
@@ -491,15 +468,19 @@ async def list_users():
     """
     List all users (admin only).
     """
+    repo = UserRepository()
+    users_db = repo.get_all()
+    repo.close()
+    
     users = []
-    for username, user_data in MOCK_USERS.items():
+    for user in users_db:
         users.append({
-            "username": username,
-            "name": user_data["name"],
-            "role": user_data["role"],
-            "email": user_data["email"],
-            "is_active": user_data.get("is_active", True),
-            "last_login": user_data.get("last_login")
+            "username": user.username,
+            "name": user.full_name or user.username,
+            "role": user.role,
+            "email": user.email,
+            "is_active": user.is_active,
+            "last_login": user.last_login.isoformat() + 'Z' if user.last_login else None
         })
     
     return {

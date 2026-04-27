@@ -57,6 +57,8 @@ def get_db():
 
 def init_db():
     """Inicializa la base de datos (crea tablas)."""
+    # Importar modelos para asegurar que estén registrados en Base.metadata
+    import database.models  # noqa: F401
     Base.metadata.create_all(bind=engine)
     return engine
 

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import NewHeader from './components/NewHeader.jsx';
 import SplashScreen from './components/SplashScreen.jsx';
+import { login } from './services/api';
 
 // Lazy load pages for better performance
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
@@ -91,13 +92,26 @@ const NavItem = ({ item, isActive, onClick, isSidebarCollapsed }) => (
 
 // Layout principal
 const Layout = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  
-  const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-64';
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const location = useLocation();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [ checkingAuth, setCheckingAuth ] = useState(true);
+    
+    // Verificar autenticación al montar
+    useEffect(() => {
+        const token = localStorage.getItem('chvalue_token') || sessionStorage.getItem('chvalue_token');
+        if (token) {
+            setIsAuthenticated(true);
+        } else {
+            setIsAuthenticated(false);
+            window.location.href = '/login';
+        }
+        setCheckingAuth(false);
+    }, []);
+    
+    const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-64';
   
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -109,18 +123,27 @@ const Layout = () => {
     }
   };
   
-  const handleLogout = () => {
-    localStorage.removeItem('neumatiq_token');
-    localStorage.removeItem('neumatiq_user');
-    sessionStorage.removeItem('neumatiq_token');
-    sessionStorage.removeItem('neumatiq_user');
-    setIsAuthenticated(false);
-    window.location.href = '/login';
-  };
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+   const handleLogout = () => {
+     localStorage.removeItem('chvalue_token');
+     localStorage.removeItem('chvalue_user');
+     sessionStorage.removeItem('chvalue_token');
+     sessionStorage.removeItem('chvalue_user');
+     setIsAuthenticated(false);
+     window.location.href = '/login';
+   };
+   
+   // Mientras verifica autenticación, mostrar loader
+   if (checkingAuth) {
+     return (
+       <div className="min-h-screen flex items-center justify-center bg-[#050c1a]">
+         <RefreshCw className="w-8 h-8 animate-spin text-[#1E90FF]" />
+       </div>
+     );
+   }
+   
+   if (!isAuthenticated) {
+     return <Navigate to="/login" replace />;
+   }
   
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#050c1a] to-[#0B1E3A] flex flex-col">
@@ -192,19 +215,32 @@ const Layout = () => {
   );
 };
 
-// Componente de Login (simplificado para este ejemplo)
+// Componente de Login (integrado con API real)
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const handleSubmit = (e) => {
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('admin123');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('neumatiq_token', 'demo_token');
-      localStorage.setItem('neumatiq_user', JSON.stringify({ name: 'Admin' }));
+    setError('');
+    
+    try {
+      const response = await login(username, password);
+      
+      // Guardar token en localStorage
+      localStorage.setItem('chvalue_token', response.token);
+      localStorage.setItem('chvalue_user', JSON.stringify(response.user));
+      
+      // Redirigir al dashboard
       window.location.href = '/';
-    }, 1000);
+    } catch (err) {
+      setError(err.message || 'Usuario o contraseña incorrectos');
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -232,27 +268,29 @@ const Login = () => {
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Usuario</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              defaultValue="admin"
-              className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Contraseña</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              defaultValue="admin123"
-              className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
-            />
-          </div>
+         <form onSubmit={handleSubmit} className="space-y-4">
+           <div>
+             <label htmlFor="username" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Usuario</label>
+             <input
+               id="username"
+               name="username"
+               type="text"
+               value={username}
+               onChange={(e) => setUsername(e.target.value)}
+               className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
+             />
+           </div>
+           <div>
+             <label htmlFor="password" className="block text-sm font-semibold text-[#AFC8E6] mb-1">Contraseña</label>
+             <input
+               id="password"
+               name="password"
+               type="password"
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               className="w-full px-4 py-2.5 bg-[#0B1E3A]/80 border border-[#1E90FF]/30 rounded-lg text-[#EAF3FF] focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
+             />
+           </div>
           <button
             type="submit"
             disabled={loading}

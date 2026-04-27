@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from database.config import engine, SessionLocal, Base
-from database.models import User, UserRole
+from database.models import User
 import bcrypt
 import logging
 
@@ -34,6 +34,7 @@ def main():
             else:
                 logger.info('Wrong password hash, recreating...')
                 db.delete(admin)
+                db.commit()
         
         # Create admin
         password = 'admin123'
@@ -42,8 +43,8 @@ def main():
             username='admin',
             email='admin@chvaluegrowth.com',
             password_hash=password_hash,
-            full_name='Admin CHValueGrowth',
-            role=UserRole.ADMIN,
+            full_name='Administrador CHValueGrowth',
+            role='admin',  # String: admin, user, manager
             is_active=True,
             is_verified=True
         )

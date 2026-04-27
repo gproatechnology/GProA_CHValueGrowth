@@ -5,7 +5,7 @@ Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, CheckConstraint
 from database.config import Base
 
 
@@ -68,3 +68,61 @@ class Product(Base):
             url=data.get('url'),
             scraped_at=datetime.fromisoformat(data['scraped_at'].rstrip('Z')) if data.get('scraped_at') else datetime.utcnow(),
         )
+
+
+class User(Base):
+    """Modelo de usuario para autenticación."""
+    
+    __tablename__ = 'users'
+    
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Credenciales
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    email = Column(String(100), unique=True, nullable=True, index=True)
+    password_hash = Column(String(200), nullable=False)
+    
+    # Información personal
+    full_name = Column(String(100), nullable=True)
+    role = Column(String(20), nullable=False, default='user', index=True)
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+    is_verified = Column(Boolean, default=False, nullable=False)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    last_login = Column(DateTime, nullable=True)
+    
+    # Constraints
+    __table_args__ = (
+        CheckConstraint("role IN ('admin', 'user', 'manager')", name='ck_user_role'),
+    )
+    
+    def __repr__(self):
+        return f"<User(id={self.id}, username='{self.username}', role='{self.role}')>"
+    
+    def set_password(self, password: str):
+        """Hashea y almacena la contraseña."""
+        import bcrypt
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    def verify_password(self, password: str) -> bool:
+        """Verifica una contraseña contra el hash almacenado."""
+        import bcrypt
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+    
+    def to_dict(self):
+        """Convierte el modelo a diccionario."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'full_name': self.full_name,
+            'role': self.role,
+            'is_active': self.is_active,
+            'is_verified': self.is_verified,
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() + 'Z' if self.updated_at else None,
+            'last_login': self.last_login.isoformat() + 'Z' if self.last_login else None,
+        }
