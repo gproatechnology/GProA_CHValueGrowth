@@ -5,7 +5,7 @@ Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, CheckConstraint
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, UniqueConstraint, CheckConstraint
 from database.config import Base
 
 
