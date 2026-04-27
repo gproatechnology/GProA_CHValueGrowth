@@ -6,14 +6,17 @@ Desarrollado por GProA Technology - Comercializado por CH ValueGrowth
 
 import sys
 import os
+from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from fastapi import APIRouter, Query, HTTPException
+from fastapi.responses import Response, StreamingResponse
 from typing import Optional, List
 from database.config import init_db
 from database.repository import ProductRepository
 from services.processor.metrics import get_pipeline_metrics, reset_metrics, _pipeline_metrics
 from services.api.cache import cache_get, cache_set, cache_delete_pattern
+from services.api.export import DataExporter
 
 # Router
 router = APIRouter(prefix="/api/v1", tags=["products"])
@@ -328,6 +331,86 @@ def get_metrics() -> dict:
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@router.get("/products/export")
+def export_products(
+    format: str = Query("csv", description="Formato: csv, excel, json"),
+    brand: Optional[str] = Query(None, description="Filtrar por marca"),
+    size: Optional[str] = Query(None, description="Filtrar por tamaño")
+) -> Response:
+    """
+    Exporta productos a CSV, Excel o JSON.
+    
+    Args:
+        format: Formato de exportación (csv|excel|json)
+        brand: Filtrar por marca (opcional)
+        size: Filtrar por tamaño (opcional)
+    
+    Returns:
+        Archivo descargable con headers apropiados
+    """
+    try:
+        # Validar formato
+        format = format.lower()
+        if format not in ('csv', 'excel', 'json'):
+            raise HTTPException(status_code=400, detail="Formato no soportado. Usa: csv, excel, json")
+        
+        # Obtener productos (con filtros opcionales)
+        repo = ProductRepository()
+        if brand:
+            products = repo.get_by_brand(brand, limit=1000)
+        elif size:
+            products = repo.get_by_size(size, limit=1000)
+        else:
+            products = repo.get_all(limit=1000)
+        repo.close()
+        
+        if not products:
+            raise HTTPException(status_code=404, detail="No hay productos para exportar")
+        
+        # Convertir a lista de diccionarios
+        products_data = [p.to_dict() for p in products]
+        
+        # Exportar según formato
+        if format == 'csv':
+            csv_content = DataExporter.to_csv(products_data)
+            filename = f"neumatiq_products_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            return Response(
+                content=csv_content,
+                media_type="text/csv; charset=utf-8",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}",
+                    "X-Legal-Disclaimer": "Datos con fines informativos. Verifica con proveedores."
+                }
+            )
+        elif format == 'excel':
+            excel_bytes = DataExporter.to_excel(products_data)
+            filename = f"neumatiq_products_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            return Response(
+                content=excel_bytes,
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}",
+                    "X-Legal-Disclaimer": "Datos con fines informativos. Verifica con proveedores."
+                }
+            )
+        else:  # json
+            json_content = DataExporter.to_json(products_data)
+            filename = f"neumatiq_products_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            return Response(
+                content=json_content,
+                media_type="application/json; charset=utf-8",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}",
+                    "X-Legal-Disclaimer": "Datos con fines informativos. Verifica con proveedores."
+                }
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error exportando datos: {str(e)}")
 
 
 @router.post("/metrics/reset")

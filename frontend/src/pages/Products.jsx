@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     TrendingUp, DollarSign, Package, Filter, Search, Eye, 
     ChevronUp, ChevronDown, Zap, Shield, Star, AlertCircle,
-    X, BarChart3, Info, Award, Flame, Clock, Server
+    X, BarChart3, Info, Award, Flame, Clock, Server,
+    Download, FileSpreadsheet, FileText, FileJson
 } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -24,6 +25,39 @@ import { getProducts, getProductStats } from '../services/api';
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement, BarElement,
     Title, Tooltip, Legend, Filler, ArcElement
+);
+
+// Estilos globales para components de filtros
+const GlobalStyles = () => (
+    <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 144, 255, 0.1); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(30, 144, 255, 0.4); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(30, 144, 255, 0.6); }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #1E90FF;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 4px rgba(30,144,255,0.8);
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(30,144,255,0.3);
+            border-radius: 2px;
+        }
+        input[type="range"]:focus::-webkit-slider-runnable-track { background: rgba(30,144,255,0.5); }
+    `}</style>
 );
 
 // =============================================
@@ -418,12 +452,20 @@ const Products = () => {
     const [sortBy, setSortBy] = useState('savings');
     const [sortOrder, setSortOrder] = useState('desc');
     const [activeFilters, setActiveFilters] = useState({ bestSellers: false, highDiscount: false, lowStock: false });
+    
+    // Filtros avanzados
+    const [priceRange, setPriceRange] = useState([0, 10000]);
+    const [selectedBrands, setSelectedBrands] = useState([]);
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedKPI, setSelectedKPI] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showExportMenu, setShowExportMenu] = useState(false);
     const itemsPerPage = 12;
 
     useEffect(() => {
@@ -463,6 +505,8 @@ const Products = () => {
 
      useEffect(() => {
          let filtered = [...productsData];
+         
+         // Búsqueda por texto
          if (searchTerm) {
              const term = searchTerm.toLowerCase();
              filtered = filtered.filter(p => 
@@ -471,22 +515,47 @@ const Products = () => {
                  p.size.toLowerCase().includes(term)
              );
          }
-        if (activeFilters.bestSellers) filtered = filtered.filter(p => p.isBestSeller);
-        if (activeFilters.highDiscount) filtered = filtered.filter(p => p.savingsPercent > 18);
-        if (activeFilters.lowStock) filtered = filtered.filter(p => p.isLowStock);
-        filtered.sort((a, b) => {
-            let valA, valB;
-            if (sortBy === 'price') { valA = a.ourPrice; valB = b.ourPrice; }
-            else if (sortBy === 'savings') { valA = a.savingsPercent; valB = b.savingsPercent; }
-            else if (sortBy === 'demand') { valA = a.demand; valB = b.demand; }
-            else if (sortBy === 'rating') { valA = parseFloat(a.rating); valB = parseFloat(b.rating); }
-            else if (sortBy === 'stock') { valA = a.stock; valB = b.stock; }
-            else { valA = a.savingsPercent; valB = b.savingsPercent; }
-            return sortOrder === 'asc' ? valA - valB : valB - valA;
-        });
-        setFilteredProducts(filtered);
-        setCurrentPage(1);
-    }, [productsData, searchTerm, activeFilters, sortBy, sortOrder]);
+         
+         // Filtros rápidos
+         if (activeFilters.bestSellers) filtered = filtered.filter(p => p.isBestSeller);
+         if (activeFilters.highDiscount) filtered = filtered.filter(p => p.savingsPercent > 18);
+         if (activeFilters.lowStock) filtered = filtered.filter(p => p.isLowStock);
+         
+         // Filtros avanzados: Precio
+         if (priceRange[0] > 0 || priceRange[1] < priceExtremes.max) {
+             filtered = filtered.filter(p => p.ourPrice >= priceRange[0] && p.ourPrice <= priceRange[1]);
+         }
+         
+         // Filtros avanzados: Marcas
+         if (selectedBrands.length > 0) {
+             filtered = filtered.filter(p => selectedBrands.includes(p.brand));
+         }
+         
+         // Filtros avanzados: Fecha (scraped_at)
+         if (dateRange.start || dateRange.end) {
+             filtered = filtered.filter(p => {
+                 const scrapedDate = new Date(p.scraped_at);
+                 if (dateRange.start && scrapedDate < new Date(dateRange.start)) return false;
+                 if (dateRange.end && scrapedDate > new Date(dateRange.end + 'T23:59:59')) return false;
+                 return true;
+             });
+         }
+         
+         // Ordenamiento
+         filtered.sort((a, b) => {
+             let valA, valB;
+             if (sortBy === 'price') { valA = a.ourPrice; valB = b.ourPrice; }
+             else if (sortBy === 'savings') { valA = a.savingsPercent; valB = b.savingsPercent; }
+             else if (sortBy === 'demand') { valA = a.demand; valB = b.demand; }
+             else if (sortBy === 'rating') { valA = parseFloat(a.rating); valB = parseFloat(b.rating); }
+             else if (sortBy === 'stock') { valA = a.stock; valB = b.stock; }
+             else { valA = a.savingsPercent; valB = b.savingsPercent; }
+             return sortOrder === 'asc' ? valA - valB : valB - valA;
+         });
+         
+         setFilteredProducts(filtered);
+         setCurrentPage(1);
+     }, [productsData, searchTerm, activeFilters, sortBy, sortOrder, priceRange, selectedBrands, dateRange, priceExtremes.max]);
 
     const metrics = useMemo(() => {
         const totalProducts = filteredProducts.length;
@@ -499,6 +568,22 @@ const Products = () => {
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
     const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+    // Unique brands para multi-select
+    const uniqueBrands = useMemo(() => {
+        const brands = [...new Set(productsData.map(p => p.brand).filter(Boolean))];
+        return brands.sort();
+    }, [productsData]);
+
+    // Calcular min/max price global
+    const priceExtremes = useMemo(() => {
+        if (productsData.length === 0) return { min: 0, max: 10000 };
+        const prices = productsData.map(p => p.ourPrice).filter(p => p > 0);
+        return {
+            min: Math.min(...prices),
+            max: Math.max(...prices)
+        };
+    }, [productsData]);
+
     const handleSort = (field) => {
         if (sortBy === field) setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
         else { setSortBy(field); setSortOrder('desc'); }
@@ -507,8 +592,10 @@ const Products = () => {
     const handleSearchSelect = (value) => setSearchTerm(value);
     const kpiTrendData = { products: [42, 45, 48, 52, 55, 58, 62], savings: [12500, 13800, 14200, 15100, 15800, 16500, 17200], avgSavings: [210, 225, 230, 240, 245, 250, 258], avgPrice: [2850, 2820, 2780, 2750, 2720, 2680, 2650] };
 
-    return (
-        <div className="min-h-screen bg-[#0B1E3A]">
+     return (
+         <>
+             <GlobalStyles />
+             <div className="min-h-screen bg-[#0B1E3A]">
             <div className="max-w-7xl mx-auto space-y-6 p-6">
                 {/* Header */}
                 <motion.header initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
@@ -561,8 +648,85 @@ const Products = () => {
                             <button onClick={() => toggleFilter('bestSellers')} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 backdrop-blur-sm ${activeFilters.bestSellers ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md border border-white/20' : 'bg-[#0B1E3A]/50 text-[#AFC8E6] border border-[#1E90FF]/40 hover:bg-[#1E4D7A]/70'}`}><Flame className="w-3 h-3" /> Más Vendidos {activeFilters.bestSellers && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}</button>
                             <button onClick={() => toggleFilter('highDiscount')} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 backdrop-blur-sm ${activeFilters.highDiscount ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md border border-white/20' : 'bg-[#0B1E3A]/50 text-[#AFC8E6] border border-[#1E90FF]/40 hover:bg-[#1E4D7A]/70'}`}><Zap className="w-3 h-3" /> Mayor Descuento {activeFilters.highDiscount && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}</button>
                             <button onClick={() => toggleFilter('lowStock')} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 backdrop-blur-sm ${activeFilters.lowStock ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md border border-white/20' : 'bg-[#0B1E3A]/50 text-[#AFC8E6] border border-[#1E90FF]/40 hover:bg-[#1E4D7A]/70'}`}><AlertCircle className="w-3 h-3" /> Stock Bajo {activeFilters.lowStock && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}</button>
-                            {(activeFilters.bestSellers || activeFilters.highDiscount || activeFilters.lowStock || searchTerm) && <button onClick={() => { setSearchTerm(''); setActiveFilters({ bestSellers: false, highDiscount: false, lowStock: false }); }} className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#0B1E3A]/50 text-[#AFC8E6] border border-red-500/40 hover:bg-red-500/20 transition-all flex items-center gap-1 backdrop-blur-sm"><X className="w-3 h-3" /> Limpiar filtros</button>}
+                            <button onClick={() => setShowAdvancedFilters(!showAdvancedFilters)} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 backdrop-blur-sm ${showAdvancedFilters ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md border border-white/20' : 'bg-[#0B1E3A]/50 text-[#AFC8E6] border border-[#1E90FF]/40 hover:bg-[#1E4D7A]/70'}`}><Filter className="w-3 h-3" /> Filtros Avanzados {showAdvancedFilters && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}</button>
+                            
+                            {/* Export Button con Dropdown */}
+                            <div className="relative">
+                                <button onClick={() => setShowExportMenu(!showExportMenu)} className="px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 backdrop-blur-sm bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md border border-white/20 hover:from-teal-600 hover:to-cyan-700">
+                                    <Download className="w-3 h-3" /> Exportar
+                                </button>
+                                {showExportMenu && (
+                                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="absolute right-0 mt-2 w-32 bg-[#163A6B] border border-[#1E90FF]/30 rounded-lg shadow-xl z-50 overflow-hidden">
+                                        <button onClick={() => { window.open(`/api/v1/products/export?format=csv${searchTerm ? '&brand=' + encodeURIComponent(searchTerm) : ''}`, '_blank'); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-xs text-[#EAF3FF] hover:bg-[#1E4D7A] hover:text-white transition-colors flex items-center gap-2">
+                                            <FileSpreadsheet className="w-3 h-3 text-green-400" /> CSV
+                                        </button>
+                                        <button onClick={() => { window.open(`/api/v1/products/export?format=excel${searchTerm ? '&brand=' + encodeURIComponent(searchTerm) : ''}`, '_blank'); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-xs text-[#EAF3FF] hover:bg-[#1E4D7A] hover:text-white transition-colors flex items-center gap-2">
+                                            <FileText className="w-3 h-3 text-emerald-400" /> Excel
+                                        </button>
+                                        <button onClick={() => { window.open(`/api/v1/products/export?format=json${searchTerm ? '&brand=' + encodeURIComponent(searchTerm) : ''}`, '_blank'); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-xs text-[#EAF3FF] hover:bg-[#1E4D7A] hover:text-white transition-colors flex items-center gap-2">
+                                            <FileJson className="w-3 h-3 text-amber-400" /> JSON
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </div>
+                            {(activeFilters.bestSellers || activeFilters.highDiscount || activeFilters.lowStock || searchTerm || priceRange[0] > 0 || priceRange[1] < priceExtremes.max || selectedBrands.length > 0 || dateRange.start || dateRange.end) && <button onClick={() => { setSearchTerm(''); setActiveFilters({ bestSellers: false, highDiscount: false, lowStock: false }); setPriceRange([priceExtremes.min, priceExtremes.max]); setSelectedBrands([]); setDateRange({ start: '', end: '' }); }} className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#0B1E3A]/50 text-[#AFC8E6] border border-red-500/40 hover:bg-red-500/20 transition-all flex items-center gap-1 backdrop-blur-sm"><X className="w-3 h-3" /> Limpiar filtros</button>}
                         </div>
+                        
+                        {/* Filtros Avanzados - Panel expandible */}
+                        {showAdvancedFilters && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden transition-all duration-300">
+                                <div className="pt-4 mt-2 border-t border-[#1E90FF]/20 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Rango de precio */}
+                                    <div className="bg-[#0B1E3A]/40 rounded-lg p-3">
+                                        <label className="block text-xs font-semibold text-[#AFC8E6] mb-2 flex items-center gap-1"><DollarSign className="w-3 h-3" /> Rango de Precio</label>
+                                        <div className="flex items-center gap-2">
+                                            <input type="number" min={priceExtremes.min} max={priceExtremes.max} value={priceRange[0]} onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])} className="w-full px-2 py-1.5 rounded bg-[#102A4C] border border-[#1E90FF]/40 text-[#EAF3FF] text-xs focus:ring-1 focus:ring-[#1E90FF] focus:outline-none" placeholder="Min" />
+                                            <span className="text-[#AFC8E6]">-</span>
+                                            <input type="number" min={priceExtremes.min} max={priceExtremes.max} value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])} className="w-full px-2 py-1.5 rounded bg-[#102A4C] border border-[#1E90FF]/40 text-[#EAF3FF] text-xs focus:ring-1 focus:ring-[#1E90FF] focus:outline-none" placeholder="Max" />
+                                        </div>
+                                        <input type="range" min={priceExtremes.min} max={priceExtremes.max} value={priceRange[1]} onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])} className="w-full mt-2 h-1 bg-[#102A4C] rounded-lg appearance-none cursor-pointer accent-[#1E90FF]" />
+                                    </div>
+
+                                    {/* Multi-select marcas */}
+                                    <div className="bg-[#0B1E3A]/40 rounded-lg p-3">
+                                        <label className="block text-xs font-semibold text-[#AFC8E6] mb-2 flex items-center gap-1"><Package className="w-3 h-3" /> Marcas</label>
+                                        <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto custom-scrollbar">
+                                            {uniqueBrands.slice(0, 8).map(brand => (
+                                                <button
+                                                    key={brand}
+                                                    onClick={() => setSelectedBrands(prev => 
+                                                        prev.includes(brand) 
+                                                            ? prev.filter(b => b !== brand)
+                                                            : [...prev, brand]
+                                                    )}
+                                                    className={`px-2 py-1 rounded text-xs transition-all ${
+                                                        selectedBrands.includes(brand)
+                                                            ? 'bg-gradient-to-r from-[#1E90FF] to-[#3B82F6] text-white shadow-sm'
+                                                            : 'bg-[#102A4C] text-[#AFC8E6] border border-[#1E90FF]/30 hover:border-[#1E90FF]'
+                                                    }`}
+                                                >
+                                                    {brand}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {selectedBrands.length > 0 && (
+                                            <p className="text-[10px] text-[#AFC8E6] mt-1">
+                                                {selectedBrands.length} marca(s) seleccionada(s)
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Rango de fechas */}
+                                    <div className="bg-[#0B1E3A]/40 rounded-lg p-3">
+                                        <label className="block text-xs font-semibold text-[#AFC8E6] mb-2 flex items-center gap-1"><Clock className="w-3 h-3" /> Fecha de captura</label>
+                                        <div className="space-y-2">
+                                            <input type="date" value={dateRange.start} onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))} className="w-full px-2 py-1.5 rounded bg-[#102A4C] border border-[#1E90FF]/40 text-[#EAF3FF] text-xs focus:ring-1 focus:ring-[#1E90FF] focus:outline-none" />
+                                            <input type="date" value={dateRange.end} onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))} className="w-full px-2 py-1.5 rounded bg-[#102A4C] border border-[#1E90FF]/40 text-[#EAF3FF] text-xs focus:ring-1 focus:ring-[#1E90FF] focus:outline-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
                         <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#1E90FF]/20">
                             <div className="flex gap-1 bg-[#0B1E3A]/60 rounded-lg p-1 backdrop-blur-sm">
                                 {[{ key: 'savings', label: 'Ahorro', icon: Zap }, { key: 'price', label: 'Precio', icon: DollarSign }, { key: 'demand', label: 'Demanda', icon: TrendingUp }, { key: 'rating', label: 'Rating', icon: Star }].map(sort => (
@@ -617,7 +781,7 @@ const Products = () => {
             <AnimatePresence>{selectedKPI && <KPIModal isOpen={!!selectedKPI} onClose={() => setSelectedKPI(null)} title={{ products: 'Productos Analizados', savings: 'Ahorro Total', avgSavings: 'Ahorro Promedio', avgPrice: 'Mejor Precio Promedio' }[selectedKPI]} data={kpiTrendData[selectedKPI]} />}</AnimatePresence>
             <AnimatePresence>{selectedProduct && <ProductAnalysisModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}</AnimatePresence>
         </div>
-    );
+    </>);
 };
 
 export default Products;

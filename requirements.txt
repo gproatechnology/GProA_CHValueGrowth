@@ -1,8 +1,10 @@
 fastapi
 uvicorn
 requests
+requests-retry>=0.9.0
 beautifulsoup4
 pandas
+openpyxl>=3.1.0
 sqlalchemy>=2.0.38
 python-dotenv
 jinja2
@@ -14,3 +16,4 @@ sentry-sdk[fastapi]>=1.40.0
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
 alembic>=1.13.0
+tenacity>=8.0.0
