@@ -1,6 +1,6 @@
 """
 Repositorio de productos - CHValueGrowth
-Operaciones CRUD para la tabla products.
+Operaciones CRUD para la tabla products con cache layer.
 """
 
 import logging
@@ -9,6 +9,15 @@ from typing import List, Optional
 from sqlalchemy.exc import IntegrityError
 from database.config import get_session
 from database.models import Product, User
+
+# Importar caché y decorador
+try:
+    from services.api.cache_decorators import cached, invalidate_cache, clear_all_repo_cache
+except ImportError:
+    # Si no está disponible (ej: tests), definir stubs
+    cached = lambda *args, **kwargs: lambda func: func
+    invalidate_cache = lambda *args, **kwargs: False
+    clear_all_repo_cache = lambda: False
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +64,12 @@ class ProductRepository:
             session.commit()
             session.refresh(product)
             
+            # Invalidar cache afectado (read-through cache)
+            invalidate_cache('get_all')
+            invalidate_cache('get_by_brand', brand=product_data.get('brand'))
+            invalidate_cache('get_by_size', size=product_data.get('size'))
+            invalidate_cache('count')
+            
             logger.info(f"Producto creado: ID={product.id}, {product.title[:30]}...")
             return product
             
@@ -87,19 +102,27 @@ class ProductRepository:
             else:
                 failed += 1
         
+        # Invalidar cache una vez (create_product ya invalida por producto, pero aseguramos)
+        if successful > 0:
+            invalidate_cache('get_all')
+            invalidate_cache('count')
+        
         logger.info(f"Bulk insert: {successful} exitosos, {failed} fallidos")
         return successful, failed
     
+    @cached()  # TTL por defecto según método (get_all: 300s)
     def get_all(self, limit: int = 100) -> List[Product]:
         """Obtiene todos los productos."""
         session = self._get_session()
         return session.query(Product).order_by(Product.scraped_at.desc()).limit(limit).all()
     
+    @cached()  # TTL: get_by_id → 600s
     def get_by_id(self, product_id: int) -> Optional[Product]:
         """Obtiene un producto por ID."""
         session = self._get_session()
         return session.query(Product).filter(Product.id == product_id).first()
     
+    @cached()  # TTL: get_by_brand → 600s
     def get_by_brand(self, brand: str, limit: int = 50) -> List[Product]:
         """Obtiene productos por marca."""
         session = self._get_session()
@@ -107,6 +130,7 @@ class ProductRepository:
             Product.brand.ilike(f"%{brand}%")
         ).order_by(Product.price.asc()).limit(limit).all()
     
+    @cached()  # TTL: get_by_size → 600s
     def get_by_size(self, size: str, limit: int = 50) -> List[Product]:
         """Obtiene productos por tamaño."""
         session = self._get_session()
@@ -114,6 +138,7 @@ class ProductRepository:
             Product.size == size
         ).order_by(Product.price.asc()).limit(limit).all()
     
+    @cached()  # TTL: count → 60s (stats cambian frecuentemente)
     def count(self) -> int:
         """Cuenta el total de productos."""
         session = self._get_session()
@@ -125,7 +150,54 @@ class ProductRepository:
         count = session.query(Product).delete()
         session.commit()
         logger.warning(f"Eliminados {count} productos")
+        
+        # Invalidar TODO el cache del repository
+        clear_all_repo_cache()
         return count
+    
+    def update_product(self, product_id: int, update_data: dict) -> Optional[Product]:
+        """
+        Actualiza un producto existente.
+        
+        Args:
+            product_id: ID del producto
+            update_data: Diccionario con campos a actualizar
+            
+        Returns:
+            Producto actualizado o None si no existe
+        """
+        try:
+            session = self._get_session()
+            product = session.query(Product).filter(Product.id == product_id).first()
+            
+            if not product:
+                return None
+            
+            # Actualizar campos permitidos
+            allowed_fields = ['title', 'price', 'brand', 'size', 'url', 'currency']
+            for field, value in update_data.items():
+                if field in allowed_fields and hasattr(product, field):
+                    setattr(product, field, value)
+            
+            product.updated_at = datetime.utcnow()
+            session.commit()
+            
+            # Invalidar cache relacionado
+            invalidate_cache('get_all')
+            invalidate_cache('get_by_id', product_id=product_id)
+            if 'brand' in update_data:
+                invalidate_cache('get_by_brand', brand=update_data['brand'])
+            if 'size' in update_data:
+                invalidate_cache('get_by_size', size=update_data['size'])
+            invalidate_cache('count')
+            
+            logger.info(f"Producto actualizado: ID={product_id}")
+            return product
+            
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Error actualizando producto {product_id}: {e}")
+            return None
     
     def close(self):
         """Cierra la sesión."""

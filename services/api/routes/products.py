@@ -88,7 +88,7 @@ def get_products(
                 "has_prev": page > 1
             },
             "count": len(page_products),
-            "data": [p.to_dict() for p in page_products]
+            "data": page_products  # ya son dicts (cache devuelve dicts)
         }
         
         # Store in cache (TTL configurable)
@@ -150,7 +150,8 @@ def get_stats(
             cache_set(cache_key, result, CACHE_TTL)
             return result
         
-        prices = [p.price for p in products if p.price]
+        # Extraer precios de lista de dicts
+        prices = [p.get('price') for p in products if p.get('price')]
         
         result = {
             "success": True,
@@ -212,12 +213,16 @@ def get_grouped_products(
         groups = {}
         
         for p in products:
+            # p es dict
+            brand = p.get('brand') or 'Unknown'
+            size = p.get('size') or 'Unknown'
+            
             if group_by == "brand":
-                key = p.brand or "Unknown"
+                key = brand
             elif group_by == "size":
-                key = p.size or "Unknown"
+                key = size
             elif group_by == "brand_size":
-                key = f"{p.brand or 'Unknown'}/{p.size or 'Unknown'}"
+                key = f"{brand}/{size}"
             else:
                 key = "All"
             
@@ -229,8 +234,9 @@ def get_grouped_products(
                 }
             
             groups[key]["products"].append(p)
-            if p.price:
-                groups[key]["prices"].append(p.price)
+            price = p.get('price')
+            if price:
+                groups[key]["prices"].append(price)
         
         # Calcular estadísticas por grupo
         result = []
@@ -246,7 +252,7 @@ def get_grouped_products(
                     "max_price": max(prices) if prices else 0,
                     "avg_price": round(sum(prices) / len(prices), 2) if prices else 0
                 },
-                "sample": [p.to_dict() for p in data["products"][:3]]  # Primeros 3
+                "sample": data["products"][:3]  # Primeros 3 productos (ya son dicts)
             })
         
         final_result = {
@@ -291,7 +297,7 @@ def get_product(product_id: int) -> dict:
         
         result = {
             "success": True,
-            "data": product.to_dict()
+            "data": product  # ya es dict (cache devuelve dicts)
         }
         
         cache_set(cache_key, result, CACHE_TTL)

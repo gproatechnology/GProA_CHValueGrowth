@@ -82,6 +82,15 @@
 - [x] Timeout configurable (30s default)
 - [x] Delays aleatorios entre requests (2-5s)
 
+#### ✅ T2-2: Caché Expandido en Repository
+**Commit:** `[pendiente]`
+- [x] Decorador `@cached` con TTL por método (get_all:300s, get_by_id:600s, get_by_brand:600s, get_by_size:600s, count:60s)
+- [x] Conversión automática ORM → dict antes de cachear
+- [x] Invalidación automática en write operations (create, update, delete)
+- [x] `cache_decorators.py` módulo nuevo
+- [x] Aplicado a `ProductRepository`: get_all, get_by_brand, get_by_size, get_by_id, count
+- [x] Cache hits en endpoints API (sin cambios en responses)
+
 #### ✅ T2-3: Exportación de Datos
 **Archivo:** `services/api/export.py` + endpoint `/api/v1/products/export`
 - [x] Export a CSV (text/csv; charset=utf-8)
@@ -99,7 +108,7 @@
 - [x] Date picker para rango de fecha de captura (`scraped_at`)
 - [x] Panel collapsible "Filtros Avanzados"
 - [x] Botón "Limpiar filtros" resetea todos
-- [x] Estilos CSS personalizados (range input, scrollbar)
+- [x] Estilos CSS personalizados (range slider, scrollbar)
 - [x] Botón "Exportar" con dropdown (CSV, Excel, JSON)
 - [x] Integración con API de exportación (descarga en nueva pestaña)
 
