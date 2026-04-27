@@ -276,6 +276,19 @@ GProA_CHValueGrowth/
 
 ---
 
+## ⚖️ Disclaimer Legal
+
+**Importante:** La información proporcionada por NeumatiQ tiene fines exclusivamente informativos y de referencia. Los datos de precios, productos y disponibilidad son obtenidos automáticamente de fuentes externas y no están garantizados.
+
+* Los precios pueden variar sin previo aviso
+* No nos responsabilizamos por decisiones de compra/venta basadas en esta información
+* Verifica siempre la información directamente con los proveedores
+* Uso bajo su propio riesgo
+
+NeumatiQ y GProA Technology no están afiliados con MercadoLibre ni otras fuentes de datos.
+
+---
+
 ## 🎯 Métricas de Éxito (KPIs)
 
 | Métrica                  | Descripción                             | Objetivo     |

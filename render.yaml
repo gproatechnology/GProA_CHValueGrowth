@@ -93,10 +93,10 @@ services:
       - key: RATE_LIMIT_WINDOW_SECONDS
         value: "60"
       
-      # Redis (optional - for rate limiting and caching)
-      # - key: REDIS_URL
-      #   value: "redis://redisserver:6379"
-      #   sync: false
+      # Redis (required - for rate limiting and caching)
+      - key: REDIS_URL
+        value: "redis://redisserver:6379"
+        sync: false
       
       # Email Configuration (for password recovery)
       # - key: SMTP_HOST
@@ -230,13 +230,13 @@ services:
       - name: log_statement
         value: "ddl"
 
-  # Redis Cache (optional - for rate limiting and caching)
-  # - type: redis
-  #   name: chvaluegrowth-cache
-  #   region: oregon
-  #   plan: free
-  #   maxmemoryPolicy: allkeys-lru
-  #   version: "7"
+  # Redis Cache (for rate limiting and caching)
+  - type: redis
+    name: chvaluegrowth-cache
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    version: "7"
 
 # Cron Jobs (scheduled tasks)
 cronjobs:

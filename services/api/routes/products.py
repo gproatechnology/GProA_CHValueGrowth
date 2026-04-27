@@ -13,12 +13,16 @@ from typing import Optional, List
 from database.config import init_db
 from database.repository import ProductRepository
 from services.processor.metrics import get_pipeline_metrics, reset_metrics, _pipeline_metrics
+from services.api.cache import cache_get, cache_set, cache_delete_pattern
 
 # Router
 router = APIRouter(prefix="/api/v1", tags=["products"])
 
 # Inicializar DB
 init_db()
+
+# Cache TTL desde env (default 300 segundos)
+CACHE_TTL = int(os.getenv("CACHE_TTL_SECONDS", "300"))
 
 
 @router.get("/products")
@@ -41,6 +45,14 @@ def get_products(
         JSON con paginación y lista de productos
     """
     try:
+        # Build cache key from query params
+        cache_key = f"products:list:brand={brand}:size={size}:page={page}:limit={limit}"
+        
+        # Try cache first
+        cached = cache_get(cache_key)
+        if cached:
+            return cached
+        
         repo = ProductRepository()
         
         # Obtener todos los productos según filtro
@@ -62,7 +74,7 @@ def get_products(
         # Obtener página actual
         page_products = all_products[start_idx:end_idx]
         
-        return {
+        result = {
             "success": True,
             "pagination": {
                 "page": page,
@@ -75,6 +87,11 @@ def get_products(
             "count": len(page_products),
             "data": [p.to_dict() for p in page_products]
         }
+        
+        # Store in cache (TTL configurable)
+        cache_set(cache_key, result, CACHE_TTL)
+        
+        return result
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -96,6 +113,14 @@ def get_stats(
         JSON con estadísticas: precio promedio, min, max, total productos
     """
     try:
+        # Cache key
+        cache_key = f"products:stats:brand={brand}:size={size}"
+        
+        # Try cache
+        cached = cache_get(cache_key)
+        if cached:
+            return cached
+        
         repo = ProductRepository()
         
         # Obtener productos según filtro
@@ -109,7 +134,7 @@ def get_stats(
         repo.close()
         
         if not products:
-            return {
+            result = {
                 "success": True,
                 "filters": {"brand": brand, "size": size},
                 "total_products": 0,
@@ -119,10 +144,12 @@ def get_stats(
                     "avg_price": 0
                 }
             }
+            cache_set(cache_key, result, CACHE_TTL)
+            return result
         
         prices = [p.price for p in products if p.price]
         
-        return {
+        result = {
             "success": True,
             "filters": {"brand": brand, "size": size},
             "total_products": len(products),
@@ -132,6 +159,9 @@ def get_stats(
                 "avg_price": round(sum(prices) / len(prices), 2) if prices else 0
             }
         }
+        
+        cache_set(cache_key, result, CACHE_TTL)
+        return result
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -153,17 +183,27 @@ def get_grouped_products(
         JSON con grupos y sus estadísticas
     """
     try:
+        # Cache key
+        cache_key = f"products:grouped:group_by={group_by}:limit={limit}"
+        
+        # Try cache
+        cached = cache_get(cache_key)
+        if cached:
+            return cached
+        
         repo = ProductRepository()
         products = repo.get_all(limit=1000)
         repo.close()
         
         if not products:
-            return {
+            result = {
                 "success": True,
                 "group_by": group_by,
                 "total_groups": 0,
                 "data": []
             }
+            cache_set(cache_key, result, CACHE_TTL)
+            return result
         
         # Agrupar productos
         groups = {}
@@ -206,12 +246,15 @@ def get_grouped_products(
                 "sample": [p.to_dict() for p in data["products"][:3]]  # Primeros 3
             })
         
-        return {
+        final_result = {
             "success": True,
             "group_by": group_by,
             "total_groups": len(result),
             "data": result[:limit]
         }
+        
+        cache_set(cache_key, final_result, CACHE_TTL)
+        return final_result
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -229,6 +272,13 @@ def get_product(product_id: int) -> dict:
         JSON con datos del producto
     """
     try:
+        cache_key = f"products:detail:{product_id}"
+        
+        # Try cache
+        cached = cache_get(cache_key)
+        if cached:
+            return cached
+        
         repo = ProductRepository()
         product = repo.get_by_id(product_id)
         repo.close()
@@ -236,10 +286,13 @@ def get_product(product_id: int) -> dict:
         if not product:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         
-        return {
+        result = {
             "success": True,
             "data": product.to_dict()
         }
+        
+        cache_set(cache_key, result, CACHE_TTL)
+        return result
         
     except HTTPException:
         raise

@@ -3,10 +3,14 @@ uvicorn
 requests
 beautifulsoup4
 pandas
-sqlalchemy>=2.0.37
+sqlalchemy>=2.0.38
 python-dotenv
 jinja2
 gunicorn
 passlib[bcrypt]>=1.7.4
 redis>=4.5.0
 python-jose[cryptography]>=3.3.0
+sentry-sdk[fastapi]>=1.40.0
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+alembic>=1.13.0
