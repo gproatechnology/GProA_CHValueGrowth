@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHValueGrowth - Dashboard</title>
+    <!-- Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>CHValueGrowth</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="/dashboard" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/api/v1/products" target="_blank" class="nav-item">
+                    <i class="fas fa-database"></i>
+                    <span>API Products</span>
+                </a>
+                <a href="/api/v1/metrics" target="_blank" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>API Metrics</span>
+                </a>
+                <a href="/" class="nav-item">
+                    <i class="fas fa-server"></i>
+                    <span>API Root</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Dashboard de Inteligencia de Mercado</h1>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Productos</span>
+                        <span class="stat-value" id="totalProducts">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Precio Promedio</span>
+                        <span class="stat-value" id="avgPrice">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Precio Mínimo</span>
+                        <span class="stat-value" id="minPrice">-</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Precio Máximo</span>
+                        <span class="stat-value" id="maxPrice">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gráficos -->
+            <section class="charts-grid">
+                <div class="chart-card">
+                    <h3>Productos por Marca</h3>
+                    <canvas id="brandChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Distribución de Precios</h3>
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Pipeline Metrics -->
+            <section class="metrics-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-cog"></i> Métricas del Pipeline</h3>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-label">Scraped</span>
+                        <span class="metric-value" id="metricScraped">-</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Normalized</span>
+                        <span class="metric-value" id="metricNormalized">-</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Saved</span>
+                        <span class="metric-value" id="metricSaved">-</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Duplicates</span>
+                        <span class="metric-value" id="metricDuplicates">-</span>
+                    </div>
+                    <div class="metric-item highlight">
+                        <span class="metric-label">Quality Score</span>
+                        <span class="metric-value" id="metricQuality">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabla de Productos Recientes -->
+            <section class="products-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-list"></i> Productos Recientes</h3>
+                    <div class="filters">
+                        <select id="brandFilter" class="filter-select">
+                            <option value="">Todas las marcas</option>
+                        </select>
+                        <select id="sizeFilter" class="filter-select">
+                            <option value="">Todos los tamaños</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Marca</th>
+                                <th>Tamaño</th>
+                                <th>Precio</th>
+                                <th>Fuente</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable">
+                            <tr>
+                                <td colspan="5" class="loading">Cargando productos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
