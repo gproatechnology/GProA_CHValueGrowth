@@ -21,15 +21,12 @@ async def run_scraper(width: int = 205, aspect_ratio: int = 55, rim_diameter: in
     url = scraper.build_search_url(width, aspect_ratio, rim_diameter)
     logger.info(f"Scraping URL: {url}")
     
-    # Scrape (using fixture for testing)
-    # In production, this would call the real API
-    fixture_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'tests', 'unit', 'scraping', 'fixtures', 'mercadolibre_search.html')
-    
+    # Scrape real data via HTTP
+    logger.info("Fetching real data from MercadoLibre...")
     try:
-        with open(fixture_path, 'r') as f:
-            html = f.read()
-    except FileNotFoundError:
-        logger.info("Fixture not found, skipping real scrape")
+        html = await scraper.fetch(url)
+    except Exception as e:
+        logger.error(f"Failed to fetch URL: {e}")
         return
     
     products = scraper.parse(html)

@@ -10,7 +10,7 @@ def map_to_scraping_result(product: ScrapedProduct) -> ScrapingResult:
     return ScrapingResult(
         product=product,
         price=ScrapedPrice(
-            price=2500.0,  # Default price for MVP
+            price=product.price if product.price else 0.0,
             currency="MXN",
             source_url=product.url,
         ),
