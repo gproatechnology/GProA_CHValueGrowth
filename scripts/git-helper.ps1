@@ -1,3 +1,8 @@
+param(
+    [string]$Quick = "",
+    [switch]$Push
+)
+
 $ErrorActionPreference = "Stop"
 
 chcp 65001 > $null
@@ -80,6 +85,8 @@ function Add-Files {
 }
 
 function New-Commit {
+    param([string]$Message = "")
+
     $staged = Get-StagedCount
 
     if ($staged -eq 0) {
@@ -90,29 +97,33 @@ function New-Commit {
             $staged = Get-StagedCount
             if ($staged -eq 0) {
                 Write-Host "No hay cambios para commitear." -ForegroundColor Red
-                return
+                return $false
             }
         }
         else {
             Write-Host "Commit cancelado." -ForegroundColor Red
-            return
+            return $false
         }
     }
 
-    Show-Status
-    Write-Host "`n== Nuevo Commit ==" -ForegroundColor Cyan
-    $message = Read-Host "Mensaje de commit"
-    if ([string]::IsNullOrWhiteSpace($message)) {
-        Write-Host "Mensaje vac${I}o. Commit cancelado." -ForegroundColor Red
-        return
+    if ([string]::IsNullOrWhiteSpace($Message)) {
+        Show-Status
+        Write-Host "`n== Nuevo Commit ==" -ForegroundColor Cyan
+        $Message = Read-Host "Mensaje de commit"
+        if ([string]::IsNullOrWhiteSpace($Message)) {
+            Write-Host "Mensaje vac${I}o. Commit cancelado." -ForegroundColor Red
+            return $false
+        }
     }
 
     try {
-        git commit -m $message
+        git commit -m $Message
         Write-Host "`nCommit realizado exitosamente." -ForegroundColor Green
+        return $true
     }
     catch {
         Write-Host "`nError al hacer commit: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
     }
 }
 
@@ -122,7 +133,7 @@ function Push-Remote {
     if ($branch -ne "NeumatiQ") {
         Write-Host "`nBranch actual: $branch" -ForegroundColor Red
         Write-Host "El push est${A} configurado solo para 'NeumatiQ'. Cambi${A} tu branch o aborta." -ForegroundColor Red
-        return
+        return $false
     }
 
     $staged = Get-StagedCount
@@ -132,17 +143,76 @@ function Push-Remote {
         Write-Host "`nTienes $staged archivos en stage sin committed." -ForegroundColor Yellow
         $commit = Read-Host "Quer${E}s commitear antes del push? (s/n)"
         if ($commit -eq "s" -or $commit -eq "S") {
-            New-Commit
-            $staged = Get-StagedCount
-            if ($staged -gt 0) {
-                Write-Host "Todav${I}a hay cambios sin commit. Abortando push." -ForegroundColor Red
-                return
+            $result = New-Commit
+            if (-not $result) {
+                Write-Host "Push cancelado por error en commit." -ForegroundColor Red
+                return $false
             }
+        }
+        else {
+            Write-Host "Push cancelado." -ForegroundColor Red
+            return $false
         }
     }
 
     if ($unstaged -gt 0) {
         Write-Host "`nTienes $unstaged archivos modificados sin stageo." -ForegroundColor Yellow
+        $continue = Read-Host "Quer${E}s continuar con el push de todas formas? (s/n)"
+        if ($continue -ne "s" -and $continue -ne "S") {
+            Write-Host "Push cancelado." -ForegroundColor Red
+            return $false
+        }
+    }
+
+    Write-Host "`n== Push a origin/NeumatiQ ==" -ForegroundColor Cyan
+    try {
+        git push origin NeumatiQ
+        Write-Host "`nPush exitoso." -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Host "`nError al hacer push: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Show-LastCommits {
+    Write-Host "`n== ${U}ltimos 10 commits ==" -ForegroundColor Cyan
+    git log --oneline -10
+}
+
+function Quick-Commit {
+    param([string]$Message)
+
+    if ([string]::IsNullOrWhiteSpace($Message)) {
+        Write-Host "`nError: Debes proporcionar un mensaje de commit." -ForegroundColor Red
+        Write-Host "Uso: .\scripts\git-helper.ps1 -Quick `"feat: mi mensaje`"" -ForegroundColor Yellow
+        return
+    }
+
+    $branch = Get-BranchName
+    if ($branch -ne "NeumatiQ") {
+        Write-Host "`nBranch actual: $branch" -ForegroundColor Red
+        Write-Host "El push est${A} configurado solo para 'NeumatiQ'." -ForegroundColor Red
+        return
+    }
+
+    Write-Host "`n== Quick Commit -> Add -> Commit -> Push ==" -ForegroundColor Cyan
+    Write-Host "Branch: $branch" -ForegroundColor White
+    Write-Host "Mensaje: $Message" -ForegroundColor White
+    Write-Host ""
+
+    git add .
+    Write-Host "`nArchivos agregados al stage." -ForegroundColor Green
+
+    $commitResult = New-Commit -Message $Message
+    if (-not $commitResult) {
+        return
+    }
+
+    $unstaged = Get-UnstagedCount
+    if ($unstaged -gt 0) {
+        Write-Host "`nAdvertencia: $unstaged archivos sin stage (no se includen en el commit)." -ForegroundColor Yellow
         $continue = Read-Host "Quer${E}s continuar con el push de todas formas? (s/n)"
         if ($continue -ne "s" -and $continue -ne "S") {
             Write-Host "Push cancelado." -ForegroundColor Red
@@ -160,10 +230,19 @@ function Push-Remote {
     }
 }
 
-function Show-LastCommits {
-    Write-Host "`n== ${U}ltimos 10 commits ==" -ForegroundColor Cyan
-    git log --oneline -10
+# ==================== MODO CLI HEADLESS ====================
+
+if ($Quick) {
+    Quick-Commit -Message $Quick
+    exit $global:LASTEXITCODE
 }
+
+if ($Push) {
+    Push-Remote
+    exit $global:LASTEXITCODE
+}
+
+# ==================== MODO INTERACTIVO ====================
 
 function Show-Menu {
     Clear-Host
