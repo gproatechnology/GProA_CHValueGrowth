@@ -266,9 +266,9 @@ function Stop-StartedTerminals {
     $script:StartedProcesses = @()
 
     if ($trackedIds.Count -gt 0) {
-        foreach ($pid in $trackedIds) {
+        foreach ($trackedPid in $trackedIds) {
             try {
-                Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+                Stop-Process -Id $trackedPid -Force -ErrorAction SilentlyContinue
             }
             catch {}
         }
