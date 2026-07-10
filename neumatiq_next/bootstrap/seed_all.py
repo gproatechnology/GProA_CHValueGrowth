@@ -6,6 +6,8 @@ from neumatiq_next.bootstrap.seed_countries import seed_countries
 from neumatiq_next.bootstrap.seed_currencies import seed_currencies
 from neumatiq_next.bootstrap.seed_brands import seed_brands
 from neumatiq_next.bootstrap.seed_suppliers import seed_suppliers
+from neumatiq_next.bootstrap.seed_products import seed_products
+from neumatiq_next.bootstrap.seed_observations import seed_observations
 
 
 async def seed_all() -> None:
@@ -26,11 +28,21 @@ async def seed_all() -> None:
         brands = await seed_brands(uow)
         print(f"  Created {len(brands)} brands")
         
+        # Products (depend on brands + tire specs)
+        print("Seeding products...")
+        products = await seed_products(uow)
+        print(f"  Created {len(products)} products")
+        
         # Suppliers (depend on countries)
         print("Seeding suppliers...")
         suppliers = await seed_suppliers(uow)
         print(f"  Created {len(suppliers)} suppliers")
-        
+
+        # Observations (depend on products + suppliers)
+        print("Seeding observations...")
+        observations = await seed_observations(uow)
+        print(f"  Created {len(observations)} observations")
+
         print("Seed complete!")
 
 

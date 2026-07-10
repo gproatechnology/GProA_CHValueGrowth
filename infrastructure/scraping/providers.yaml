@@ -1,0 +1,136 @@
+suppliers:
+  - id: mercadolibre-mx
+    name: MercadoLibre MX
+    country_code: MX
+    website: https://www.mercadolibre.com.mx
+    base_url: https://www.mercadolibre.com.mx
+    search_path: /search
+    search_params:
+      q: "{query}"
+    selectors:
+      product_item: "li.ui-search-layout__item"
+      title: "h3.ui-search-item__title"
+      price: "span.andes-money-amount"
+      link: "a.ui-search-item__group__element"
+    rate_limit:
+      delay_seconds: 1
+      max_retries: 3
+    tracing:
+      search_url_template: "https://www.mercadolibre.com.mx/search?q={query}"
+      notes: "Primer proveedor, implementado en código Python. Selectores validados contra HTML real."
+
+  - id: radialllantas
+    name: Radial Llantas
+    country_code: MX
+    website: https://www.radialllantas.com
+    base_url: https://www.radialllantas.com
+    search_path: /search
+    search_params:
+      q: "{query}"
+    selectors:
+      product_item: "div.search-results-item"
+      title: "p"
+      price: "small > div"
+      image: "img[alt]"
+      link: "a[href*='/collections/auto/products/']"
+    rate_limit:
+      delay_seconds: 2
+      max_retries: 3
+    tracing:
+      notes: "Selectores extraídos de HTML Shopify Hydrogen (tema custom). Contenedor: div.search-results-item. Título: p. Precio: small > div (formato MX$1,258.99). Imagen: img[alt] con nombre de llanta. Link: a[href*='/collections/auto/products/']. Marca: primera palabra del alt de la imagen. URL búsqueda: /search?q=205%2F55R16"
+
+  - id: serna1
+    name: Serna 1
+    country_code: MX
+    website: https://www.serna1.com
+    base_url: https://www.serna1.com
+    search_path: /busquedaAvanzada
+    search_params:
+      width: "{width}"
+      height: "{aspect_ratio}"
+      rim: "{rim_diameter}"
+    selectors:
+      product_item: "div.card.tire-card-custom"
+      title: "h5.fw-bold.text-dark.mt-1.mb-1"
+      price: "div.mt-auto span.fw-bold.text-dark"
+      original_price: "del.text-muted.d-block"
+      link: "a[href*='/llanta-']"
+      brand: "img[alt][src*='brands']"
+    rate_limit:
+      delay_seconds: 2
+      max_retries: 3
+    tracing:
+      notes: "Selectores extraídos de HTML de búsqueda real. Usa width/height/rim como query params. Tiene paginación. Precios con descuento aplicado."
+
+  - id: futuramatires
+    name: Futuramatires
+    country_code: MX
+    website: https://futuramatiresmx.com
+    base_url: https://futuramatiresmx.com
+    search_path: /search
+    search_params:
+      q: "{query}"
+    selectors:
+      product_item: "li.grid__item"
+      title: "a.full-unstyled-link"
+      price: "span.price-item.price-item--sale.price-item--last"
+      original_price: "span.price-item.price-item--regular"
+      image: "img[alt]"
+      link: "a[href*='/products/']"
+      vendor: "span.caption-large.light"
+      sold_out: ".badge"
+    rate_limit:
+      delay_seconds: 2
+      max_retries: 3
+    tracing:
+      notes: "Nuevo dominio activo: futuramatiresmx.com (antes www.futuramatires.mx offline). Shopify Dawn theme. Búsqueda por texto: /search?q=205%2F55R16. Paginación: ?page=N&q=... Prices: $ X,XXX.XX MXN. Card estructuras: {div.card__media > img} + {div.card__content > h3 > a} + {div.price__container}. Vendor puede estar en caption-large.light o en el alt de la imagen."
+
+  - id: aguilaazteca
+    name: Águila Azteca
+    country_code: MX
+    website: https://www.aguilaazteca.com
+    base_url: https://www.aguilaazteca.com
+    search_path: /tienda/resultados
+    search_params:
+      ancho: "{width}"
+      serie: "{aspect_ratio}"
+      diametro: "R{rim_diameter}"
+      per_page: "50"
+    selectors:
+      product_item: "div[wire\\:snapshot*='store.listing-product-card']"
+      brand: "p.text-\\[12px\\].text-\\[var\\(--color-gray-2\\)\\].uppercase"
+      title: "a.text-lg.font-bold.text-blue-900.font-\\[paralucent\\]"
+      price: "div.w-full.col-span-3.lg\\:col-span-1 > div > p.text-lg"
+      image: "img[src*='/assets/img/productos/']"
+      link: "a[href*='/producto/']"
+      rating: "span.text-\\[38px\\].font-bold.font-\\[paralucent\\]"
+      stock: "img[src*='existencia']"
+    rate_limit:
+      delay_seconds: 2
+      max_retries: 3
+    tracing:
+      notes: "Selectores extraídos de HTML de Livewire. Usa filtros por medida (ancho/serie/diametro). Datos de producto embebidos en wire:snapshot JSON. Precio muestra 'Pagando de contado'. Tiene botones de mensualidades (3, 6, 12). Paginación: ?page=N. Search URL: /tienda/resultados?ancho={width}&serie={aspect_ratio}&diametro=R{rim_diameter}&per_page=50"
+
+  - id: contishop
+    name: ContiShop
+    country_code: MX
+    website: https://www.contishop.com.mx
+    base_url: https://www.contishop.com.mx
+    search_path: /llantas/medida/auto-camioneta
+    search_params:
+      width: "{width}"
+      aspect_ratio: "{aspect_ratio}"
+      rim_diameter: "R{rim_diameter}"
+    selectors:
+      product_item: "a"
+      title: "h2"
+      price: "div:has(span)"
+      size: "div"
+      brand: "span[class^='brand-']"
+      image: "img[src*='/images/tires/']"
+      link: "a[href]"
+    rate_limit:
+      delay_seconds: 2
+      max_retries: 3
+    tracing:
+      notes: "Estructura simple: card <a> contiene div(image+brand span) → div(h2 title) → div(size) → div(price con $ y MXN). URL directa por medida. Marca en span[class^='brand-'] (ej: brand-continental) o img[alt]. Online y scrapeable."

@@ -46,3 +46,8 @@ app.include_router(suppliers_router, prefix="/suppliers", tags=["suppliers"])
 app.include_router(products_router, prefix="/products", tags=["products"])
 app.include_router(observations_router, prefix="/observations", tags=["observations"])
 app.include_router(metrics_router, prefix="", tags=["metrics"])
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -2,6 +2,8 @@
 import uuid
 from typing import TYPE_CHECKING, Sequence
 
+from sqlalchemy import select
+
 if TYPE_CHECKING:
     from neumatiq_next.infrastructure.persistence.sqlalchemy import Currency
 
@@ -40,6 +42,12 @@ async def seed_currencies(uow) -> list:
     for data in CURRENCIES_DATA:
         country = await uow.countries.get_by_code(data["country_code"])
         if not country:
+            continue
+        
+        existing = await uow._session.execute(
+            select(Currency).where(Currency.code == data["code"])
+        )
+        if existing.scalar_one_or_none():
             continue
         
         currency = Currency(
